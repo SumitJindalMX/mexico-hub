@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+*.log
+.node
+.vercel
+.netlify
+.wrangler
+dist
+node_modules
+
+gdl-site-visibility-deploy.zip
+.netlify/
+

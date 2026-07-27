@@ -1,0 +1,42 @@
+:root {
+  /* Plaza night — ink + teal + signal lime (not purple / cream / newspaper) */
+  --ink: #061018;
+  --ink-2: #0b1c28;
+  --surface: #102433;
+  --surface-2: #163041;
+  --line: rgba(232, 240, 236, 0.12);
+  --line-strong: rgba(232, 240, 236, 0.22);
+
+  --text: #e8f0ec;
+  --text-muted: #9bb0a8;
+  --text-faint: #6d847c;
+
+  --teal: #2f9e90;
+  --teal-soft: rgba(47, 158, 144, 0.16);
+  --signal: #c6f04d;
+  --signal-ink: #10200a;
+  --warn: #e8b84a;
+  --ok: #5dcc8a;
+
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --max: 1120px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow-glow: 0 0 0 1px var(--line), 0 24px 60px rgba(0, 0, 0, 0.35);
+
+  color-scheme: dark;
+}

@@ -1,0 +1,245 @@
+.shell {
+  position: relative;
+  overflow-x: clip;
+}
+
+.shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 50% at 12% -10%, rgba(47, 158, 144, 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(198, 240, 77, 0.1), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 70% 90%, rgba(47, 158, 144, 0.12), transparent 55%),
+    linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 45%, #08161f 100%);
+}
+
+.wrap {
+  width: min(100% - 2rem, var(--max));
+  margin-inline: auto;
+}
+
+/* —— Hero (one composition, brand-first, full-bleed) —— */
+.hero {
+  position: relative;
+  min-height: min(92vh, 820px);
+  display: grid;
+  align-items: end;
+  padding: var(--space-6) 0 var(--space-8);
+  isolation: isolate;
+}
+
+.hero__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.hero__atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(232, 240, 236, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 240, 236, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, #000 20%, transparent 88%);
+  animation: grid-drift 28s linear infinite;
+}
+
+.hero__atmosphere::after {
+  content: "";
+  position: absolute;
+  width: min(70vw, 640px);
+  aspect-ratio: 1;
+  right: -8%;
+  top: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 158, 144, 0.35), transparent 68%);
+  filter: blur(8px);
+  animation: pulse-orb 7s var(--ease) infinite alternate;
+}
+
+.hero__content {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 36rem;
+  animation: rise 0.9s var(--ease) both;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 16vw, 8.5rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.brand span {
+  color: var(--signal);
+}
+
+.hero__headline {
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: 600;
+  max-width: 18ch;
+}
+
+.hero__lede {
+  color: var(--text-muted);
+  max-width: 38ch;
+  font-size: 1.05rem;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  color: var(--text-faint);
+  font-size: 0.875rem;
+  padding-top: var(--space-2);
+}
+
+/* —— Sections —— */
+.section {
+  padding: var(--space-7) 0;
+  animation: rise 0.8s var(--ease) both;
+}
+
+.section:nth-of-type(2) {
+  animation-delay: 0.08s;
+}
+.section:nth-of-type(3) {
+  animation-delay: 0.12s;
+}
+.section:nth-of-type(4) {
+  animation-delay: 0.16s;
+}
+
+.section__head {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  max-width: 40rem;
+}
+
+.section__kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.section__title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.section__sub {
+  color: var(--text-muted);
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+
+/* —— Grids —— */
+.pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.explorer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.9fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .pulse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .theme-grid,
+  .explorer {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: var(--space-8);
+  }
+}
+
+@media (max-width: 520px) {
+  .pulse-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grid-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(48px);
+  }
+}
+
+@keyframes pulse-orb {
+  from {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.08) translate(-3%, 4%);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

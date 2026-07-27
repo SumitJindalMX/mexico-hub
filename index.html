@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GDL Site Visibility</title>
+    <meta
+      name="description"
+      content="Amdocs Guadalajara (GDL) site visibility — hackathons, culture, talent, and engagement events."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div class="hero__atmosphere" aria-hidden="true"></div>
+        <div class="wrap hero__content">
+          <p class="brand" id="brand">GDL</p>
+          <h1 class="hero__headline" id="headline">
+            Site visibility for the moments that put Guadalajara on stage.
+          </h1>
+          <p class="hero__lede" id="lede"></p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#events">Browse events</a>
+            <a class="btn btn--ghost" href="#themes">Visibility themes</a>
+          </div>
+          <div class="hero__meta" id="hero-meta"></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" id="pulse" aria-labelledby="pulse-title">
+          <div class="wrap">
+            <div class="section__head">
+              <p class="section__kicker">Site pulse</p>
+              <h2 class="section__title" id="pulse-title">What GDL is known for right now</h2>
+              <p class="section__sub">
+                Snapshot metrics from the anniversary program and ongoing talent initiatives.
+              </p>
+            </div>
+            <div class="pulse-grid" id="pulse-grid"></div>
+          </div>
+        </section>
+
+        <hr class="divider wrap" />
+
+        <section class="section" id="themes" aria-labelledby="themes-title">
+          <div class="wrap">
+            <div class="section__head">
+              <p class="section__kicker">Visibility</p>
+              <h2 class="section__title" id="themes-title">Four ways the site shows up</h2>
+              <p class="section__sub">
+                Use these themes when briefing leadership, recruiting, or ATT delivery comms.
+              </p>
+            </div>
+            <div class="themes-panel">
+              <div class="theme-grid" id="theme-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="divider wrap" />
+
+        <section class="section" id="events" aria-labelledby="events-title">
+          <div class="wrap">
+            <div class="section__head">
+              <p class="section__kicker">Catalog</p>
+              <h2 class="section__title" id="events-title">Hackathons &amp; other events</h2>
+              <p class="section__sub">
+                Filter by category, status, or visibility. Select an event for the brief.
+              </p>
+            </div>
+
+            <div class="filters" role="search">
+              <div class="field field--grow">
+                <label for="q">Search</label>
+                <input id="q" type="search" placeholder="Search events…" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="category">Category</label>
+                <select id="category"></select>
+              </div>
+              <div class="field">
+                <label for="status">Status</label>
+                <select id="status"></select>
+              </div>
+              <div class="field">
+                <label for="visibility">Visibility</label>
+                <select id="visibility"></select>
+              </div>
+            </div>
+
+            <p class="results-meta" id="results-meta"></p>
+
+            <div class="explorer">
+              <ul class="event-list" id="event-list"></ul>
+              <aside class="detail" id="detail" aria-live="polite"></aside>
+            </div>
+
+            <div class="bars" id="category-bars" aria-label="Events by category"></div>
+            <p class="footnote">
+              Source: public LinkedIn posts (Amdocs Mexico leadership &amp; hackathon
+              participants) · anniversary window Jul–Aug 2025 · upcoming rows are planning
+              placeholders.
+            </p>
+          </div>
+        </section>
+
+        <hr class="divider wrap" />
+
+        <section class="section" id="ops" aria-labelledby="ops-title">
+          <div class="wrap">
+            <div class="section__head">
+              <p class="section__kicker">Next</p>
+              <h2 class="section__title" id="ops-title">Site ops checklist</h2>
+              <p class="section__sub">Actions to keep GDL visibility current through 2026.</p>
+            </div>
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Owner</th>
+                    <th>Why it matters</th>
+                  </tr>
+                </thead>
+                <tbody id="checklist-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="wrap" id="footer-copy"></div>
+      </footer>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
