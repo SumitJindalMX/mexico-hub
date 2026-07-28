@@ -110,7 +110,7 @@
         out.type = "button";
         out.id = "btn-signout";
         out.className = "btn btn--ghost btn--sm";
-        out.textContent = "Editor sign out";
+        out.textContent = "Sign out";
         out.addEventListener("click", () => {
           window.GDLAuth.signOut();
           state.session = null;

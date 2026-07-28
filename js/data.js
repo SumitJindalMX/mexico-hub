@@ -1,6 +1,6 @@
 /**
  * Amdocs Mexico Hub — domain model & seed data
- * Catalog includes GDL / Mexico activities (seed + editor-published events).
+ * Catalog covers Mexico activities (cities like GDL when location matters).
  */
 window.GDL = {
   site: {
@@ -8,7 +8,7 @@ window.GDL = {
     name: "Amdocs Mexico Hub",
     region: "Mexico · CALA",
     tagline:
-      "One platform for activities across Mexico — hackathons, culture, talent, sports, and site moments.",
+      "One colorful platform for every activity that puts Mexico on stage — hackathons, culture, talent, and site moments.",
     asOf: "2026-07-28",
   },
 

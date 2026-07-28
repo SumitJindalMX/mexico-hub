@@ -34,13 +34,13 @@ select {
 }
 
 a {
-  color: var(--teal);
+  color: var(--mx-gold);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--signal);
+  color: var(--mx-cream);
 }
 
 h1,
@@ -63,6 +63,6 @@ p {
 }
 
 ::selection {
-  background: var(--teal);
-  color: var(--ink);
+  background: var(--mx-green);
+  color: var(--mx-cream);
 }

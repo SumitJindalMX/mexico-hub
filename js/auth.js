@@ -51,7 +51,7 @@
     const user = await res.json();
     if (!isAuthorizedLogin(user.login)) {
       throw new Error(
-        `@${user.login} is not on the GDL editor allowlist. Ask a site admin to add you in js/auth-config.js.`,
+        `@${user.login} is not on the Mexico Hub editor allowlist. Ask a site admin to add you in js/auth-config.js.`,
       );
     }
 

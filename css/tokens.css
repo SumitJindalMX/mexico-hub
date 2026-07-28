@@ -1,29 +1,39 @@
 :root {
-  /* Plaza night — ink + teal + signal lime (not purple / cream / newspaper) */
-  --ink: #061018;
-  --ink-2: #0b1c28;
-  --surface: #102433;
-  --surface-2: #163041;
-  --line: rgba(232, 240, 236, 0.12);
-  --line-strong: rgba(232, 240, 236, 0.22);
+  /* Mexico Hub — flag green / white / red + marigold gold */
+  --mx-green: #0d7a45;
+  --mx-green-deep: #065c34;
+  --mx-red: #c8102e;
+  --mx-red-soft: #e85d4c;
+  --mx-gold: #f0b429;
+  --mx-gold-soft: #f7d774;
+  --mx-cream: #fff8ef;
+  --mx-sky: #2a9d8f;
 
-  --text: #e8f0ec;
-  --text-muted: #9bb0a8;
-  --text-faint: #6d847c;
+  --ink: #1a0f0c;
+  --ink-2: #241612;
+  --surface: #2e1c18;
+  --surface-2: #3a2420;
+  --line: rgba(255, 248, 239, 0.12);
+  --line-strong: rgba(255, 248, 239, 0.24);
 
-  --teal: #2f9e90;
-  --teal-soft: rgba(47, 158, 144, 0.16);
-  --signal: #c6f04d;
-  --signal-ink: #10200a;
-  --warn: #e8b84a;
-  --ok: #5dcc8a;
+  --text: var(--mx-cream);
+  --text-muted: #d4c4b0;
+  --text-faint: #a8927e;
+
+  --teal: var(--mx-green);
+  --teal-soft: rgba(13, 122, 69, 0.22);
+  --signal: var(--mx-gold);
+  --signal-ink: #2a1808;
+  --warn: #f4a261;
+  --ok: #3dcf7a;
+  --accent-red: var(--mx-red);
 
   --font-display: "Bricolage Grotesque", system-ui, sans-serif;
   --font-body: "Figtree", system-ui, sans-serif;
 
-  --radius-sm: 6px;
-  --radius: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -36,7 +46,7 @@
 
   --max: 1120px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --shadow-glow: 0 0 0 1px var(--line), 0 24px 60px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 0 1px var(--line), 0 28px 64px rgba(0, 0, 0, 0.4);
 
   color-scheme: dark;
 }

@@ -101,7 +101,7 @@
       status: form.status,
       when: form.when.trim() || "TBD",
       sortKey,
-      audience: form.audience.trim() || "GDL",
+      audience: form.audience.trim() || "Mexico",
       highlight: form.highlight.trim() || "",
       visibility: form.visibility,
       registrationOpen: Boolean(form.registrationOpen),

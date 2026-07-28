@@ -1,5 +1,5 @@
 /**
- * Authorization config for GDL editors.
+ * Authorization config for Mexico Hub editors.
  * Add GitHub usernames (case-insensitive) who may create events.
  * Editors need write access to this repo + a PAT with Contents: Read & Write.
  */
