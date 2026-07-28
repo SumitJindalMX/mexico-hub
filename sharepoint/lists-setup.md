@@ -17,8 +17,30 @@ The public GitHub Pages app uses **MSAL (SPA)** + **Microsoft Graph** with **del
    - `Microsoft Graph` → `User.Read`
    - `Microsoft Graph` → `Sites.ReadWrite.All`  
      (or `Sites.Selected` + grant the app access to the GDL site — preferred for least privilege)
-7. Click **Grant admin consent** for the tenant
+7. Click **Grant admin consent** for the tenant  
+   (**Who:** Amdocs Entra / Identity admins — not end users.  
+   **Where:** Azure Portal → **Entra ID** → **Enterprise applications** → app `GDL Site Visibility` → **Permissions** → **Grant admin consent**,  
+   **or** **Entra ID** → **Admin consent requests** → find the pending request → **Review** → Approve.)
 8. **Authentication** → ensure SPA platform is set; no client secret required
+
+### If users see “request submitted / needs approval”
+
+That is **not** a GDL app queue. Amdocs blocks users from self-consenting to Graph permissions like `Sites.ReadWrite.All`.
+
+| Who approves | Where |
+|--------------|--------|
+| Entra ID / Identity / Cloud admins (Amdocs IT) | [Admin consent requests](https://portal.azure.com/#view/Microsoft_AAD_IAM/ConsentPoliciesMenuBlade/~/AdminConsentRequests) |
+| Or the app owner with **Cloud Application Administrator** | Enterprise app → Permissions → **Grant admin consent for Amdocs** |
+
+Tell IT:
+
+- App name: **GDL Site Visibility**
+- Application (client) ID: `04d07e0d-5a22-4e10-81bd-6c76f93182fb`
+- Tenant: Amdocs (`c8eca3ca-1276-46d5-9d9d-a0f2a028920f`)
+- Permissions needed (delegated): `User.Read`, `Sites.ReadWrite.All` (or `Sites.Selected`)
+- Redirect URI: `https://sumitjindalmx.github.io/gdl-site-visibility/`
+
+Until an admin approves, Microsoft sign-in / SharePoint registration will stay blocked.
 
 ## 2. SharePoint site
 

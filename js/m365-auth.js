@@ -74,13 +74,34 @@
   async function login() {
     const app = ensureMsal();
     await app.initialize();
-    const result = await app.loginPopup({
-      scopes: cfg().scopes,
-      prompt: "select_account",
-    });
-    account = result.account;
-    app.setActiveAccount(account);
-    return getProfile();
+    try {
+      const result = await app.loginPopup({
+        scopes: cfg().scopes,
+        prompt: "select_account",
+      });
+      account = result.account;
+      app.setActiveAccount(account);
+      return getProfile();
+    } catch (err) {
+      const msg = String(err?.message || err || "");
+      const code = String(err?.errorCode || err?.error || "");
+      if (
+        /AADSTS65001|AADSTS65004|AADSTS90094|consent_required|access_denied|admin/i.test(
+          `${msg} ${code}`,
+        ) ||
+        /approval|submitted|admin consent/i.test(msg)
+      ) {
+        throw new Error(
+          "Microsoft is waiting for an Amdocs Entra admin to approve this app. " +
+            "You cannot approve it yourself. Ask Identity/IT to open Azure Portal → " +
+            "Entra ID → Admin consent requests (or Enterprise applications → " +
+            "GDL Site Visibility → Permissions → Grant admin consent). " +
+            "App client ID: " +
+            cfg().clientId,
+        );
+      }
+      throw err;
+    }
   }
 
   async function logout() {
