@@ -8,52 +8,41 @@ Interactive board for **Amdocs Guadalajara (GDL)** site visibility — hackathon
 
 Repo: https://github.com/SumitJindalMX/gdl-site-visibility
 
+## Participant registration (SharePoint / M365)
+
+Invite-only registration with company Microsoft accounts:
+
+- Sign in with **Microsoft** (Amdocs tenant)
+- Enter an **invite code** from organizers
+- Add **team members**, upload **PPT** + **video** → SharePoint `GDL_Uploads`
+
+Setup for IT: [sharepoint/lists-setup.md](sharepoint/lists-setup.md)  
+Config: [js/m365-config.js](js/m365-config.js) (`enabled`, `tenantId`, `clientId`, `siteUrl`, `organizerUpns`)
+
+Until M365 is configured, the catalog and GitHub editor flows still work; Register stays disabled.
+
 ## Folder model
 
 ```
 tools/gdl-site-visibility/
 ├── index.html
-├── data/
-│   └── events.json          # Live event catalog (editors publish here)
-├── css/                     # tokens · base · layout · components
+├── data/events.json
+├── sharepoint/lists-setup.md
+├── css/
 ├── js/
-│   ├── data.js              # Site pulse / themes / checklist
-│   ├── auth-config.js       # Allowlisted GitHub usernames
-│   ├── auth.js              # Editor session (PAT → GitHub user)
-│   ├── events-store.js      # Load / publish events via GitHub API
-│   └── app.js               # UI
-├── assets/
-├── netlify.toml
-├── vercel.json
+│   ├── data.js
+│   ├── auth-config.js / auth.js      # GitHub editors (create events)
+│   ├── events-store.js
+│   ├── m365-config.js / m365-auth.js # Entra MSAL
+│   ├── graph-api.js                  # Invites, regs, uploads
+│   ├── registration-ui.js
+│   └── app.js
 └── README.md
 ```
 
-## Create events (authorized people only)
+## Create events (GitHub editors)
 
-Anyone can **view** the board. Only allowlisted GitHub users can **create** events.
-
-### 1. Add someone to the allowlist
-
-Edit `js/auth-config.js`:
-
-```js
-authorizedUsers: [
-  "SumitJindalMX",
-  "TheirGitHubUsername",
-],
-```
-
-Commit and push. Invite them as a **collaborator** on the repo (Write access).
-
-### 2. Editor signs in on the site
-
-1. Open the live URL → **Editor sign in**
-2. Paste a GitHub **fine-grained PAT** with **Contents: Read and write** on `SumitJindalMX/gdl-site-visibility`
-3. Token is kept in `sessionStorage` for this browser tab only (not committed)
-
-### 3. Publish an event
-
-Signed-in editors see **Create event**. Submitting writes to `data/events.json` on `main`. GitHub Pages rebuilds in about a minute; the board updates for everyone.
+Only allowlisted GitHub users in `js/auth-config.js` can publish events to `data/events.json` (PAT with Contents: Read and write). Check **Open participant registration** when creating an event.
 
 ## Open locally
 
@@ -63,9 +52,7 @@ Start-Process index.html
 npx --yes serve .
 ```
 
-Local create/publish still uses the GitHub API against the remote repo (needs network + PAT).
-
 ## Notes
 
+- Do not commit PATs, client secrets, or tokens.
 - Seed catalog started from public LinkedIn posts (Aug 2025 anniversary program).
-- Do not commit PATs or secrets.

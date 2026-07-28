@@ -25,6 +25,13 @@
         <div class="wrap topbar__inner">
           <a class="topbar__brand" href="#">GDL Visibility</a>
           <div class="topbar__actions" id="auth-bar">
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signin" hidden>
+              Microsoft sign in
+            </button>
+            <span id="ms-user" class="topbar__user" hidden></span>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signout" hidden>
+              MS sign out
+            </button>
             <button type="button" class="btn btn--ghost btn--sm" id="btn-signin">
               Editor sign in
             </button>
@@ -262,6 +269,12 @@
               required
             ></textarea>
           </div>
+          <div class="field field--full">
+            <label class="check-label">
+              <input id="ev-registration-open" name="registrationOpen" type="checkbox" />
+              Open participant registration (invite + Microsoft account)
+            </label>
+          </div>
         </div>
         <p class="form-error" id="create-error" hidden></p>
         <div class="modal__actions">
@@ -273,10 +286,98 @@
       </form>
     </dialog>
 
+    <dialog class="modal" id="modal-register">
+      <form method="dialog" class="modal__panel modal__panel--wide" id="form-register">
+        <h2 class="modal__title">Register team</h2>
+        <p class="modal__lede">
+          Event: <strong id="reg-event-name"></strong>. Sign in with your company Microsoft
+          account and enter a valid invite code.
+        </p>
+        <input type="hidden" id="reg-event-id" />
+        <div class="form-grid">
+          <div class="field">
+            <label for="reg-invite">Invite code</label>
+            <input id="reg-invite" required maxlength="16" placeholder="ABCD2345" style="text-transform:uppercase" />
+          </div>
+          <div class="field">
+            <label for="reg-team-name">Team name</label>
+            <input id="reg-team-name" required maxlength="120" />
+          </div>
+          <div class="field">
+            <label for="reg-lead-name">Lead name</label>
+            <input id="reg-lead-name" required />
+          </div>
+          <div class="field">
+            <label for="reg-lead-email">Lead email</label>
+            <input id="reg-lead-email" type="email" required />
+          </div>
+          <div class="field field--full">
+            <div class="members-head">
+              <label>Team members</label>
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-add-member">Add member</button>
+            </div>
+            <div id="reg-members" class="members-list"></div>
+          </div>
+          <div class="field">
+            <label for="reg-ppt">PPT upload</label>
+            <input id="reg-ppt" type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+          </div>
+          <div class="field">
+            <label for="reg-video">Video upload</label>
+            <input id="reg-video" type="file" accept="video/*,.mp4,.mov,.webm" />
+          </div>
+        </div>
+        <p class="modal__hint">Files are stored in the SharePoint GDL_Uploads library. Size caps apply (see config).</p>
+        <p class="form-error" id="register-error" hidden></p>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" id="btn-register-cancel">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="btn-register-submit">Submit registration</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="modal-organize">
+      <div class="modal__panel modal__panel--wide">
+        <h2 class="modal__title">Organize event</h2>
+        <p class="modal__lede">
+          Event: <strong id="org-event-name"></strong>. Generate invites and review teams.
+        </p>
+        <input type="hidden" id="org-event-id" />
+        <h3 class="modal__subtitle">Invites</h3>
+        <div id="org-invites"></div>
+        <form id="form-invite" class="invite-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="org-max-uses">Max uses</label>
+              <input id="org-max-uses" type="number" min="1" value="50" />
+            </div>
+            <div class="field">
+              <label for="org-expires">Expires (optional)</label>
+              <input id="org-expires" type="date" />
+            </div>
+          </div>
+          <div class="modal__actions" style="margin-top:0.75rem">
+            <button type="submit" class="btn btn--primary" id="btn-invite-submit">Generate invite</button>
+          </div>
+        </form>
+        <h3 class="modal__subtitle">Registrations</h3>
+        <div id="org-regs"></div>
+        <p class="form-error" id="organize-error" hidden></p>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" id="btn-organize-cancel">Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/auth-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/events-store.js"></script>
+    <script src="js/m365-config.js"></script>
+    <script src="js/m365-auth.js"></script>
+    <script src="js/graph-api.js"></script>
+    <script src="js/registration-ui.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

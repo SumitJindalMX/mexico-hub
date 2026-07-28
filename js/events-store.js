@@ -104,6 +104,7 @@
       audience: form.audience.trim() || "GDL",
       highlight: form.highlight.trim() || "",
       visibility: form.visibility,
+      registrationOpen: Boolean(form.registrationOpen),
       createdBy: actor,
       createdAt: new Date().toISOString(),
     };

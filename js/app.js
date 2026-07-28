@@ -20,6 +20,9 @@
     footer: document.getElementById("footer-copy"),
     authBar: document.getElementById("auth-bar"),
     btnSignIn: document.getElementById("btn-signin"),
+    btnMsSignIn: document.getElementById("btn-ms-signin"),
+    btnMsSignOut: document.getElementById("btn-ms-signout"),
+    msUser: document.getElementById("ms-user"),
     btnCreate: document.getElementById("btn-create-event"),
     modalSignIn: document.getElementById("modal-signin"),
     modalCreate: document.getElementById("modal-create"),
@@ -37,6 +40,7 @@
     query: "",
     selectedId: null,
     session: window.GDLAuth.getSession(),
+    m365Profile: null,
   };
 
   function chipClass(_kind, value) {
@@ -70,26 +74,62 @@
     const session = state.session;
     els.btnCreate.hidden = !session;
 
+    // GitHub editor controls
     if (!session) {
-      els.authBar.innerHTML = "";
-      els.authBar.appendChild(els.btnSignIn);
       els.btnSignIn.hidden = false;
-      return;
+      // remove gh user chip if present
+      els.authBar.querySelector("#gh-user-chip")?.remove();
+      els.authBar.querySelector("#btn-signout")?.remove();
+    } else {
+      els.btnSignIn.hidden = true;
+      if (!els.authBar.querySelector("#btn-signout")) {
+        const chip = document.createElement("div");
+        chip.id = "gh-user-chip";
+        chip.className = "topbar__user";
+        chip.innerHTML = `
+          <img class="topbar__avatar" src="${session.avatar || ""}" alt="" width="28" height="28" />
+          <span>@${session.login}</span>
+        `;
+        const out = document.createElement("button");
+        out.type = "button";
+        out.id = "btn-signout";
+        out.className = "btn btn--ghost btn--sm";
+        out.textContent = "Editor sign out";
+        out.addEventListener("click", () => {
+          window.GDLAuth.signOut();
+          state.session = null;
+          renderAuthBar();
+          renderList();
+        });
+        els.authBar.insertBefore(chip, els.btnSignIn);
+        els.authBar.insertBefore(out, els.btnSignIn);
+      }
     }
 
-    els.btnSignIn.hidden = true;
-    els.authBar.innerHTML = `
-      <div class="topbar__user">
-        <img class="topbar__avatar" src="${session.avatar || ""}" alt="" width="28" height="28" />
-        <span>@${session.login}</span>
-      </div>
-      <button type="button" class="btn btn--ghost btn--sm" id="btn-signout">Sign out</button>
-    `;
-    document.getElementById("btn-signout")?.addEventListener("click", () => {
-      window.GDLAuth.signOut();
-      state.session = null;
-      renderAuthBar();
-    });
+    // Microsoft participant / organizer
+    const m365Ready = window.GDLM365Auth?.isConfigured?.();
+    const profile = state.m365Profile;
+    if (!m365Ready) {
+      els.btnMsSignIn.hidden = true;
+      els.btnMsSignOut.hidden = true;
+      els.msUser.hidden = true;
+    } else if (!profile) {
+      els.btnMsSignIn.hidden = false;
+      els.btnMsSignOut.hidden = true;
+      els.msUser.hidden = true;
+    } else {
+      els.btnMsSignIn.hidden = true;
+      els.btnMsSignOut.hidden = false;
+      els.msUser.hidden = false;
+      const org = window.GDLM365Auth.isOrganizer(profile) ? " · organizer" : "";
+      els.msUser.textContent = `${profile.upn}${org}`;
+    }
+  }
+
+  function onM365AuthChanged() {
+    state.m365Profile = window.GDLM365Auth.getProfile();
+    renderAuthBar();
+    renderList();
   }
 
   function renderHero() {
@@ -139,6 +179,22 @@
     const byline = event.createdBy
       ? `<p class="detail__text" style="margin-top:0.75rem;font-size:0.85rem">Added by @${event.createdBy}</p>`
       : "";
+
+    const m365Ready = window.GDLM365Auth?.isConfigured?.();
+    const isOrg =
+      state.m365Profile && window.GDLM365Auth.isOrganizer(state.m365Profile);
+    const canRegister = Boolean(event.registrationOpen) && m365Ready;
+
+    let actions = "";
+    if (canRegister) {
+      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team</button>`;
+    } else if (event.registrationOpen && !m365Ready) {
+      actions += `<p class="modal__hint">Registration is marked open — configure M365 in js/m365-config.js to enable.</p>`;
+    }
+    if (isOrg && m365Ready) {
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;
+    }
+
     els.detail.innerHTML = `
       <p class="detail__kicker">Event brief</p>
       <h3 class="detail__title">${event.name}</h3>
@@ -146,6 +202,11 @@
         <span class="${chipClass("cat", event.category)}">${event.category}</span>
         <span class="${chipClass("st", event.status)}">${event.status}</span>
         <span class="${chipClass("vis", event.visibility)}">${event.visibility} visibility</span>
+        ${
+          event.registrationOpen
+            ? `<span class="chip chip--upcoming">Registration open</span>`
+            : ""
+        }
       </div>
       <div class="detail__block">
         <p class="detail__label">When</p>
@@ -160,7 +221,15 @@
         <p class="detail__text">${event.highlight}</p>
       </div>
       ${byline}
+      <div class="detail-actions">${actions}</div>
     `;
+
+    document.getElementById("btn-open-register")?.addEventListener("click", () => {
+      window.GDLRegistrationUI.openRegisterModal(event);
+    });
+    document.getElementById("btn-open-organize")?.addEventListener("click", () => {
+      window.GDLRegistrationUI.openOrganizeModal(event);
+    });
   }
 
   function renderList() {
@@ -197,6 +266,7 @@
             <span class="${chipClass("cat", e.category)}">${e.category}</span>
             <span class="${chipClass("st", e.status)}">${e.status}</span>
             <span class="${chipClass("vis", e.visibility)}">${e.visibility}</span>
+            ${e.registrationOpen ? `<span class="chip chip--upcoming">Reg open</span>` : ""}
           </div>
         </button>
       </li>
@@ -313,6 +383,7 @@
         state.session = await window.GDLAuth.signIn(els.pat.value);
         els.modalSignIn.close();
         renderAuthBar();
+        renderList();
       } catch (err) {
         showError(els.signInError, err.message || "Sign in failed.");
       } finally {
@@ -352,6 +423,7 @@
           sortKey: document.getElementById("ev-sort").value,
           audience: document.getElementById("ev-audience").value,
           highlight: document.getElementById("ev-highlight").value,
+          registrationOpen: document.getElementById("ev-registration-open").checked,
         };
         const { event, events: next } = await window.GDLEventsStore.createEvent(
           form,
@@ -370,6 +442,8 @@
         submitBtn.disabled = false;
       }
     });
+
+    window.GDLRegistrationUI.wire({ onM365AuthChanged });
   }
 
   async function boot() {
@@ -382,6 +456,14 @@
     renderFooter();
     renderList();
     renderBars();
+
+    try {
+      await window.GDLM365Auth.init();
+      onM365AuthChanged();
+    } catch {
+      /* M365 optional until configured */
+      renderAuthBar();
+    }
 
     try {
       const loaded = await window.GDLEventsStore.loadPublicEvents();
