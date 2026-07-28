@@ -46,6 +46,22 @@
     });
   }
 
+  function collectForm() {
+    return {
+      eventId: $("reg-event-id").value,
+      eventName: $("reg-event-name").textContent,
+      inviteCode: $("reg-invite").value || "OPEN",
+      teamName: $("reg-team-name").value,
+      leadName: $("reg-lead-name").value,
+      leadEmail: $("reg-lead-email").value,
+      members: collectMembers($("reg-members")),
+      pptFile: $("reg-ppt").files[0] || null,
+      videoFile: $("reg-video").files[0] || null,
+      pptUrl: $("reg-ppt-url")?.value || "",
+      videoUrl: $("reg-video-url")?.value || "",
+    };
+  }
+
   function openRegisterModal(event) {
     const modal = $("modal-register");
     const form = $("form-register");
@@ -55,12 +71,57 @@
     $("reg-event-id").value = event.id;
     $("reg-event-name").textContent = event.name;
     members.innerHTML = memberRowHtml();
-    const profile = window.GDLM365Auth.getProfile();
-    if (profile) {
-      $("reg-lead-name").value = profile.name || "";
-      $("reg-lead-email").value = profile.email || profile.upn || "";
+    $("reg-invite").required = false;
+    $("reg-invite").placeholder = "Optional if using GitHub submit";
+    const ms = window.GDLM365Auth.getProfile();
+    if (ms) {
+      $("reg-lead-name").value = ms.name || "";
+      $("reg-lead-email").value = ms.email || ms.upn || "";
+    }
+    const hint = $("reg-submit-hint");
+    if (hint) {
+      if (ms) {
+        hint.textContent =
+          "Microsoft session detected — submit will use SharePoint when admin consent is granted.";
+      } else if (window.GDLAuth.getSession()) {
+        hint.textContent =
+          "GitHub editor session detected — submit will save to data/registrations.json (no Microsoft needed). Use PPT/video links (not large file upload).";
+      } else {
+        hint.textContent =
+          "Microsoft login blocked? Use Submit via GitHub Issue (no Entra). Prefer PPT/video links. Or Editor sign in (top bar) to publish into the repo.";
+      }
     }
     modal.showModal();
+  }
+
+  function renderGithubRegs(eventId, regs) {
+    const mine = regs.filter((r) => r.eventId === eventId);
+    if (!mine.length) {
+      return "<p class='modal__hint'>No GitHub-channel registrations yet.</p>";
+    }
+    return mine
+      .map(
+        (r) => `
+      <article class="reg-card">
+        <h4>${r.teamName} <span class="chip chip--editor">GitHub</span></h4>
+        <p>Lead: ${r.leadName || "—"} · ${r.leadEmail || ""}</p>
+        <p class="modal__hint">Members:<br>${
+          (r.members || [])
+            .map(
+              (m) =>
+                `${m.name}${m.email ? ` &lt;${m.email}&gt;` : ""} (${m.role || "Member"})`,
+            )
+            .join("<br>") || "—"
+        }</p>
+        <p>
+          ${r.pptUrl ? `<a href="${r.pptUrl}" target="_blank" rel="noopener">PPT</a>` : "No PPT"}
+          ·
+          ${r.videoUrl ? `<a href="${r.videoUrl}" target="_blank" rel="noopener">Video</a>` : "No video"}
+        </p>
+      </article>
+    `,
+      )
+      .join("");
   }
 
   async function openOrganizeModal(event) {
@@ -75,49 +136,85 @@
   }
 
   async function refreshOrganizePanels(eventId) {
+    const ghRegs = await window.GDLRegistrationsStore.loadPublic().catch(() => []);
+    let spBlock = "";
     try {
-      const [invites, regs] = await Promise.all([
-        window.GDLGraph.listInvites(eventId),
-        window.GDLGraph.listRegistrations(eventId),
-      ]);
-      $("org-invites").innerHTML = invites.length
-        ? `<table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Active</th></tr></thead><tbody>${invites
-            .map(
-              (i) =>
-                `<tr><td><code>${i.code}</code></td><td>${i.usedCount ?? 0}</td><td>${i.maxUses ?? "—"}</td><td>${i.active}</td></tr>`,
-            )
-            .join("")}</tbody></table>`
-        : "<p class='modal__hint'>No invites yet. Generate one below.</p>";
+      if (window.GDLM365Auth.getProfile()) {
+        const [invites, regs] = await Promise.all([
+          window.GDLGraph.listInvites(eventId),
+          window.GDLGraph.listRegistrations(eventId),
+        ]);
+        $("org-invites").innerHTML = invites.length
+          ? `<table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Active</th></tr></thead><tbody>${invites
+              .map(
+                (i) =>
+                  `<tr><td><code>${i.code}</code></td><td>${i.usedCount ?? 0}</td><td>${i.maxUses ?? "—"}</td><td>${i.active}</td></tr>`,
+              )
+              .join("")}</tbody></table>`
+          : "<p class='modal__hint'>No SharePoint invites yet (needs Microsoft + consent).</p>";
 
-      if (!regs.length) {
-        $("org-regs").innerHTML =
-          "<p class='modal__hint'>No team registrations yet.</p>";
-        return;
+        if (regs.length) {
+          const blocks = [];
+          for (const r of regs) {
+            const members = await window.GDLGraph.listTeamMembers(r.id);
+            const memberList = members
+              .map(
+                (m) =>
+                  `${m.name}${m.email ? ` &lt;${m.email}&gt;` : ""} (${m.role || "Member"})`,
+              )
+              .join("<br>");
+            blocks.push(`
+              <article class="reg-card">
+                <h4>${r.teamName} <span class="chip chip--verified">SharePoint</span></h4>
+                <p>Lead: ${r.leadName || "—"} · ${r.leadEmail || r.leadUpn || ""}</p>
+                <p class="modal__hint">Members:<br>${memberList || "—"}</p>
+                <p>
+                  ${r.pptUrl ? `<a href="${r.pptUrl}" target="_blank" rel="noopener">PPT</a>` : "No PPT"}
+                  ·
+                  ${r.videoUrl ? `<a href="${r.videoUrl}" target="_blank" rel="noopener">Video</a>` : "No video"}
+                </p>
+              </article>
+            `);
+          }
+          spBlock = blocks.join("");
+        }
+      } else {
+        $("org-invites").innerHTML =
+          "<p class='modal__hint'>Sign in with Microsoft (after admin consent) to manage SharePoint invites.</p>";
       }
-
-      const blocks = [];
-      for (const r of regs) {
-        const members = await window.GDLGraph.listTeamMembers(r.id);
-        const memberList = members
-          .map((m) => `${m.name}${m.email ? ` &lt;${m.email}&gt;` : ""} (${m.role || "Member"})`)
-          .join("<br>");
-        blocks.push(`
-          <article class="reg-card">
-            <h4>${r.teamName}</h4>
-            <p>Lead: ${r.leadName || "—"} · ${r.leadEmail || r.leadUpn || ""}</p>
-            <p class="modal__hint">Members:<br>${memberList || "—"}</p>
-            <p>
-              ${r.pptUrl ? `<a href="${r.pptUrl}" target="_blank" rel="noopener">PPT</a>` : "No PPT"}
-              ·
-              ${r.videoUrl ? `<a href="${r.videoUrl}" target="_blank" rel="noopener">Video</a>` : "No video"}
-            </p>
-          </article>
-        `);
-      }
-      $("org-regs").innerHTML = blocks.join("");
     } catch (err) {
-      showError($("organize-error"), err.message || "Failed to load organizer data.");
+      $("org-invites").innerHTML = `<p class='modal__hint'>SharePoint invites unavailable: ${err.message}</p>`;
     }
+
+    $("org-regs").innerHTML =
+      (spBlock || "") +
+      `<h3 class="modal__subtitle">GitHub fallback registrations</h3>` +
+      renderGithubRegs(eventId, ghRegs);
+  }
+
+  async function submitM365(form, appApi) {
+    let profile = window.GDLM365Auth.getProfile();
+    if (!profile) {
+      await window.GDLM365Auth.login();
+      appApi.onM365AuthChanged();
+      profile = window.GDLM365Auth.getProfile();
+    }
+    if (form.pptFile || form.videoFile) {
+      /* ok */
+    }
+    return window.GDLGraph.registerTeam({
+      eventId: form.eventId,
+      inviteCode: form.inviteCode || "OPEN",
+      teamName: form.teamName,
+      leadName: form.leadName,
+      leadEmail: form.leadEmail,
+      leadUpn: profile?.upn || "",
+      members: form.members,
+      pptFile: form.pptFile,
+      videoFile: form.videoFile,
+      pptUrl: form.pptUrl,
+      videoUrl: form.videoUrl,
+    });
   }
 
   function wire(appApi) {
@@ -152,37 +249,85 @@
       const submit = $("btn-register-submit");
       submit.disabled = true;
       showError($("register-error"), "");
+      const form = collectForm();
+      if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
+        showError($("register-error"), "Team name, lead name, and lead email are required.");
+        submit.disabled = false;
+        return;
+      }
+
       try {
-        if (!window.GDLM365Auth.getProfile()) {
-          await window.GDLM365Auth.login();
-          appApi.onM365AuthChanged();
+        // 1) Prefer Microsoft / SharePoint when already signed in
+        if (window.GDLM365Auth.getProfile()) {
+          const result = await submitM365(form, appApi);
+          $("modal-register").close();
+          alert(`Team "${result.teamName}" registered to SharePoint.`);
+          return;
         }
-        const profile = window.GDLM365Auth.getProfile();
-        const eventId = $("reg-event-id").value;
-        const result = await window.GDLGraph.registerTeam({
-          eventId,
-          inviteCode: $("reg-invite").value,
-          teamName: $("reg-team-name").value,
-          leadName: $("reg-lead-name").value,
-          leadEmail: $("reg-lead-email").value,
-          leadUpn: profile?.upn || "",
-          members: collectMembers($("reg-members")),
-          pptFile: $("reg-ppt").files[0] || null,
-          videoFile: $("reg-video").files[0] || null,
-          pptUrl: $("reg-ppt-url")?.value || "",
-          videoUrl: $("reg-video-url")?.value || "",
-        });
-        $("modal-register").close();
-        alert(
-          `Team "${result.teamName}" registered.\n` +
-            (result.pptUrl ? `PPT: ${result.pptUrl}\n` : "") +
-            (result.videoUrl ? `Video: ${result.videoUrl}` : ""),
+
+        // 2) GitHub editor session — no Microsoft needed
+        const gh = window.GDLAuth.getSession();
+        if (gh) {
+          if (form.pptFile || form.videoFile) {
+            showError(
+              $("register-error"),
+              "Large file upload needs Microsoft/SharePoint. Clear the file inputs and paste PPT/video URLs instead, then submit again.",
+            );
+            return;
+          }
+          const record = await window.GDLRegistrationsStore.submitViaGitHubEditor(
+            form,
+            gh,
+          );
+          $("modal-register").close();
+          alert(
+            `Team "${record.teamName}" saved to GitHub (data/registrations.json). Pages will refresh in about a minute.`,
+          );
+          return;
+        }
+
+        // 3) No MS, no editor — force explicit fallback buttons
+        showError(
+          $("register-error"),
+          "Microsoft sign-in is blocked (admin consent). Use “Submit via GitHub Issue” below, or Editor sign in (top bar) then submit again with PPT/video links.",
         );
       } catch (err) {
-        showError($("register-error"), err.message || "Registration failed.");
+        const msg = err.message || "Registration failed.";
+        if (/admin|consent|AADSTS|approval/i.test(msg)) {
+          showError(
+            $("register-error"),
+            msg +
+              " — Use “Submit via GitHub Issue” or Editor sign-in fallback instead.",
+          );
+        } else {
+          showError($("register-error"), msg);
+        }
       } finally {
         submit.disabled = false;
       }
+    });
+
+    $("btn-register-github")?.addEventListener("click", () => {
+      showError($("register-error"), "");
+      const form = collectForm();
+      if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
+        showError($("register-error"), "Fill team name, lead name, and email first.");
+        return;
+      }
+      if (form.pptFile || form.videoFile) {
+        showError(
+          $("register-error"),
+          "GitHub Issue path supports links only. Clear file uploads and paste PPT/video URLs.",
+        );
+        return;
+      }
+      const record = window.GDLRegistrationsStore.buildRecord({
+        ...form,
+        channel: "github-issue",
+      });
+      window.GDLRegistrationsStore.downloadJson(record);
+      window.GDLRegistrationsStore.openGitHubIssue(record, form.eventName);
+      $("modal-register").close();
     });
 
     $("btn-organize-cancel")?.addEventListener("click", () => {
@@ -210,7 +355,11 @@
         alert(`Invite created: ${created.code}`);
         await refreshOrganizePanels(eventId);
       } catch (err) {
-        showError($("organize-error"), err.message || "Could not create invite.");
+        showError(
+          $("organize-error"),
+          (err.message || "Could not create invite.") +
+            " SharePoint invites need Microsoft admin consent. Registrations can still use the GitHub fallback.",
+        );
       } finally {
         submit.disabled = false;
       }

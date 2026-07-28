@@ -341,9 +341,10 @@
       <form method="dialog" class="modal__panel modal__panel--wide" id="form-register">
         <h2 class="modal__title">Register team</h2>
         <p class="modal__lede">
-          Event: <strong id="reg-event-name"></strong>. Sign in with your company Microsoft
-          account and enter a valid invite code.
+          Event: <strong id="reg-event-name"></strong>.
+          Microsoft login is optional while Entra admin consent is pending.
         </p>
+        <p class="modal__hint" id="reg-submit-hint"></p>
         <input type="hidden" id="reg-event-id" />
         <div class="form-grid">
           <div class="field">
@@ -396,7 +397,12 @@
         <p class="form-error" id="register-error" hidden></p>
         <div class="modal__actions">
           <button type="button" class="btn btn--ghost" id="btn-register-cancel">Cancel</button>
-          <button type="submit" class="btn btn--primary" id="btn-register-submit">Submit registration</button>
+          <button type="button" class="btn btn--ghost" id="btn-register-github">
+            Submit via GitHub Issue
+          </button>
+          <button type="submit" class="btn btn--primary" id="btn-register-submit">
+            Submit registration
+          </button>
         </div>
       </form>
     </dialog>
@@ -449,6 +455,7 @@
     <script src="js/auth-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/events-store.js"></script>
+    <script src="js/registrations-store.js"></script>
     <script src="js/m365-config.js"></script>
     <script src="js/m365-auth.js"></script>
     <script src="js/graph-api.js"></script>

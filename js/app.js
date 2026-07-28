@@ -208,9 +208,13 @@
       } else if (!state.m365Profile) {
         actions += `
         <div class="setup-banner">
-          <strong>How to upload PPT / video</strong>
-          <p>1) Click <em>Microsoft sign in</em> (top bar). 2) Open <em>Register team &amp; upload PPT/video</em>. 3) Add invite, team members, then choose files (or paste links).</p>
-          <p>If sign-in says approval pending, Amdocs IT must grant admin consent first.</p>
+          <strong>How to register &amp; attach materials (without waiting on Microsoft)</strong>
+          <ol style="margin:0.4rem 0 0;padding-left:1.2rem;color:var(--text-muted);font-size:0.9rem">
+            <li>Click <em>Register team &amp; upload PPT/video</em></li>
+            <li>Paste PPT/video <strong>links</strong> (file upload needs SharePoint)</li>
+            <li>Click <em>Submit via GitHub Issue</em> — or <em>Editor sign in</em> first, then <em>Submit registration</em> to save into the repo</li>
+          </ol>
+          <p>When Amdocs IT grants Entra admin consent, Microsoft/SharePoint submit will work too.</p>
         </div>`;
       }
     } else {
