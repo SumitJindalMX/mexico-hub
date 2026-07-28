@@ -7,7 +7,9 @@
   function ensureMsal() {
     if (typeof window.msal === "undefined" || !window.msal.PublicClientApplication) {
       throw new Error(
-        "MSAL library not loaded. Ensure js/vendor/msal-browser.min.js is reachable (hard-refresh the page).",
+        "MSAL library not loaded. Use the site URL with a trailing slash " +
+          "(…/gdl-site-visibility/) and hard-refresh. Check Network that " +
+          "js/vendor/msal-browser.min.js returns 200.",
       );
     }
     if (!cfg().isConfigured()) {

@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GDL Site Visibility</title>
+    <script>
+      // GitHub project Pages: without a trailing slash, relative js/css URLs 404.
+      (function () {
+        var path = location.pathname || "/";
+        if (/\/index\.html$/i.test(path)) {
+          path = path.replace(/\/index\.html$/i, "/");
+        } else if (!/\/$/.test(path)) {
+          path = path + "/";
+        }
+        var base = document.createElement("base");
+        base.href = path;
+        document.head.insertBefore(base, document.head.firstChild);
+      })();
+    </script>
     <meta
       name="description"
       content="Amdocs Guadalajara (GDL) site visibility — hackathons, culture, talent, and engagement events."
@@ -370,6 +384,16 @@
     </dialog>
 
     <script src="js/vendor/msal-browser.min.js"></script>
+    <script>
+      window.__GDL_MSAL_OK__ = !!(
+        window.msal && window.msal.PublicClientApplication
+      );
+      if (!window.__GDL_MSAL_OK__) {
+        console.error(
+          "MSAL failed to load from js/vendor/msal-browser.min.js. Open DevTools → Network and check that file returns 200.",
+        );
+      }
+    </script>
     <script src="js/data.js"></script>
     <script src="js/auth-config.js"></script>
     <script src="js/auth.js"></script>
