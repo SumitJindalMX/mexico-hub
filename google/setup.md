@@ -140,24 +140,46 @@ If Google shows:
 
 > *has not completed the Google verification process… can only be accessed by developer-approved testers*
 
-do **one** of the following:
+Google moved this setting. You will **not** see a page titled only “OAuth consent screen → Test users” anymore.
 
-### Option A — Add yourself as a test user (fastest)
+### Open the right screen (new UI)
 
-1. [Google Cloud Console](https://console.cloud.google.com/) → select your `mexico-hub` project  
-2. **APIs & Services → OAuth consent screen**  
-3. Under **Test users** → **+ Add users**  
-4. Add the exact Gmail you use to sign in (e.g. `sumitjindalkr@gmail.com`)  
-5. Save → wait ~1 minute → hard-refresh Mexico Hub → **Google** again  
+Use this direct link (then pick your Mexico Hub project if asked):
 
-Add every teammate who should test while status is **Testing**.
+**https://console.cloud.google.com/auth/audience**
 
-### Option B — Publish the app (anyone with a Google account)
+Or navigate:
 
-1. Same OAuth consent screen  
+1. [Google Cloud Console](https://console.cloud.google.com/)
+2. Top bar: select the **same project** where you created the OAuth client  
+   (Client ID starts with `552990941460-…`)
+3. Left menu → **APIs & Services** → **Google Auth platform**  
+   (older name was “OAuth consent screen”)
+4. Click the **Audience** tab
+
+### Add your Gmail as a tester
+
+1. On **Audience**, confirm **User type** is **External** and **Publishing status** is **Testing**
+2. Find **Test users** → **Add users** / **+ Add users**
+3. Enter exactly: `sumitjindalkr@gmail.com` (and any teammates)
+4. Save
+5. Wait ~1 minute → hard-refresh Mexico Hub → **Google** again
+
+### If you don’t see “Test users”
+
+| What you see | What to do |
+|--------------|------------|
+| “Google Auth Platform not configured” / Get started | Click **Get started**, finish Branding, choose **External**, then open **Audience** |
+| Only Branding / Clients, no Audience | Open https://console.cloud.google.com/auth/audience |
+| Publishing status = **In production** | Test users list is hidden — anyone can sign in (or you already published) |
+| Wrong project | Top bar project picker → switch to the project that owns client `552990941460-…` |
+| Menu missing | Top search → type `Audience` or `Google Auth platform` |
+
+### Option B — Publish for everyone
+
+1. Same **Audience** page: https://console.cloud.google.com/auth/audience  
 2. Click **Publish app** → confirm  
-3. For basic scopes (`email`, `profile`, `openid`, `drive.file`) publishing is usually enough without a long verification review  
-4. Hard-refresh and try Google sign-in again  
+3. Hard-refresh Mexico Hub and try Google sign-in again  
 
 ---
 
