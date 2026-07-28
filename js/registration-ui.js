@@ -74,9 +74,13 @@
     $("reg-invite").required = false;
     $("reg-invite").placeholder = "Optional — OPEN or code from organizer";
     const ms = window.GDLM365Auth.getProfile();
+    const google = window.GDLGoogleAuth?.getProfile?.();
     if (ms) {
       $("reg-lead-name").value = ms.name || "";
       $("reg-lead-email").value = ms.email || ms.upn || "";
+    } else if (google) {
+      $("reg-lead-name").value = google.name || "";
+      $("reg-lead-email").value = google.email || "";
     }
     const hint = $("reg-submit-hint");
     if (hint) {
@@ -84,11 +88,14 @@
       if (ms) {
         hint.textContent =
           "Microsoft session detected — submit will use SharePoint when admin consent is granted.";
+      } else if (google) {
+        hint.textContent =
+          `Signed in with Google as ${google.email}. Submit registration sends via Gmail to ${inbox} (or use GitHub Issue).`;
       } else if (window.GDLAuth.getSession()) {
         hint.textContent =
           "GitHub editor session — Submit registration saves to the repo. Or use Submit via Gmail / GitHub Issue.";
       } else {
-        hint.textContent = `No Microsoft needed: Submit via Gmail (to ${inbox}) or GitHub Issue. Prefer PPT/video links.`;
+        hint.textContent = `Optional: Google sign in (top bar). Then Submit via Gmail (to ${inbox}) or GitHub Issue. Prefer PPT/video links.`;
       }
     }
     modal.showModal();
@@ -288,6 +295,35 @@
       appApi.onM365AuthChanged();
     });
 
+    $("btn-google-signin")?.addEventListener("click", async () => {
+      try {
+        if (!window.GDLGoogleAuth.isConfigured()) {
+          alert(
+            "Google sign-in needs an OAuth Web client ID.\n\n" +
+              "1) Google Cloud Console → create OAuth client (Web)\n" +
+              "2) Authorized JS origin: https://sumitjindalmx.github.io\n" +
+              "3) Paste clientId into js/google-config.js\n" +
+              "4) Push to GitHub Pages\n\n" +
+              "Details: google/setup.md in the mexico-hub repo.",
+          );
+          return;
+        }
+        await window.GDLGoogleAuth.login();
+        appApi.onGoogleAuthChanged?.();
+      } catch (err) {
+        alert(err.message || "Google sign-in failed.");
+      }
+    });
+
+    $("btn-google-signout")?.addEventListener("click", async () => {
+      try {
+        await window.GDLGoogleAuth.logout();
+      } catch {
+        /* ignore */
+      }
+      appApi.onGoogleAuthChanged?.();
+    });
+
     $("btn-register-cancel")?.addEventListener("click", () => {
       $("modal-register")?.close();
     });
@@ -335,9 +371,30 @@
           return;
         }
 
+        // Google-signed-in participants → Gmail compose (identified submit)
+        const google = window.GDLGoogleAuth?.getProfile?.();
+        if (google) {
+          if (form.pptFile || form.videoFile) {
+            showError(
+              $("register-error"),
+              "File upload needs SharePoint. Clear file inputs and paste PPT/video URLs, then submit again.",
+            );
+            return;
+          }
+          const record = window.GDLRegistrationsStore.buildRecord({
+            ...form,
+            channel: "google",
+            createdBy: google.email,
+          });
+          window.GDLRegistrationsStore.downloadJson(record);
+          window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+          $("modal-register").close();
+          return;
+        }
+
         showError(
           $("register-error"),
-          "Use “Submit via Gmail” or “Submit via GitHub Issue”, or Editor sign in (top bar) then submit.",
+          "Use Google sign in + Submit, or “Submit via Gmail” / “Submit via GitHub Issue”, or Editor sign in.",
         );
       } catch (err) {
         const msg = err.message || "Registration failed.";

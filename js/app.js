@@ -21,6 +21,9 @@
     footer: document.getElementById("footer-copy"),
     authBar: document.getElementById("auth-bar"),
     btnSignIn: document.getElementById("btn-signin"),
+    btnGoogleSignIn: document.getElementById("btn-google-signin"),
+    btnGoogleSignOut: document.getElementById("btn-google-signout"),
+    googleUser: document.getElementById("google-user"),
     btnMsSignIn: document.getElementById("btn-ms-signin"),
     btnMsSignOut: document.getElementById("btn-ms-signout"),
     msUser: document.getElementById("ms-user"),
@@ -43,6 +46,7 @@
     selectedId: null,
     session: window.GDLAuth.getSession(),
     m365Profile: null,
+    googleProfile: null,
   };
 
   function chipClass(_kind, value) {
@@ -118,6 +122,25 @@
       }
     }
 
+    // Google participant
+    const googleReady = window.GDLGoogleAuth?.isConfigured?.();
+    const googleProfile = state.googleProfile;
+    if (!googleReady) {
+      // Still show the button so people can see setup instructions
+      els.btnGoogleSignIn.hidden = false;
+      els.btnGoogleSignOut.hidden = true;
+      els.googleUser.hidden = true;
+    } else if (!googleProfile) {
+      els.btnGoogleSignIn.hidden = false;
+      els.btnGoogleSignOut.hidden = true;
+      els.googleUser.hidden = true;
+    } else {
+      els.btnGoogleSignIn.hidden = true;
+      els.btnGoogleSignOut.hidden = false;
+      els.googleUser.hidden = false;
+      els.googleUser.textContent = googleProfile.email || googleProfile.name;
+    }
+
     // Microsoft participant / organizer
     const m365Ready = window.GDLM365Auth?.isConfigured?.();
     const profile = state.m365Profile;
@@ -140,6 +163,12 @@
 
   function onM365AuthChanged() {
     state.m365Profile = window.GDLM365Auth.getProfile();
+    renderAuthBar();
+    renderList();
+  }
+
+  function onGoogleAuthChanged() {
+    state.googleProfile = window.GDLGoogleAuth.getProfile();
     renderAuthBar();
     renderList();
   }
@@ -206,11 +235,12 @@
           <strong>File uploads need Microsoft 365.</strong>
           <p>Entra must be configured and an Amdocs admin must grant consent before SharePoint uploads work. You can still open the form to see the fields.</p>
         </div>`;
-      } else if (!state.m365Profile) {
+      } else if (!state.m365Profile && !state.googleProfile) {
         actions += `
         <div class="setup-banner">
           <strong>How to register (no Microsoft needed)</strong>
           <ol style="margin:0.4rem 0 0;padding-left:1.2rem;color:var(--text-muted);font-size:0.9rem">
+            <li>Optional: <em>Google sign in</em> (top bar) to prefill your name/email</li>
             <li>Click <em>Register team &amp; upload PPT/video</em></li>
             <li>Paste PPT/video <strong>links</strong> (optional invite code)</li>
             <li>Click <em>Submit via Gmail</em> or <em>Submit via GitHub Issue</em></li>
@@ -507,7 +537,7 @@
       }
     });
 
-    window.GDLRegistrationUI.wire({ onM365AuthChanged });
+    window.GDLRegistrationUI.wire({ onM365AuthChanged, onGoogleAuthChanged });
   }
 
   async function boot() {
@@ -520,6 +550,13 @@
     renderFooter();
     renderList();
     renderBars();
+
+    try {
+      await window.GDLGoogleAuth.init();
+      onGoogleAuthChanged();
+    } catch {
+      renderAuthBar();
+    }
 
     try {
       await window.GDLM365Auth.init();
