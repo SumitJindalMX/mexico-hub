@@ -134,6 +134,33 @@ Empty array = any Google account allowed (still subject to consent screen / test
 
 ---
 
+## Fix: Error 403 access_denied (app being tested)
+
+If Google shows:
+
+> *has not completed the Google verification process… can only be accessed by developer-approved testers*
+
+do **one** of the following:
+
+### Option A — Add yourself as a test user (fastest)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → select your `mexico-hub` project  
+2. **APIs & Services → OAuth consent screen**  
+3. Under **Test users** → **+ Add users**  
+4. Add the exact Gmail you use to sign in (e.g. `sumitjindalkr@gmail.com`)  
+5. Save → wait ~1 minute → hard-refresh Mexico Hub → **Google** again  
+
+Add every teammate who should test while status is **Testing**.
+
+### Option B — Publish the app (anyone with a Google account)
+
+1. Same OAuth consent screen  
+2. Click **Publish app** → confirm  
+3. For basic scopes (`email`, `profile`, `openid`, `drive.file`) publishing is usually enough without a long verification review  
+4. Hard-refresh and try Google sign-in again  
+
+---
+
 ## Drive uploads (PPT / video)
 
 1. Google Cloud → **APIs & Services → Library** → enable **Google Drive API**
