@@ -831,3 +831,72 @@ table.data td:nth-child(3) {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
+
+/* Promo reel */
+.promo {
+  display: grid;
+  gap: 0.55rem;
+  animation: rise 0.8s var(--ease) 0.08s both;
+}
+
+.promo-reel {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+  background: #fffaf3;
+  box-shadow: 0 16px 40px rgba(80, 40, 20, 0.12);
+}
+
+.promo-reel__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+  background: #fffaf3;
+}
+
+.promo-reel__bar {
+  padding: 0.55rem 0.7rem 0.7rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid var(--line);
+}
+
+.promo-reel__track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(80, 40, 20, 0.1);
+  overflow: hidden;
+  margin-bottom: 0.55rem;
+}
+
+.promo-reel__progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--mx-green), var(--mx-gold), var(--mx-red));
+  transition: width 0.05s linear;
+}
+
+.promo-reel__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.promo-reel__label {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.promo__caption {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+.promo-reel.is-playing {
+  outline: 2px solid rgba(0, 140, 69, 0.2);
+  outline-offset: 2px;
+}

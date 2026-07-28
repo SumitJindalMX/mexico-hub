@@ -146,6 +146,19 @@
   animation: rise 0.7s var(--ease) both;
 }
 
+.hero__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 1.05fr);
+  gap: var(--space-5);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .hero__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .hero__eyebrow {
   display: flex;
   flex-wrap: wrap;
