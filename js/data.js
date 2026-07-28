@@ -1,20 +1,20 @@
 /**
- * GDL Site Visibility — domain model & seed data
- * Source: public LinkedIn posts (Amdocs Mexico / GDL, Aug 2025 anniversary).
- * Upcoming rows are planning placeholders — confirm with site ops.
+ * Amdocs Mexico Hub — domain model & seed data
+ * Catalog includes GDL / Mexico activities (seed + editor-published events).
  */
 window.GDL = {
   site: {
-    brand: "GDL",
-    name: "Amdocs Guadalajara",
-    region: "CALA · Mexico",
-    tagline: "Site visibility for hackathons, culture, and talent moments.",
-    asOf: "2026-07-27",
+    brand: "MX",
+    name: "Amdocs Mexico Hub",
+    region: "Mexico · CALA",
+    tagline:
+      "One platform for activities across Mexico — hackathons, culture, talent, sports, and site moments.",
+    asOf: "2026-07-28",
   },
 
   pulse: [
     {
-      label: "Site milestone",
+      label: "Mexico milestone",
       value: "10 yrs",
       detail: "Amdocs Mexico anniversary celebrated in Aug 2025",
     },
@@ -26,31 +26,31 @@ window.GDL = {
     {
       label: "Gen AI Hackathon",
       value: "CALA",
-      detail: "Regional Gen AI Hackathon / Hack-a-Tech at GDL",
+      detail: "Regional Gen AI Hackathon / Hack-a-Tech across Mexico / CALA",
     },
     {
       label: "Graduates intake",
       value: "~50",
-      detail: "First graduates program cohort launched at GDL",
+      detail: "Graduates program cohort launched in Mexico",
     },
   ],
 
   themes: [
     {
       title: "Innovation stage",
-      body: "Gen AI Fair, Gen AI Hackathon, and CALA Hack-a-Tech put GDL on the regional innovation map with leadership visibility.",
+      body: "Hackathons, Gen AI fairs, and tech showcases that put Mexico teams on the regional innovation map.",
     },
     {
       title: "People & culture",
-      body: "Black & White anniversary party, photography contest, arcade challenges, and escape rooms broaden engagement beyond engineering.",
+      body: "Site celebrations, contests, and social experiences that connect people beyond delivery work.",
     },
     {
       title: "Talent pipeline",
-      body: "Graduates Program and Ambassadors Club amplify employee voice and create a repeatable story for early-career hiring.",
+      body: "Graduates programs, ambassadors, and early-career moments that grow the Mexico talent brand.",
     },
     {
-      title: "Active lifestyle brand",
-      body: "Soccer, bowling, kart racing, and step challenges keep site energy visible across social and internal channels.",
+      title: "Active lifestyle",
+      body: "Sports, wellness, and community challenges that keep energy and visibility high year-round.",
     },
   ],
 
@@ -60,12 +60,12 @@ window.GDL = {
   checklist: [
     {
       action: "Confirm 2026 Gen AI Hackathon dates",
-      owner: "GDL site / innovation",
+      owner: "Mexico site / innovation",
       why: "Keeps the high-visibility tech brand current",
     },
     {
       action: "Publish ATT/BSSe Innovation Day proposal",
-      owner: "ATT delivery leads @ GDL",
+      owner: "ATT delivery leads @ Mexico",
       why: "Local product impact story for leadership",
     },
     {

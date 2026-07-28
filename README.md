@@ -1,25 +1,31 @@
-# GDL Site Visibility
+# Amdocs Mexico Hub
 
-Interactive board for **Amdocs Guadalajara (GDL)** site visibility — hackathons, culture, talent, and engagement events.
+Platform for **activities across Mexico** — hackathons, culture, talent, sports, leadership visits, and site programs (GDL and beyond).
 
 ## Live URL
 
 **https://sumitjindalmx.github.io/gdl-site-visibility/**
 
-Repo: https://github.com/SumitJindalMX/gdl-site-visibility
+Repo: https://github.com/SumitJindalMX/gdl-site-visibility  
+*(Repo folder name is historical; product name is **Mexico Hub**.)*
+
+## What it does
+
+- Browse and filter Mexico activities
+- Editors publish new activities (GitHub allowlist + PAT)
+- Participants register teams (invite-only + company Microsoft account)
+- Upload PPT / video to SharePoint; organizers manage invites
 
 ## Participant registration (SharePoint / M365)
 
-Invite-only registration with company Microsoft accounts:
-
 - Sign in with **Microsoft** (Amdocs tenant)
 - Enter an **invite code** from organizers
-- Add **team members**, upload **PPT** + **video** → SharePoint `GDL_Uploads`
+- Add **team members**, upload **PPT** + **video** → SharePoint uploads library
 
 Setup for IT: [sharepoint/lists-setup.md](sharepoint/lists-setup.md)  
-Config: [js/m365-config.js](js/m365-config.js) (`enabled`, `tenantId`, `clientId`, `siteUrl`, `organizerUpns`)
+Config: [js/m365-config.js](js/m365-config.js)
 
-Until M365 is configured, the catalog and GitHub editor flows still work; Register stays disabled.
+Entra app display name may still be `GDL Site Visibility` until IT renames it to **Mexico Hub**.
 
 ## Folder model
 
@@ -30,29 +36,15 @@ tools/gdl-site-visibility/
 ├── sharepoint/lists-setup.md
 ├── css/
 ├── js/
-│   ├── data.js
-│   ├── auth-config.js / auth.js      # GitHub editors (create events)
-│   ├── events-store.js
-│   ├── m365-config.js / m365-auth.js # Entra MSAL
-│   ├── graph-api.js                  # Invites, regs, uploads
-│   ├── registration-ui.js
-│   └── app.js
 └── README.md
 ```
-
-## Create events (GitHub editors)
-
-Only allowlisted GitHub users in `js/auth-config.js` can publish events to `data/events.json` (PAT with Contents: Read and write). Check **Open participant registration** when creating an event.
 
 ## Open locally
 
 ```bash
 Start-Process index.html
-# or
-npx --yes serve .
 ```
 
 ## Notes
 
 - Do not commit PATs, client secrets, or tokens.
-- Seed catalog started from public LinkedIn posts (Aug 2025 anniversary program).

@@ -328,7 +328,7 @@
   }
 
   function renderFooter() {
-    els.footer.textContent = `${site.name} · ${site.region} · GDL Site Visibility · ${events.length} events`;
+    els.footer.textContent = `${site.name} · ${site.region} · ${events.length} activities`;
   }
 
   function showError(el, message) {
