@@ -5,9 +5,9 @@
   let account = null;
 
   function ensureMsal() {
-    if (!window.msal) {
+    if (typeof window.msal === "undefined" || !window.msal.PublicClientApplication) {
       throw new Error(
-        "MSAL library not loaded. Check the CDN script in index.html.",
+        "MSAL library not loaded. Ensure js/vendor/msal-browser.min.js is reachable (hard-refresh the page).",
       );
     }
     if (!cfg().isConfigured()) {
