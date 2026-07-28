@@ -201,6 +201,27 @@
   font-size: 1rem;
 }
 
+.setup-banner {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid rgba(232, 184, 74, 0.45);
+  border-radius: var(--radius);
+  background: rgba(232, 184, 74, 0.08);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.setup-banner p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.setup-banner code {
+  color: var(--signal);
+  font-size: 0.85em;
+}
+
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;

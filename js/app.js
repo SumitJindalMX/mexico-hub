@@ -189,7 +189,13 @@
     if (canRegister) {
       actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team</button>`;
     } else if (event.registrationOpen && !m365Ready) {
-      actions += `<p class="modal__hint">Registration is marked open — configure M365 in js/m365-config.js to enable.</p>`;
+      actions += `
+        <div class="setup-banner">
+          <strong>Registration blocked — Entra app not linked.</strong>
+          <p>Paste your Application (client) ID into <code>js/m365-config.js</code>, set <code>enabled: true</code>, push to GitHub, then hard-refresh.</p>
+          <p>Tenant ID is ready. Still missing: <code>clientId</code>.</p>
+          <a class="btn btn--ghost btn--sm" href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener">Open App registrations</a>
+        </div>`;
     }
     if (isOrg && m365Ready) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;

@@ -14,7 +14,9 @@
     }
     if (!cfg().isConfigured()) {
       throw new Error(
-        "M365 is not configured yet. Set tenantId, clientId, and enabled in js/m365-config.js (see sharepoint/lists-setup.md).",
+        "M365 app not linked yet. An admin must create an Entra SPA app and set " +
+          "clientId + enabled:true in js/m365-config.js (tenantId is already known). " +
+          "See sharepoint/lists-setup.md — then push to GitHub Pages.",
       );
     }
     if (!pca) {

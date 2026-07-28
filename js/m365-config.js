@@ -4,13 +4,13 @@
  * See sharepoint/lists-setup.md
  */
 window.GDL_M365 = {
-  /** Set to true once Entra + SharePoint lists are ready */
+  /** Set to true after you paste a real clientId below */
   enabled: false,
 
-  /** Amdocs Entra tenant ID (Directory ID) */
-  tenantId: "YOUR_TENANT_ID",
+  /** Amdocs Entra tenant ID (resolved from amdocs.com) */
+  tenantId: "c8eca3ca-1276-46d5-9d9d-a0f2a028920f",
 
-  /** SPA application (client) ID */
+  /** SPA application (client) ID — paste from Entra app registration */
   clientId: "YOUR_CLIENT_ID",
 
   /** Must match Entra redirect URIs */
