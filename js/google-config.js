@@ -11,7 +11,7 @@ window.GDL_GOOGLE = {
    * OAuth 2.0 Web client ID from Google Cloud Console
    * (APIs & Services → Credentials → Create OAuth client ID → Web application)
    */
-  clientId: "",
+  clientId: "552990941460-oa958pl87fbg2b2lrbd7fsqbd257t87c.apps.googleusercontent.com",
 
   /** Scopes for identity (add drive.file later if you want Drive uploads) */
   scopes: "openid email profile",
