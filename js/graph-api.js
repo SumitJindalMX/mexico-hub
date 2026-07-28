@@ -207,13 +207,15 @@
     members,
     pptFile,
     videoFile,
+    pptUrl: pptUrlInput = "",
+    videoUrl: videoUrlInput = "",
   }) {
     const invite = await findInvite(eventId, inviteCode.trim().toUpperCase());
     assertInviteValid(invite);
 
     const folder = `reg-${Date.now().toString(36)}`;
-    let pptUrl = "";
-    let videoUrl = "";
+    let pptUrl = (pptUrlInput || "").trim();
+    let videoUrl = (videoUrlInput || "").trim();
 
     if (pptFile) {
       if (pptFile.size > cfg().maxPptBytes) {

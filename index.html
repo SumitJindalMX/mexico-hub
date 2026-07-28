@@ -109,8 +109,10 @@
                 <p class="section__kicker">Activities</p>
                 <h2 class="section__title" id="events-title">Hackathons &amp; other activities</h2>
                 <p class="section__sub">
-                  Filter by category, status, or visibility. Authorized editors can add activities;
-                  participants register with invite + Microsoft account.
+                  Filter activities, then open one on the right.
+                  <strong>PPT/video uploads</strong> are on
+                  <em>Register team &amp; upload PPT/video</em> (needs registration open + Microsoft sign-in).
+                  Editors can also paste material links when creating an activity.
                 </p>
               </div>
               <button
@@ -306,8 +308,23 @@
           <div class="field field--full">
             <label class="check-label">
               <input id="ev-registration-open" name="registrationOpen" type="checkbox" />
-              Open participant registration (invite + Microsoft account)
+              Open participant registration (invite + Microsoft account + file uploads)
             </label>
+          </div>
+          <div class="field field--full">
+            <p class="modal__subtitle" style="margin:0.5rem 0">Materials (optional links)</p>
+            <p class="modal__hint">
+              Paste SharePoint / OneDrive / Stream links here for the activity brief.
+              Participants upload their own PPT/video when they use <strong>Register team</strong>.
+            </p>
+          </div>
+          <div class="field">
+            <label for="ev-ppt-url">PPT / deck URL</label>
+            <input id="ev-ppt-url" type="url" placeholder="https://…" />
+          </div>
+          <div class="field">
+            <label for="ev-video-url">Video URL</label>
+            <input id="ev-video-url" type="url" placeholder="https://…" />
           </div>
         </div>
         <p class="form-error" id="create-error" hidden></p>
@@ -352,16 +369,30 @@
             </div>
             <div id="reg-members" class="members-list"></div>
           </div>
+          <div class="field field--full">
+            <p class="modal__subtitle" style="margin:0.25rem 0">Team materials — PPT &amp; video</p>
+            <p class="modal__hint">
+              Upload files to SharePoint (needs Microsoft sign-in + admin consent), or paste links.
+            </p>
+          </div>
           <div class="field">
-            <label for="reg-ppt">PPT upload</label>
+            <label for="reg-ppt">PPT file upload</label>
             <input id="reg-ppt" type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" />
           </div>
           <div class="field">
-            <label for="reg-video">Video upload</label>
+            <label for="reg-video">Video file upload</label>
             <input id="reg-video" type="file" accept="video/*,.mp4,.mov,.webm" />
           </div>
+          <div class="field">
+            <label for="reg-ppt-url">Or PPT URL</label>
+            <input id="reg-ppt-url" type="url" placeholder="https://amdocs.sharepoint.com/…" />
+          </div>
+          <div class="field">
+            <label for="reg-video-url">Or video URL</label>
+            <input id="reg-video-url" type="url" placeholder="https://…" />
+          </div>
         </div>
-        <p class="modal__hint">Files are stored in the SharePoint GDL_Uploads library. Size caps apply (see config).</p>
+        <p class="modal__hint">File uploads go to the SharePoint uploads library. Size caps apply (see m365-config).</p>
         <p class="form-error" id="register-error" hidden></p>
         <div class="modal__actions">
           <button type="button" class="btn btn--ghost" id="btn-register-cancel">Cancel</button>

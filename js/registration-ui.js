@@ -169,6 +169,8 @@
           members: collectMembers($("reg-members")),
           pptFile: $("reg-ppt").files[0] || null,
           videoFile: $("reg-video").files[0] || null,
+          pptUrl: $("reg-ppt-url")?.value || "",
+          videoUrl: $("reg-video-url")?.value || "",
         });
         $("modal-register").close();
         alert(

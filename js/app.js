@@ -195,23 +195,42 @@
     const m365Ready = window.GDLM365Auth?.isConfigured?.();
     const isOrg =
       state.m365Profile && window.GDLM365Auth.isOrganizer(state.m365Profile);
-    const canRegister = Boolean(event.registrationOpen) && m365Ready;
 
     let actions = "";
-    if (canRegister) {
-      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team</button>`;
-    } else if (event.registrationOpen && !m365Ready) {
-      actions += `
+    if (event.registrationOpen) {
+      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team &amp; upload PPT/video</button>`;
+      if (!m365Ready) {
+        actions += `
         <div class="setup-banner">
-          <strong>Registration blocked — Entra app not linked.</strong>
-          <p>Paste your Application (client) ID into <code>js/m365-config.js</code>, set <code>enabled: true</code>, push to GitHub, then hard-refresh.</p>
-          <p>Tenant ID is ready. Still missing: <code>clientId</code>.</p>
-          <a class="btn btn--ghost btn--sm" href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener">Open App registrations</a>
+          <strong>File uploads need Microsoft 365.</strong>
+          <p>Entra must be configured and an Amdocs admin must grant consent before SharePoint uploads work. You can still open the form to see the fields.</p>
         </div>`;
+      } else if (!state.m365Profile) {
+        actions += `
+        <div class="setup-banner">
+          <strong>How to upload PPT / video</strong>
+          <p>1) Click <em>Microsoft sign in</em> (top bar). 2) Open <em>Register team &amp; upload PPT/video</em>. 3) Add invite, team members, then choose files (or paste links).</p>
+          <p>If sign-in says approval pending, Amdocs IT must grant admin consent first.</p>
+        </div>`;
+      }
+    } else {
+      actions += `<p class="modal__hint">Registration/uploads are closed for this activity. Editors can open registration when creating/editing, or attach PPT/video <em>links</em> on Create activity.</p>`;
     }
     if (isOrg && m365Ready) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;
     }
+
+    const materials =
+      event.pptUrl || event.videoUrl
+        ? `<div class="detail__block">
+        <p class="detail__label">Materials</p>
+        <p class="detail__text">
+          ${event.pptUrl ? `<a href="${event.pptUrl}" target="_blank" rel="noopener">PPT / deck</a>` : "No PPT link"}
+          ·
+          ${event.videoUrl ? `<a href="${event.videoUrl}" target="_blank" rel="noopener">Video</a>` : "No video link"}
+        </p>
+      </div>`
+        : "";
 
     els.detail.innerHTML = `
       <p class="detail__kicker">Event brief</p>
@@ -239,6 +258,7 @@
         <p class="detail__label">Highlight</p>
         <p class="detail__text">${event.highlight}</p>
       </div>
+      ${materials}
       <div class="detail__block">
         <p class="detail__label">Data source / authenticity</p>
         <p class="detail__text">${
@@ -461,6 +481,8 @@
           audience: document.getElementById("ev-audience").value,
           highlight: document.getElementById("ev-highlight").value,
           registrationOpen: document.getElementById("ev-registration-open").checked,
+          pptUrl: document.getElementById("ev-ppt-url").value,
+          videoUrl: document.getElementById("ev-video-url").value,
         };
         const { event, events: next } = await window.GDLEventsStore.createEvent(
           form,

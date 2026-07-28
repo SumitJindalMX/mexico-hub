@@ -106,6 +106,8 @@
       visibility: form.visibility,
       registrationOpen: Boolean(form.registrationOpen),
       confidence: form.confidence || "Editor",
+      pptUrl: (form.pptUrl || "").trim(),
+      videoUrl: (form.videoUrl || "").trim(),
       sourceNote:
         form.confidence === "Verified"
           ? "Confirmed against official Mexico / site ops calendar."
