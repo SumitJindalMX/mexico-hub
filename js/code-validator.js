@@ -463,6 +463,234 @@ ${pack.harness}
       .replace(/"/g, "&quot;");
   }
 
+  const ENTRY_CANDIDATES = [
+    "index.js",
+    "main.js",
+    "app.js",
+    "src/index.js",
+    "src/main.js",
+    "solution.js",
+    "main.py",
+    "app.py",
+    "solution.py",
+    "src/main.py",
+    "Main.java",
+    "src/Main.java",
+    "Solution.java",
+  ];
+
+  function parseGitHubUrl(input) {
+    const raw = String(input || "").trim();
+    if (!raw) return null;
+
+    // raw.githubusercontent.com/owner/repo/ref/path
+    let m = raw.match(
+      /^https?:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/i,
+    );
+    if (m) {
+      return {
+        host: "github",
+        owner: m[1],
+        repo: m[2].replace(/\.git$/i, ""),
+        ref: m[3],
+        path: m[4].replace(/\/$/, ""),
+        kind: "file",
+      };
+    }
+
+    // gist.github.com/user/id or gist.githubusercontent.com
+    m = raw.match(/^https?:\/\/gist\.github(?:usercontent)?\.com\/([^/]+)\/([a-f0-9]+)/i);
+    if (m) {
+      return { host: "gist", owner: m[1], gistId: m[2], kind: "gist" };
+    }
+
+    m = raw.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+)\/([^/#?]+)(\/.*)?$/i);
+    if (!m) return null;
+
+    const owner = m[1];
+    const repo = m[2].replace(/\.git$/i, "");
+    const rest = (m[3] || "").replace(/^\/+|\/+$/g, "");
+
+    if (!rest) {
+      return { host: "github", owner, repo, ref: "HEAD", path: "", kind: "repo" };
+    }
+
+    const parts = rest.split("/");
+    const type = parts[0]; // blob | tree | commit | raw
+    if (type === "blob" || type === "raw" || type === "tree") {
+      const ref = parts[1] || "HEAD";
+      const path = parts.slice(2).join("/");
+      return {
+        host: "github",
+        owner,
+        repo,
+        ref,
+        path,
+        kind: type === "tree" && !path ? "repo" : type === "tree" ? "dir" : "file",
+      };
+    }
+
+    return { host: "github", owner, repo, ref: "HEAD", path: rest, kind: "repo" };
+  }
+
+  async function githubGetJson(url) {
+    const res = await fetch(url, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (res.status === 404) {
+      throw new Error(
+        "GitHub returned 404 — repo/file not found, private, or wrong URL. Use a public repo, or paste the file URL (…/blob/branch/file.js).",
+      );
+    }
+    if (res.status === 403) {
+      throw new Error(
+        "GitHub rate limit or blocked request. Wait a minute, or paste the source file contents instead.",
+      );
+    }
+    if (!res.ok) {
+      throw new Error(`GitHub fetch failed (${res.status}).`);
+    }
+    return res.json();
+  }
+
+  async function fetchRawText(url) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Could not download file (${res.status}).`);
+    }
+    return res.text();
+  }
+
+  function decodeContent(item) {
+    if (!item) return "";
+    if (item.encoding === "base64" && item.content) {
+      try {
+        return decodeURIComponent(
+          Array.prototype.map
+            .call(atob(item.content.replace(/\s/g, "")), (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join(""),
+        );
+      } catch {
+        return atob(item.content.replace(/\s/g, ""));
+      }
+    }
+    return item.content || "";
+  }
+
+  async function fetchGistSource(parsed) {
+    const data = await githubGetJson(`https://api.github.com/gists/${parsed.gistId}`);
+    const files = Object.values(data.files || {});
+    if (!files.length) throw new Error("Gist has no files.");
+    const preferred =
+      files.find((f) => /\.(js|ts|py|java)$/i.test(f.filename)) || files[0];
+    return {
+      source: preferred.content || "",
+      path: preferred.filename,
+      languageHint: preferred.filename,
+      note: `Loaded gist file: ${preferred.filename}`,
+    };
+  }
+
+  async function fetchGitHubFile(owner, repo, ref, path) {
+    const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(ref)}`;
+    const item = await githubGetJson(api);
+    if (Array.isArray(item)) {
+      throw new Error(`URL points to a folder (${path || "/"}). Open a specific file, or we will try common entry files.`);
+    }
+    if (item.type !== "file") {
+      throw new Error("GitHub path is not a file.");
+    }
+    let text = decodeContent(item);
+    if (!text && item.download_url) {
+      text = await fetchRawText(item.download_url);
+    }
+    return { source: text, path: item.path, note: `Loaded ${item.path} @ ${ref}` };
+  }
+
+  async function resolveDefaultBranch(owner, repo) {
+    try {
+      const repoInfo = await githubGetJson(`https://api.github.com/repos/${owner}/${repo}`);
+      return repoInfo.default_branch || "main";
+    } catch {
+      return "main";
+    }
+  }
+
+  async function fetchFromRepoRoot(owner, repo, ref) {
+    const branch = ref === "HEAD" ? await resolveDefaultBranch(owner, repo) : ref;
+    const tried = [];
+    for (const candidate of ENTRY_CANDIDATES) {
+      tried.push(candidate);
+      try {
+        const file = await fetchGitHubFile(owner, repo, branch, candidate);
+        return {
+          ...file,
+          note: `${file.note} (auto-picked entry file from public repo)`,
+        };
+      } catch {
+        /* try next */
+      }
+    }
+    // List root and pick first code-looking file
+    try {
+      const listing = await githubGetJson(
+        `https://api.github.com/repos/${owner}/${repo}/contents/?ref=${encodeURIComponent(branch)}`,
+      );
+      if (Array.isArray(listing)) {
+        const codeFile = listing.find(
+          (f) => f.type === "file" && /\.(js|mjs|cjs|ts|py|java)$/i.test(f.name),
+        );
+        if (codeFile) {
+          const file = await fetchGitHubFile(owner, repo, branch, codeFile.path);
+          return {
+            ...file,
+            note: `${file.note} (first code file in repo root)`,
+          };
+        }
+      }
+    } catch {
+      /* fall through */
+    }
+    throw new Error(
+      `Could not find a source file in ${owner}/${repo}. Tried: ${tried.slice(0, 6).join(", ")}… Paste a file URL like https://github.com/${owner}/${repo}/blob/${branch}/yourfile.js or paste the code.`,
+    );
+  }
+
+  /**
+   * Fetch source from a public GitHub repo/file/gist URL.
+   */
+  async function fetchSourceFromUrl(url) {
+    const parsed = parseGitHubUrl(url);
+    if (!parsed) {
+      throw new Error(
+        "Only public GitHub/Gist URLs are supported for fetch. Example: https://github.com/owner/repo/blob/main/solution.js",
+      );
+    }
+    if (parsed.host === "gist") {
+      return fetchGistSource(parsed);
+    }
+
+    const ref = parsed.ref || "HEAD";
+    if (parsed.kind === "file" && parsed.path) {
+      const branch = ref === "HEAD" ? await resolveDefaultBranch(parsed.owner, parsed.repo) : ref;
+      return fetchGitHubFile(parsed.owner, parsed.repo, branch, parsed.path);
+    }
+    if (parsed.kind === "dir") {
+      throw new Error(
+        "That URL is a folder. Paste a file URL (…/blob/branch/path/file.js) or the repo root to auto-pick an entry file.",
+      );
+    }
+    return fetchFromRepoRoot(parsed.owner, parsed.repo, ref);
+  }
+
+  function languageFromPath(path, fallback) {
+    const p = String(path || "").toLowerCase();
+    if (/\.py$/.test(p)) return "python";
+    if (/\.java$/.test(p)) return "java";
+    if (/\.(js|mjs|cjs|ts)$/.test(p)) return "javascript";
+    return fallback || "auto";
+  }
+
   /**
    * Bind a code-lab UI block.
    * Expected elements with data-cv-* inside root:
@@ -492,49 +720,93 @@ ${pack.harness}
       };
     }
 
-    btnValidate?.addEventListener("click", () => {
-      const { source, language } = read();
-      if (!source.trim()) {
-        if (reportEl) reportEl.innerHTML = `<p class="code-lab__status is-bad">Paste source code first (optional field — skip if none).</p>`;
-        return;
+    async function ensureSource() {
+      const cur = read();
+      if (cur.source.trim()) return { ...cur, fetchNote: "" };
+      if (!cur.repoUrl.trim()) {
+        throw new Error(
+          "Add a public GitHub file/repo URL, or paste source code (both are optional — skip if you have neither).",
+        );
       }
-      const report = validate(source, language);
-      lastPack = generateTests(source, language);
       if (reportEl) {
-        reportEl.innerHTML =
-          renderReportHtml(report) +
-          `<p class="code-lab__meta">${lastPack.tests.length} test case(s) ready · ${escapeHtml(lastPack.note)}</p>`;
+        reportEl.innerHTML = `<p class="code-lab__meta">Fetching from GitHub…</p>`;
+      }
+      const fetched = await fetchSourceFromUrl(cur.repoUrl.trim());
+      if (!fetched.source?.trim()) {
+        throw new Error("GitHub file was empty.");
+      }
+      if (sourceEl) sourceEl.value = fetched.source;
+      const langGuess = languageFromPath(fetched.path, cur.language);
+      if (langEl && (langEl.value === "auto" || !langEl.value) && langGuess !== "auto") {
+        langEl.value = langGuess;
+      }
+      return {
+        source: fetched.source,
+        language: langEl?.value || langGuess || "auto",
+        repoUrl: cur.repoUrl,
+        fetchNote: fetched.note || "Loaded from GitHub",
+      };
+    }
+
+    function setBusy(busy) {
+      [btnValidate, btnGenerate, btnRun, btnDownload].forEach((b) => {
+        if (b) b.disabled = busy;
+      });
+    }
+
+    btnValidate?.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        const { source, language, fetchNote } = await ensureSource();
+        const report = validate(source, language);
+        lastPack = generateTests(source, language);
+        if (reportEl) {
+          reportEl.innerHTML =
+            (fetchNote ? `<p class="code-lab__meta">${escapeHtml(fetchNote)}</p>` : "") +
+            renderReportHtml(report) +
+            `<p class="code-lab__meta">${lastPack.tests.length} test case(s) ready · ${escapeHtml(lastPack.note)}</p>`;
+        }
+      } catch (err) {
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__status is-bad">${escapeHtml(err.message || String(err))}</p>`;
+        }
+      } finally {
+        setBusy(false);
       }
     });
 
-    btnGenerate?.addEventListener("click", () => {
-      const { source, language } = read();
-      if (!source.trim()) {
-        if (reportEl) reportEl.innerHTML = `<p class="code-lab__status is-bad">Paste source code to generate tests.</p>`;
-        return;
-      }
-      lastPack = generateTests(source, language);
-      if (reportEl) {
-        reportEl.innerHTML =
-          renderReportHtml(lastPack.validation) +
-          `<p class="code-lab__meta"><strong>Generated ${lastPack.tests.length} tests</strong> · ${escapeHtml(
-            lastPack.note,
-          )}</p>` +
-          `<ol class="code-lab__testlist">${lastPack.tests
-            .map((t) => `<li><code>${escapeHtml(t.id)}</code> ${escapeHtml(t.name)}</li>`)
-            .join("")}</ol>`;
+    btnGenerate?.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        const { source, language, fetchNote } = await ensureSource();
+        lastPack = generateTests(source, language);
+        if (reportEl) {
+          reportEl.innerHTML =
+            (fetchNote ? `<p class="code-lab__meta">${escapeHtml(fetchNote)}</p>` : "") +
+            renderReportHtml(lastPack.validation) +
+            `<p class="code-lab__meta"><strong>Generated ${lastPack.tests.length} tests</strong> · ${escapeHtml(
+              lastPack.note,
+            )}</p>` +
+            `<ol class="code-lab__testlist">${lastPack.tests
+              .map((t) => `<li><code>${escapeHtml(t.id)}</code> ${escapeHtml(t.name)}</li>`)
+              .join("")}</ol>`;
+        }
+      } catch (err) {
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__status is-bad">${escapeHtml(err.message || String(err))}</p>`;
+        }
+      } finally {
+        setBusy(false);
       }
     });
 
     btnRun?.addEventListener("click", async () => {
-      const { source, language } = read();
-      if (!source.trim()) {
-        if (reportEl) reportEl.innerHTML = `<p class="code-lab__status is-bad">Paste source code to run tests.</p>`;
-        return;
-      }
-      if (reportEl) reportEl.innerHTML = `<p class="code-lab__meta">Running tests…</p>`;
-      btnRun.disabled = true;
+      setBusy(true);
       try {
+        const { source, language, fetchNote } = await ensureSource();
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__meta">${fetchNote ? escapeHtml(fetchNote) + " · " : ""}Running tests…</p>`;
+        }
         lastRun = await runTests(source, language);
         lastPack = {
           language: lastRun.language,
@@ -546,27 +818,37 @@ ${pack.harness}
         };
         if (reportEl) {
           reportEl.innerHTML =
-            renderReportHtml(lastRun.validation) + renderRunHtml(lastRun);
+            (fetchNote ? `<p class="code-lab__meta">${escapeHtml(fetchNote)}</p>` : "") +
+            renderReportHtml(lastRun.validation) +
+            renderRunHtml(lastRun);
+        }
+      } catch (err) {
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__status is-bad">${escapeHtml(err.message || String(err))}</p>`;
         }
       } finally {
-        btnRun.disabled = false;
+        setBusy(false);
       }
     });
 
-    btnDownload?.addEventListener("click", () => {
-      const { source, language } = read();
-      if (!source.trim()) {
-        alert("Paste source code first.");
-        return;
+    btnDownload?.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        const { source, language } = await ensureSource();
+        lastPack = lastPack || generateTests(source, language);
+        const ext =
+          lastPack.language === "python" ? "py" : lastPack.language === "java" ? "java" : "js";
+        downloadText(`mexico-hub-tests.${ext}`, lastPack.harness);
+      } catch (err) {
+        alert(err.message || String(err));
+      } finally {
+        setBusy(false);
       }
-      lastPack = lastPack || generateTests(source, language);
-      const ext =
-        lastPack.language === "python" ? "py" : lastPack.language === "java" ? "java" : "js";
-      downloadText(`mexico-hub-tests.${ext}`, lastPack.harness);
     });
 
     root.__gdlCodeLab = {
       read,
+      ensureSource,
       getSnapshot: () => {
         const { source, language, repoUrl } = read();
         if (!source.trim() && !repoUrl.trim()) return null;
@@ -586,5 +868,7 @@ ${pack.harness}
     downloadText,
     renderReportHtml,
     renderRunHtml,
+    fetchSourceFromUrl,
+    parseGitHubUrl,
   };
 })();
