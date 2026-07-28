@@ -2,54 +2,58 @@
 
 Interactive board for **Amdocs Guadalajara (GDL)** site visibility — hackathons, culture, talent, and engagement events.
 
+## Live URL
+
+**https://sumitjindalmx.github.io/gdl-site-visibility/**
+
+Repo: https://github.com/SumitJindalMX/gdl-site-visibility
+
 ## Folder model
 
 ```
 tools/gdl-site-visibility/
 ├── index.html
-├── css/                 # tokens · base · layout · components
-├── js/                  # data.js (model) · app.js (UI)
+├── data/
+│   └── events.json          # Live event catalog (editors publish here)
+├── css/                     # tokens · base · layout · components
+├── js/
+│   ├── data.js              # Site pulse / themes / checklist
+│   ├── auth-config.js       # Allowlisted GitHub usernames
+│   ├── auth.js              # Editor session (PAT → GitHub user)
+│   ├── events-store.js      # Load / publish events via GitHub API
+│   └── app.js               # UI
 ├── assets/
-├── netlify.toml         # Netlify static deploy
-├── vercel.json          # Vercel static deploy
-├── .github/workflows/   # GitHub Pages auto-deploy
-├── deploy-pack.bat      # Builds a zip for drag-and-drop hosts
+├── netlify.toml
+├── vercel.json
 └── README.md
 ```
 
-## Deploy so anyone can use it (recommended: 2 minutes)
+## Create events (authorized people only)
 
-### Option A — Netlify Drop (fastest, no install)
+Anyone can **view** the board. Only allowlisted GitHub users can **create** events.
 
-1. Open [https://app.netlify.com/drop](https://app.netlify.com/drop) (free Netlify account).
-2. Drag either:
-   - the whole `gdl-site-visibility` folder, or
-   - `gdl-site-visibility-deploy.zip` (run `deploy-pack.bat` to rebuild it).
-3. Netlify gives a public URL like `https://random-name.netlify.app` — share that link with anyone.
-4. Optional: in Netlify site settings, set a custom name (e.g. `gdl-site-visibility.netlify.app`).
+### 1. Add someone to the allowlist
 
-### Option B — GitHub Pages (good for ongoing updates)
+Edit `js/auth-config.js`:
 
-1. Create a **public** GitHub repo (e.g. `your-org/gdl-site-visibility`).
-2. From this folder:
-
-```bash
-git remote add origin https://github.com/YOUR_ORG/gdl-site-visibility.git
-git commit -m "Initial GDL Site Visibility board"
-git push -u origin main
+```js
+authorizedUsers: [
+  "SumitJindalMX",
+  "TheirGitHubUsername",
+],
 ```
 
-3. In the repo: **Settings → Pages → Source: GitHub Actions**.
-4. The workflow `.github/workflows/deploy-pages.yml` publishes on every push to `main`.
-5. URL will be: `https://YOUR_ORG.github.io/gdl-site-visibility/`
+Commit and push. Invite them as a **collaborator** on the repo (Write access).
 
-### Option C — Vercel
+### 2. Editor signs in on the site
 
-```bash
-npx vercel --prod
-```
+1. Open the live URL → **Editor sign in**
+2. Paste a GitHub **fine-grained PAT** with **Contents: Read and write** on `SumitJindalMX/gdl-site-visibility`
+3. Token is kept in `sessionStorage` for this browser tab only (not committed)
 
-(Requires Node 18+ and a Vercel login.)
+### 3. Publish an event
+
+Signed-in editors see **Create event**. Submitting writes to `data/events.json` on `main`. GitHub Pages rebuilds in about a minute; the board updates for everyone.
 
 ## Open locally
 
@@ -59,12 +63,9 @@ Start-Process index.html
 npx --yes serve .
 ```
 
-## Update events
-
-Edit `js/data.js` (`window.GDL.events`, `pulse`, `themes`, `checklist`), then redeploy (re-drop on Netlify, or `git push` for Pages).
+Local create/publish still uses the GitHub API against the remote repo (needs network + PAT).
 
 ## Notes
 
-- Seed data is from public LinkedIn posts about the Aug 2025 Amdocs Mexico / GDL anniversary program.
-- Upcoming rows are planning placeholders — confirm dates with site ops.
-- Do not commit secrets; this site is static and public once deployed.
+- Seed catalog started from public LinkedIn posts (Aug 2025 anniversary program).
+- Do not commit PATs or secrets.
