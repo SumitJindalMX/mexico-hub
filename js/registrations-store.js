@@ -119,6 +119,30 @@
     URL.revokeObjectURL(a.href);
   }
 
+  function registrationPlainText(record, eventName) {
+    return [
+      `Mexico Hub — team registration`,
+      ``,
+      `Event: ${eventName || record.eventId}`,
+      `Event ID: ${record.eventId}`,
+      `Team: ${record.teamName}`,
+      `Lead: ${record.leadName} <${record.leadEmail}>`,
+      `Invite: ${record.inviteCode}`,
+      `PPT: ${record.pptUrl || "(none)"}`,
+      `Video: ${record.videoUrl || "(none)"}`,
+      ``,
+      `Members:`,
+      ...(record.members.length
+        ? record.members.map(
+            (m) => `- ${m.name} <${m.email || ""}> (${m.role || "Member"})`,
+          )
+        : ["- (none)"]),
+      ``,
+      `JSON:`,
+      JSON.stringify(record, null, 2),
+    ].join("\n");
+  }
+
   function openGitHubIssue(record, eventName) {
     const { owner, repo } = cfg();
     const title = encodeURIComponent(
@@ -156,11 +180,24 @@
     );
   }
 
+  function openGmailCompose(record, eventName) {
+    const to = encodeURIComponent(cfg().registrationInbox || "");
+    const subject = encodeURIComponent(
+      `[Mexico Hub Registration] ${eventName || record.eventId} — ${record.teamName}`,
+    );
+    const body = encodeURIComponent(registrationPlainText(record, eventName));
+    const url = to
+      ? `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`
+      : `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`;
+    window.open(url, "_blank", "noopener");
+  }
+
   window.GDLRegistrationsStore = {
     loadPublic,
     submitViaGitHubEditor,
     downloadJson,
     openGitHubIssue,
+    openGmailCompose,
     buildRecord,
   };
 })();

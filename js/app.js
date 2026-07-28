@@ -195,6 +195,7 @@
     const m365Ready = window.GDLM365Auth?.isConfigured?.();
     const isOrg =
       state.m365Profile && window.GDLM365Auth.isOrganizer(state.m365Profile);
+    const isEditor = !!state.session;
 
     let actions = "";
     if (event.registrationOpen) {
@@ -208,19 +209,19 @@
       } else if (!state.m365Profile) {
         actions += `
         <div class="setup-banner">
-          <strong>How to register &amp; attach materials (without waiting on Microsoft)</strong>
+          <strong>How to register (no Microsoft needed)</strong>
           <ol style="margin:0.4rem 0 0;padding-left:1.2rem;color:var(--text-muted);font-size:0.9rem">
             <li>Click <em>Register team &amp; upload PPT/video</em></li>
-            <li>Paste PPT/video <strong>links</strong> (file upload needs SharePoint)</li>
-            <li>Click <em>Submit via GitHub Issue</em> — or <em>Editor sign in</em> first, then <em>Submit registration</em> to save into the repo</li>
+            <li>Paste PPT/video <strong>links</strong> (optional invite code)</li>
+            <li>Click <em>Submit via Gmail</em> or <em>Submit via GitHub Issue</em></li>
           </ol>
-          <p>When Amdocs IT grants Entra admin consent, Microsoft/SharePoint submit will work too.</p>
+          <p>Organizers: use <em>Manage invites</em> to generate codes and email them via Gmail.</p>
         </div>`;
       }
     } else {
       actions += `<p class="modal__hint">Registration/uploads are closed for this activity. Editors can open registration when creating/editing, or attach PPT/video <em>links</em> on Create activity.</p>`;
     }
-    if (isOrg && m365Ready) {
+    if (isOrg || isEditor || event.registrationOpen) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;
     }
 

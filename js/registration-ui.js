@@ -72,7 +72,7 @@
     $("reg-event-name").textContent = event.name;
     members.innerHTML = memberRowHtml();
     $("reg-invite").required = false;
-    $("reg-invite").placeholder = "Optional if using GitHub submit";
+    $("reg-invite").placeholder = "Optional — OPEN or code from organizer";
     const ms = window.GDLM365Auth.getProfile();
     if (ms) {
       $("reg-lead-name").value = ms.name || "";
@@ -80,18 +80,37 @@
     }
     const hint = $("reg-submit-hint");
     if (hint) {
+      const inbox = window.GDL_AUTH?.registrationInbox || "organizer inbox";
       if (ms) {
         hint.textContent =
           "Microsoft session detected — submit will use SharePoint when admin consent is granted.";
       } else if (window.GDLAuth.getSession()) {
         hint.textContent =
-          "GitHub editor session detected — submit will save to data/registrations.json (no Microsoft needed). Use PPT/video links (not large file upload).";
+          "GitHub editor session — Submit registration saves to the repo. Or use Submit via Gmail / GitHub Issue.";
       } else {
-        hint.textContent =
-          "Microsoft login blocked? Use Submit via GitHub Issue (no Entra). Prefer PPT/video links. Or Editor sign in (top bar) to publish into the repo.";
+        hint.textContent = `No Microsoft needed: Submit via Gmail (to ${inbox}) or GitHub Issue. Prefer PPT/video links.`;
       }
     }
     modal.showModal();
+  }
+
+  function renderGithubInvites(eventId, invites) {
+    const mine = invites.filter((i) => i.eventId === eventId);
+    if (!mine.length) {
+      return "<p class='modal__hint'>No GitHub invite codes yet for this event.</p>";
+    }
+    return `<table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Expires</th><th></th></tr></thead><tbody>${mine
+      .map(
+        (i) =>
+          `<tr>
+            <td><code>${i.code}</code></td>
+            <td>${i.usedCount ?? 0}</td>
+            <td>${i.maxUses ?? "—"}</td>
+            <td>${i.expiresOn || "—"}</td>
+            <td><button type="button" class="btn btn--ghost btn--sm btn-email-invite" data-code="${i.code}">Email via Gmail</button></td>
+          </tr>`,
+      )
+      .join("")}</tbody></table>`;
   }
 
   function renderGithubRegs(eventId, regs) {
@@ -131,27 +150,36 @@
     $("org-event-name").textContent = event.name;
     $("org-invites").innerHTML = "<p class='modal__hint'>Loading…</p>";
     $("org-regs").innerHTML = "<p class='modal__hint'>Loading…</p>";
+    const last = $("org-invite-last");
+    if (last) {
+      last.hidden = true;
+      last.textContent = "";
+    }
     modal.showModal();
     await refreshOrganizePanels(event.id);
   }
 
   async function refreshOrganizePanels(eventId) {
-    const ghRegs = await window.GDLRegistrationsStore.loadPublic().catch(() => []);
+    const [ghRegs, ghInvites] = await Promise.all([
+      window.GDLRegistrationsStore.loadPublic().catch(() => []),
+      window.GDLInvitesStore.loadPublic().catch(() => []),
+    ]);
     let spBlock = "";
+    let spInvitesHtml = "";
     try {
       if (window.GDLM365Auth.getProfile()) {
         const [invites, regs] = await Promise.all([
           window.GDLGraph.listInvites(eventId),
           window.GDLGraph.listRegistrations(eventId),
         ]);
-        $("org-invites").innerHTML = invites.length
-          ? `<table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Active</th></tr></thead><tbody>${invites
+        spInvitesHtml = invites.length
+          ? `<p class="modal__hint">SharePoint invites</p><table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Active</th></tr></thead><tbody>${invites
               .map(
                 (i) =>
                   `<tr><td><code>${i.code}</code></td><td>${i.usedCount ?? 0}</td><td>${i.maxUses ?? "—"}</td><td>${i.active}</td></tr>`,
               )
               .join("")}</tbody></table>`
-          : "<p class='modal__hint'>No SharePoint invites yet (needs Microsoft + consent).</p>";
+          : "<p class='modal__hint'>No SharePoint invites yet.</p>";
 
         if (regs.length) {
           const blocks = [];
@@ -178,13 +206,16 @@
           }
           spBlock = blocks.join("");
         }
-      } else {
-        $("org-invites").innerHTML =
-          "<p class='modal__hint'>Sign in with Microsoft (after admin consent) to manage SharePoint invites.</p>";
       }
     } catch (err) {
-      $("org-invites").innerHTML = `<p class='modal__hint'>SharePoint invites unavailable: ${err.message}</p>`;
+      spInvitesHtml = `<p class='modal__hint'>SharePoint invites unavailable: ${err.message}</p>`;
     }
+
+    $("org-invites").innerHTML =
+      `<p class="modal__hint">GitHub / Gmail invites (no Microsoft needed)</p>` +
+      renderGithubInvites(eventId, ghInvites) +
+      (spInvitesHtml ||
+        "<p class='modal__hint'>SharePoint invites need Microsoft sign-in + admin consent.</p>");
 
     $("org-regs").innerHTML =
       (spBlock || "") +
@@ -215,6 +246,23 @@
       pptUrl: form.pptUrl,
       videoUrl: form.videoUrl,
     });
+  }
+
+  async function maybeValidateGithubInvite(form) {
+    const code = (form.inviteCode || "").trim().toUpperCase();
+    if (!code || code === "OPEN") return;
+    const invite = await window.GDLInvitesStore.findPublic(form.eventId, code);
+    if (invite) {
+      window.GDLInvitesStore.assertValid(invite);
+    }
+    // Unknown codes still allowed (organizer may have emailed a one-off code)
+  }
+
+  function requireTeamBasics(form) {
+    if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
+      return "Team name, lead name, and lead email are required.";
+    }
+    return "";
   }
 
   function wire(appApi) {
@@ -250,14 +298,16 @@
       submit.disabled = true;
       showError($("register-error"), "");
       const form = collectForm();
-      if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
-        showError($("register-error"), "Team name, lead name, and lead email are required.");
+      const basicErr = requireTeamBasics(form);
+      if (basicErr) {
+        showError($("register-error"), basicErr);
         submit.disabled = false;
         return;
       }
 
       try {
-        // 1) Prefer Microsoft / SharePoint when already signed in
+        await maybeValidateGithubInvite(form);
+
         if (window.GDLM365Auth.getProfile()) {
           const result = await submitM365(form, appApi);
           $("modal-register").close();
@@ -265,7 +315,6 @@
           return;
         }
 
-        // 2) GitHub editor session — no Microsoft needed
         const gh = window.GDLAuth.getSession();
         if (gh) {
           if (form.pptFile || form.videoFile) {
@@ -286,18 +335,16 @@
           return;
         }
 
-        // 3) No MS, no editor — force explicit fallback buttons
         showError(
           $("register-error"),
-          "Microsoft sign-in is blocked (admin consent). Use “Submit via GitHub Issue” below, or Editor sign in (top bar) then submit again with PPT/video links.",
+          "Use “Submit via Gmail” or “Submit via GitHub Issue”, or Editor sign in (top bar) then submit.",
         );
       } catch (err) {
         const msg = err.message || "Registration failed.";
         if (/admin|consent|AADSTS|approval/i.test(msg)) {
           showError(
             $("register-error"),
-            msg +
-              " — Use “Submit via GitHub Issue” or Editor sign-in fallback instead.",
+            msg + " — Use Gmail or GitHub Issue fallback instead.",
           );
         } else {
           showError($("register-error"), msg);
@@ -307,24 +354,54 @@
       }
     });
 
-    $("btn-register-github")?.addEventListener("click", () => {
-      showError($("register-error"), "");
-      const form = collectForm();
-      if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
-        showError($("register-error"), "Fill team name, lead name, and email first.");
-        return;
+    function prepareFallbackRecord(form) {
+      const basicErr = requireTeamBasics(form);
+      if (basicErr) {
+        showError($("register-error"), basicErr);
+        return null;
       }
       if (form.pptFile || form.videoFile) {
         showError(
           $("register-error"),
-          "GitHub Issue path supports links only. Clear file uploads and paste PPT/video URLs.",
+          "Gmail / GitHub Issue paths support links only. Clear file uploads and paste PPT/video URLs.",
         );
+        return null;
+      }
+      return window.GDLRegistrationsStore.buildRecord({
+        ...form,
+        channel: "fallback",
+      });
+    }
+
+    $("btn-register-gmail")?.addEventListener("click", async () => {
+      showError($("register-error"), "");
+      const form = collectForm();
+      try {
+        await maybeValidateGithubInvite(form);
+      } catch (err) {
+        showError($("register-error"), err.message);
         return;
       }
-      const record = window.GDLRegistrationsStore.buildRecord({
-        ...form,
-        channel: "github-issue",
-      });
+      const record = prepareFallbackRecord(form);
+      if (!record) return;
+      record.channel = "gmail";
+      window.GDLRegistrationsStore.downloadJson(record);
+      window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+      $("modal-register").close();
+    });
+
+    $("btn-register-github")?.addEventListener("click", async () => {
+      showError($("register-error"), "");
+      const form = collectForm();
+      try {
+        await maybeValidateGithubInvite(form);
+      } catch (err) {
+        showError($("register-error"), err.message);
+        return;
+      }
+      const record = prepareFallbackRecord(form);
+      if (!record) return;
+      record.channel = "github-issue";
       window.GDLRegistrationsStore.downloadJson(record);
       window.GDLRegistrationsStore.openGitHubIssue(record, form.eventName);
       $("modal-register").close();
@@ -334,31 +411,127 @@
       $("modal-organize")?.close();
     });
 
+    $("org-invites")?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-email-invite");
+      if (!btn) return;
+      const code = btn.getAttribute("data-code");
+      const eventId = $("org-event-id").value;
+      const eventName = $("org-event-name").textContent;
+      const emails = $("org-invite-emails")?.value || "";
+      window.GDLInvitesStore
+        .loadPublic()
+        .then((list) => {
+          const invite = list.find(
+            (i) => i.eventId === eventId && i.code === code,
+          );
+          if (!invite) {
+            showError($("organize-error"), "Invite not found in published list yet.");
+            return;
+          }
+          window.GDLInvitesStore.openGmailInvite(invite, eventName, emails);
+        })
+        .catch((err) => showError($("organize-error"), err.message));
+    });
+
+    async function createLocalInviteFields() {
+      return {
+        eventId: $("org-event-id").value,
+        maxUses: Number($("org-max-uses").value) || 50,
+        expiresOn: $("org-expires").value || null,
+      };
+    }
+
+    function showLastInvite(invite) {
+      const el = $("org-invite-last");
+      if (!el) return;
+      el.hidden = false;
+      el.innerHTML = `Latest invite code: <code>${invite.code}</code> — copy it or use Email via Gmail.`;
+    }
+
+    $("btn-invite-gmail")?.addEventListener("click", async () => {
+      showError($("organize-error"), "");
+      const fields = await createLocalInviteFields();
+      const eventName = $("org-event-name").textContent;
+      const emails = $("org-invite-emails")?.value || "";
+      const session = window.GDLAuth.getSession();
+      try {
+        let invite;
+        if (session) {
+          invite = await window.GDLInvitesStore.createViaGitHubEditor(
+            fields,
+            session,
+          );
+          showLastInvite(invite);
+          await refreshOrganizePanels(fields.eventId);
+        } else {
+          invite = window.GDLInvitesStore.buildInvite(fields);
+          showLastInvite(invite);
+          showError(
+            $("organize-error"),
+            "Code generated locally (not published). Editor sign-in publishes to data/invites.json. Gmail compose still works with this code.",
+          );
+        }
+        window.GDLInvitesStore.openGmailInvite(invite, eventName, emails);
+      } catch (err) {
+        showError($("organize-error"), err.message || "Could not create invite.");
+      }
+    });
+
     $("form-invite")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const submit = $("btn-invite-submit");
       submit.disabled = true;
       showError($("organize-error"), "");
+      const fields = await createLocalInviteFields();
+      const eventName = $("org-event-name").textContent;
+      const emails = $("org-invite-emails")?.value || "";
+
       try {
-        if (!window.GDLM365Auth.getProfile()) {
-          await window.GDLM365Auth.login();
-          appApi.onM365AuthChanged();
+        // Prefer GitHub publish (no Microsoft)
+        const session = window.GDLAuth.getSession();
+        if (session) {
+          const invite = await window.GDLInvitesStore.createViaGitHubEditor(
+            fields,
+            session,
+          );
+          showLastInvite(invite);
+          if (emails.trim()) {
+            window.GDLInvitesStore.openGmailInvite(invite, eventName, emails);
+          }
+          alert(`Invite published: ${invite.code}`);
+          await refreshOrganizePanels(fields.eventId);
+          return;
         }
-        const eventId = $("org-event-id").value;
-        const maxUses = Number($("org-max-uses").value) || 50;
-        const expiresOn = $("org-expires").value || null;
-        const created = await window.GDLGraph.createInvite({
-          eventId,
-          maxUses,
-          expiresOn,
-        });
-        alert(`Invite created: ${created.code}`);
-        await refreshOrganizePanels(eventId);
+
+        // SharePoint path if Microsoft already signed in
+        if (window.GDLM365Auth.getProfile()) {
+          const created = await window.GDLGraph.createInvite({
+            eventId: fields.eventId,
+            maxUses: fields.maxUses,
+            expiresOn: fields.expiresOn,
+          });
+          showLastInvite(created);
+          if (emails.trim()) {
+            window.GDLInvitesStore.openGmailInvite(created, eventName, emails);
+          }
+          alert(`SharePoint invite created: ${created.code}`);
+          await refreshOrganizePanels(fields.eventId);
+          return;
+        }
+
+        // Local-only + Gmail
+        const invite = window.GDLInvitesStore.buildInvite(fields);
+        showLastInvite(invite);
+        window.GDLInvitesStore.openGmailInvite(invite, eventName, emails);
+        showError(
+          $("organize-error"),
+          "Editor sign-in required to publish codes to the site. A local code was emailed via Gmail — share it manually until you publish.",
+        );
       } catch (err) {
         showError(
           $("organize-error"),
           (err.message || "Could not create invite.") +
-            " SharePoint invites need Microsoft admin consent. Registrations can still use the GitHub fallback.",
+            " Try Generate & email via Gmail, or Editor sign-in to publish.",
         );
       } finally {
         submit.disabled = false;

@@ -7,6 +7,11 @@ window.GDL_AUTH = {
   owner: "SumitJindalMX",
   repo: "mexico-hub",
   eventsPath: "data/events.json",
+  /**
+   * Inbox that receives team registrations via Gmail compose.
+   * Change to your Amdocs / Gmail address.
+   */
+  registrationInbox: "sumit.jindal@amdocs.com",
   /** GitHub logins allowed to create / publish events */
   authorizedUsers: [
     "SumitJindalMX",
