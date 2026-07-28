@@ -533,31 +533,186 @@ ${pack.harness}
     return { host: "github", owner, repo, ref: "HEAD", path: rest, kind: "repo" };
   }
 
-  async function githubGetJson(url) {
-    const res = await fetch(url, {
-      headers: { Accept: "application/vnd.github+json" },
+  const PULL_TOKEN_KEY = "gdl-gh-pull-token";
+
+  class AuthNeededError extends Error {
+    constructor(message, status) {
+      super(message);
+      this.name = "AuthNeededError";
+      this.status = status;
+      this.needsAuth = true;
+    }
+  }
+
+  function getStoredPullToken() {
+    try {
+      return sessionStorage.getItem(PULL_TOKEN_KEY) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function setStoredPullToken(token) {
+    try {
+      if (token) sessionStorage.setItem(PULL_TOKEN_KEY, token);
+      else sessionStorage.removeItem(PULL_TOKEN_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function getPreferredToken(explicit) {
+    if (explicit) return String(explicit).trim();
+    const editor = window.GDLAuth?.getSession?.()?.token;
+    if (editor) return editor;
+    return getStoredPullToken();
+  }
+
+  function authHeaders(token) {
+    const headers = {
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return headers;
+  }
+
+  /**
+   * Prompt for a GitHub PAT in a modal. Resolves with token or rejects on cancel.
+   */
+  function promptPullAuth(reason) {
+    return new Promise((resolve, reject) => {
+      const modal = document.getElementById("modal-gh-pull-auth");
+      const form = document.getElementById("form-gh-pull-auth");
+      const input = document.getElementById("gh-pull-pat");
+      const errEl = document.getElementById("gh-pull-auth-error");
+      const lede = document.getElementById("gh-pull-auth-lede");
+      const btnCancel = document.getElementById("btn-gh-pull-auth-cancel");
+
+      if (!modal || !form || !input) {
+        const fallback = window.prompt(
+          reason ||
+            "GitHub auth required. Paste a personal access token with Contents: Read:",
+        );
+        if (fallback?.trim()) {
+          setStoredPullToken(fallback.trim());
+          resolve(fallback.trim());
+        } else {
+          reject(new Error("GitHub authentication cancelled."));
+        }
+        return;
+      }
+
+      if (lede && reason) {
+        lede.textContent = reason;
+      }
+      if (errEl) {
+        errEl.hidden = true;
+        errEl.textContent = "";
+      }
+      input.value = getStoredPullToken() || "";
+
+      const cleanup = () => {
+        form.removeEventListener("submit", onSubmit);
+        btnCancel?.removeEventListener("click", onCancel);
+        modal.removeEventListener("cancel", onCancel);
+      };
+
+      const onCancel = (e) => {
+        e?.preventDefault?.();
+        cleanup();
+        modal.close();
+        reject(new Error("GitHub authentication cancelled."));
+      };
+
+      const onSubmit = async (e) => {
+        e.preventDefault();
+        const token = input.value.trim();
+        if (!token) {
+          if (errEl) {
+            errEl.hidden = false;
+            errEl.textContent = "Paste a GitHub personal access token.";
+          }
+          return;
+        }
+        try {
+          const res = await fetch("https://api.github.com/user", {
+            headers: authHeaders(token),
+          });
+          if (!res.ok) {
+            throw new Error(
+              res.status === 401
+                ? "Token rejected by GitHub. Check the PAT and try again."
+                : `GitHub user lookup failed (${res.status}).`,
+            );
+          }
+          const user = await res.json();
+          setStoredPullToken(token);
+          cleanup();
+          modal.close();
+          resolve(token);
+          if (errEl) {
+            errEl.hidden = true;
+          }
+          void user;
+        } catch (err) {
+          if (errEl) {
+            errEl.hidden = false;
+            errEl.textContent = err.message || String(err);
+          }
+        }
+      };
+
+      form.addEventListener("submit", onSubmit);
+      btnCancel?.addEventListener("click", onCancel);
+      modal.addEventListener("cancel", onCancel);
+      modal.showModal();
+      input.focus();
     });
+  }
+
+  async function githubRequest(url, token, { allowRetryAuth = true } = {}) {
+    const res = await fetch(url, { headers: authHeaders(token) });
+
+    if (res.ok) return res;
+
+    const needsAuth =
+      res.status === 401 ||
+      res.status === 403 ||
+      (res.status === 404 && !token);
+
+    if (needsAuth && allowRetryAuth) {
+      throw new AuthNeededError(
+        res.status === 403
+          ? "GitHub blocked the request (private repo, SSO, or rate limit). Sign in with a PAT that can read this repo."
+          : "This repository requires authentication (private or not found anonymously).",
+        res.status,
+      );
+    }
+
     if (res.status === 404) {
       throw new Error(
-        "GitHub returned 404 — repo/file not found, private, or wrong URL. Use a public repo, or paste the file URL (…/blob/branch/file.js).",
+        "GitHub returned 404 — repo/file not found or token lacks access. Check the URL and PAT scopes (Contents: Read).",
       );
     }
     if (res.status === 403) {
       throw new Error(
-        "GitHub rate limit or blocked request. Wait a minute, or paste the source file contents instead.",
+        "GitHub returned 403 — rate limit, SSO authorization required, or insufficient token scope.",
       );
     }
-    if (!res.ok) {
-      throw new Error(`GitHub fetch failed (${res.status}).`);
+    if (res.status === 401) {
+      throw new AuthNeededError("GitHub rejected the token (401).", 401);
     }
+    throw new Error(`GitHub fetch failed (${res.status}).`);
+  }
+
+  async function githubGetJson(url, token, opts) {
+    const res = await githubRequest(url, token, opts);
     return res.json();
   }
 
-  async function fetchRawText(url) {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`Could not download file (${res.status}).`);
-    }
+  async function fetchRawText(url, token, opts) {
+    const res = await githubRequest(url, token, opts);
     return res.text();
   }
 
@@ -577,8 +732,25 @@ ${pack.harness}
     return item.content || "";
   }
 
-  async function fetchGistSource(parsed) {
-    const data = await githubGetJson(`https://api.github.com/gists/${parsed.gistId}`);
+  async function withAuthRetry(fn) {
+    let token = getPreferredToken();
+    try {
+      return await fn(token);
+    } catch (err) {
+      if (!err?.needsAuth) throw err;
+      token = await promptPullAuth(
+        err.message ||
+          "This repository requires authentication. Paste a GitHub PAT with Contents: Read.",
+      );
+      return fn(token);
+    }
+  }
+
+  async function fetchGistSource(parsed, token) {
+    const data = await githubGetJson(
+      `https://api.github.com/gists/${parsed.gistId}`,
+      token,
+    );
     const files = Object.values(data.files || {});
     if (!files.length) throw new Error("Gist has no files.");
     const preferred =
@@ -591,9 +763,9 @@ ${pack.harness}
     };
   }
 
-  async function fetchGitHubFile(owner, repo, ref, path) {
+  async function fetchGitHubFile(owner, repo, ref, path, token) {
     const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(ref)}`;
-    const item = await githubGetJson(api);
+    const item = await githubGetJson(api, token);
     if (Array.isArray(item)) {
       throw new Error(`URL points to a folder (${path || "/"}). Open a specific file, or we will try common entry files.`);
     }
@@ -602,54 +774,63 @@ ${pack.harness}
     }
     let text = decodeContent(item);
     if (!text && item.download_url) {
-      text = await fetchRawText(item.download_url);
+      text = await fetchRawText(item.download_url, token);
     }
-    return { source: text, path: item.path, note: `Loaded ${item.path} @ ${ref}` };
+    return {
+      source: text,
+      path: item.path,
+      note: `Loaded ${item.path} @ ${ref}${token ? " (authenticated)" : ""}`,
+    };
   }
 
-  async function resolveDefaultBranch(owner, repo) {
+  async function resolveDefaultBranch(owner, repo, token) {
     try {
-      const repoInfo = await githubGetJson(`https://api.github.com/repos/${owner}/${repo}`);
+      const repoInfo = await githubGetJson(
+        `https://api.github.com/repos/${owner}/${repo}`,
+        token,
+      );
       return repoInfo.default_branch || "main";
-    } catch {
+    } catch (err) {
+      if (err?.needsAuth) throw err;
       return "main";
     }
   }
 
-  async function fetchFromRepoRoot(owner, repo, ref) {
-    const branch = ref === "HEAD" ? await resolveDefaultBranch(owner, repo) : ref;
+  async function fetchFromRepoRoot(owner, repo, ref, token) {
+    const branch = ref === "HEAD" ? await resolveDefaultBranch(owner, repo, token) : ref;
     const tried = [];
     for (const candidate of ENTRY_CANDIDATES) {
       tried.push(candidate);
       try {
-        const file = await fetchGitHubFile(owner, repo, branch, candidate);
+        const file = await fetchGitHubFile(owner, repo, branch, candidate, token);
         return {
           ...file,
-          note: `${file.note} (auto-picked entry file from public repo)`,
+          note: `${file.note} (auto-picked entry file)`,
         };
-      } catch {
+      } catch (err) {
+        if (err?.needsAuth) throw err;
         /* try next */
       }
     }
-    // List root and pick first code-looking file
     try {
       const listing = await githubGetJson(
         `https://api.github.com/repos/${owner}/${repo}/contents/?ref=${encodeURIComponent(branch)}`,
+        token,
       );
       if (Array.isArray(listing)) {
         const codeFile = listing.find(
           (f) => f.type === "file" && /\.(js|mjs|cjs|ts|py|java)$/i.test(f.name),
         );
         if (codeFile) {
-          const file = await fetchGitHubFile(owner, repo, branch, codeFile.path);
+          const file = await fetchGitHubFile(owner, repo, branch, codeFile.path, token);
           return {
             ...file,
             note: `${file.note} (first code file in repo root)`,
           };
         }
       }
-    } catch {
-      /* fall through */
+    } catch (err) {
+      if (err?.needsAuth) throw err;
     }
     throw new Error(
       `Could not find a source file in ${owner}/${repo}. Tried: ${tried.slice(0, 6).join(", ")}… Paste a file URL like https://github.com/${owner}/${repo}/blob/${branch}/yourfile.js or paste the code.`,
@@ -657,30 +838,37 @@ ${pack.harness}
   }
 
   /**
-   * Fetch source from a public GitHub repo/file/gist URL.
+   * Fetch source from a GitHub repo/file/gist URL (public or private with PAT).
    */
-  async function fetchSourceFromUrl(url) {
+  async function fetchSourceFromUrl(url, options = {}) {
     const parsed = parseGitHubUrl(url);
     if (!parsed) {
       throw new Error(
-        "Only public GitHub/Gist URLs are supported for fetch. Example: https://github.com/owner/repo/blob/main/solution.js",
+        "Only GitHub/Gist URLs are supported for pull. Example: https://github.com/owner/repo/blob/main/solution.js",
       );
-    }
-    if (parsed.host === "gist") {
-      return fetchGistSource(parsed);
     }
 
-    const ref = parsed.ref || "HEAD";
-    if (parsed.kind === "file" && parsed.path) {
-      const branch = ref === "HEAD" ? await resolveDefaultBranch(parsed.owner, parsed.repo) : ref;
-      return fetchGitHubFile(parsed.owner, parsed.repo, branch, parsed.path);
-    }
-    if (parsed.kind === "dir") {
-      throw new Error(
-        "That URL is a folder. Paste a file URL (…/blob/branch/path/file.js) or the repo root to auto-pick an entry file.",
-      );
-    }
-    return fetchFromRepoRoot(parsed.owner, parsed.repo, ref);
+    return withAuthRetry(async (token) => {
+      if (options.forceAuth && !token) {
+        throw new AuthNeededError("Authentication requested before pull.", 401);
+      }
+      if (parsed.host === "gist") {
+        return fetchGistSource(parsed, token);
+      }
+
+      const ref = parsed.ref || "HEAD";
+      if (parsed.kind === "file" && parsed.path) {
+        const branch =
+          ref === "HEAD" ? await resolveDefaultBranch(parsed.owner, parsed.repo, token) : ref;
+        return fetchGitHubFile(parsed.owner, parsed.repo, branch, parsed.path, token);
+      }
+      if (parsed.kind === "dir") {
+        throw new Error(
+          "That URL is a folder. Paste a file URL (…/blob/branch/path/file.js) or the repo root to auto-pick an entry file.",
+        );
+      }
+      return fetchFromRepoRoot(parsed.owner, parsed.repo, ref, token);
+    });
   }
 
   function languageFromPath(path, fallback) {
@@ -694,7 +882,7 @@ ${pack.harness}
   /**
    * Bind a code-lab UI block.
    * Expected elements with data-cv-* inside root:
-   *  language, repo, source, validate, generate, run, download, report
+   *  language, repo, source, pull, validate, generate, run, download, report
    */
   function bindPanel(root) {
     if (!root || root.dataset.cvBound) return;
@@ -704,6 +892,7 @@ ${pack.harness}
     const repoEl = root.querySelector("[data-cv-repo]");
     const sourceEl = root.querySelector("[data-cv-source]");
     const reportEl = root.querySelector("[data-cv-report]");
+    const btnPull = root.querySelector("[data-cv-pull]");
     const btnValidate = root.querySelector("[data-cv-validate]");
     const btnGenerate = root.querySelector("[data-cv-generate]");
     const btnRun = root.querySelector("[data-cv-run]");
@@ -720,18 +909,17 @@ ${pack.harness}
       };
     }
 
-    async function ensureSource() {
+    async function pullIntoEditor({ force = false } = {}) {
       const cur = read();
-      if (cur.source.trim()) return { ...cur, fetchNote: "" };
       if (!cur.repoUrl.trim()) {
-        throw new Error(
-          "Add a public GitHub file/repo URL, or paste source code (both are optional — skip if you have neither).",
-        );
+        throw new Error("Enter a GitHub repo or file URL first.");
       }
       if (reportEl) {
-        reportEl.innerHTML = `<p class="code-lab__meta">Fetching from GitHub…</p>`;
+        reportEl.innerHTML = `<p class="code-lab__meta">Pulling from GitHub…</p>`;
       }
-      const fetched = await fetchSourceFromUrl(cur.repoUrl.trim());
+      const fetched = await fetchSourceFromUrl(cur.repoUrl.trim(), {
+        forceAuth: force && !getPreferredToken(),
+      });
       if (!fetched.source?.trim()) {
         throw new Error("GitHub file was empty.");
       }
@@ -744,15 +932,47 @@ ${pack.harness}
         source: fetched.source,
         language: langEl?.value || langGuess || "auto",
         repoUrl: cur.repoUrl,
-        fetchNote: fetched.note || "Loaded from GitHub",
+        fetchNote: fetched.note || "Pulled from GitHub",
       };
     }
 
+    async function ensureSource({ pullIfEmpty = true } = {}) {
+      const cur = read();
+      if (cur.source.trim()) return { ...cur, fetchNote: "" };
+      if (!pullIfEmpty) {
+        throw new Error("Pull from repo first, or paste source code.");
+      }
+      if (!cur.repoUrl.trim()) {
+        throw new Error(
+          "Add a GitHub URL and click Pull from repo, or paste source code (both optional if you skip code).",
+        );
+      }
+      return pullIntoEditor();
+    }
+
     function setBusy(busy) {
-      [btnValidate, btnGenerate, btnRun, btnDownload].forEach((b) => {
+      [btnPull, btnValidate, btnGenerate, btnRun, btnDownload].forEach((b) => {
         if (b) b.disabled = busy;
       });
     }
+
+    btnPull?.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        const { fetchNote } = await pullIntoEditor();
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__status is-ok">Pulled successfully</p><p class="code-lab__meta">${escapeHtml(
+            fetchNote,
+          )}</p>`;
+        }
+      } catch (err) {
+        if (reportEl) {
+          reportEl.innerHTML = `<p class="code-lab__status is-bad">${escapeHtml(err.message || String(err))}</p>`;
+        }
+      } finally {
+        setBusy(false);
+      }
+    });
 
     btnValidate?.addEventListener("click", async () => {
       setBusy(true);
@@ -849,6 +1069,7 @@ ${pack.harness}
     root.__gdlCodeLab = {
       read,
       ensureSource,
+      pullIntoEditor,
       getSnapshot: () => {
         const { source, language, repoUrl } = read();
         if (!source.trim() && !repoUrl.trim()) return null;
@@ -870,5 +1091,6 @@ ${pack.harness}
     renderRunHtml,
     fetchSourceFromUrl,
     parseGitHubUrl,
+    promptPullAuth,
   };
 })();

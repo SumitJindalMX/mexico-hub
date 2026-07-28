@@ -227,6 +227,38 @@
       </footer>
     </div>
 
+    <dialog class="modal" id="modal-gh-pull-auth">
+      <form method="dialog" class="modal__panel" id="form-gh-pull-auth">
+        <h2 class="modal__title">GitHub access needed</h2>
+        <p class="modal__lede" id="gh-pull-auth-lede">
+          This repository looks private or requires authentication. Paste a GitHub personal access
+          token with <strong>Contents: Read</strong> on that repo to pull the source.
+        </p>
+        <div class="field">
+          <label for="gh-pull-pat">GitHub PAT</label>
+          <input
+            id="gh-pull-pat"
+            name="gh-pull-pat"
+            type="password"
+            autocomplete="off"
+            placeholder="ghp_… or github_pat_…"
+            required
+          />
+        </div>
+        <p class="modal__hint">
+          Token is kept in this browser tab only (sessionStorage) for pulling code — not the editor allowlist.
+          Create a classic or fine-grained token with read access to the target repo.
+        </p>
+        <p class="form-error" id="gh-pull-auth-error" hidden></p>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" id="btn-gh-pull-auth-cancel">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="btn-gh-pull-auth-submit">
+            Use token &amp; pull
+          </button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog class="modal" id="modal-signin">
       <form method="dialog" class="modal__panel" id="form-signin">
         <h2 class="modal__title">Editor sign in</h2>
@@ -437,10 +469,9 @@
               Source code <span class="opt">(optional)</span>
             </p>
             <p class="modal__hint">
-              Paste a <strong>public GitHub file or repo URL</strong> and click Validate — we fetch the code for you.
-              Prefer a file link (<code>…/blob/main/solution.js</code>). Repo roots auto-pick common entry files.
-              Private repos cannot be fetched in the browser — paste the source instead.
-              JS tests run in a sandbox; Python/Java get downloadable stubs.
+              Enter a GitHub file or repo URL and click <strong>Pull from repo</strong>.
+              Public repos load without a token; private repos open a popup for a read-only PAT.
+              Prefer a file link (<code>…/blob/main/solution.js</code>). Then Validate / Generate / Run.
             </p>
             <div class="form-grid code-lab__grid">
               <div class="field">
@@ -463,14 +494,15 @@
                   data-cv-source
                   rows="8"
                   spellcheck="false"
-                  placeholder="Paste your solution here…"
+                  placeholder="Auto-filled after Pull from repo, or paste manually…"
                 ></textarea>
               </div>
             </div>
             <div class="code-lab__actions">
+              <button type="button" class="btn btn--primary btn--sm" data-cv-pull>Pull from repo</button>
               <button type="button" class="btn btn--ghost btn--sm" data-cv-validate>Validate</button>
               <button type="button" class="btn btn--ghost btn--sm" data-cv-generate>Generate tests</button>
-              <button type="button" class="btn btn--primary btn--sm" data-cv-run>Run tests</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-run>Run tests</button>
               <button type="button" class="btn btn--ghost btn--sm" data-cv-download>Download harness</button>
             </div>
             <div class="code-lab__report" data-cv-report id="reg-code-report" aria-live="polite"></div>
