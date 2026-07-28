@@ -5,10 +5,12 @@
 window.GDL = {
   site: {
     brand: "MX",
+    company: "Amdocs",
+    companyTagline: "make it amazing",
     name: "Amdocs Mexico Hub",
     region: "Mexico · CALA",
     tagline:
-      "One colorful platform for every activity that puts Mexico on stage — hackathons, culture, talent, and site moments.",
+      "Amdocs Mexico Hub — where teams hack, celebrate, and grow. Make it amazing across every activity.",
     asOf: "2026-07-28",
   },
 

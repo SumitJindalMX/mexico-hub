@@ -156,6 +156,27 @@
   text-wrap: balance;
 }
 
+.hero__company {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mx-green-deep);
+  margin: 0;
+}
+
+.hero__company-tag {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+  font-weight: 650;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: var(--mx-red);
+  margin: 0 0 var(--space-2);
+  line-height: 1.1;
+}
+
 .brand span {
   background: linear-gradient(120deg, var(--mx-green), var(--mx-gold) 45%, var(--mx-red));
   -webkit-background-clip: text;

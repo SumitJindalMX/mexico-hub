@@ -97,7 +97,7 @@
 .modal__hint code,
 .footnote code {
   font-size: 0.85em;
-  color: var(--signal);
+  color: var(--mx-red);
 }
 
 .modal__actions {
@@ -361,6 +361,21 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-faint);
+}
+
+.req {
+  color: var(--mx-red);
+  font-weight: 800;
+  margin-left: 0.15rem;
+}
+
+.opt {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  margin-left: 0.35rem;
 }
 
 .field input,

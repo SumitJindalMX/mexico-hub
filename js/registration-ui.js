@@ -17,9 +17,9 @@
   function memberRowHtml() {
     return `
       <div class="member-row">
-        <input type="text" name="memberName" placeholder="Name" required />
-        <input type="email" name="memberEmail" placeholder="Email" />
-        <input type="text" name="memberRole" placeholder="Role" value="Member" />
+        <input type="text" name="memberName" placeholder="Name *" required aria-label="Member name (required)" />
+        <input type="email" name="memberEmail" placeholder="Email (optional)" aria-label="Member email (optional)" />
+        <input type="text" name="memberRole" placeholder="Role (optional)" value="Member" aria-label="Member role (optional)" />
         <button type="button" class="btn btn--ghost btn--sm btn-remove-member" title="Remove">Remove</button>
       </div>
     `;

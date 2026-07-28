@@ -20,7 +20,7 @@
     </script>
     <meta
       name="description"
-      content="Amdocs Mexico Hub — platform for hackathons, culture, talent, and activities across Mexico."
+      content="Amdocs Mexico Hub — make it amazing. Platform for hackathons, culture, talent, and activities across Mexico."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,7 +37,7 @@
     <div class="shell">
       <div class="topbar">
         <div class="wrap topbar__inner">
-          <a class="topbar__brand" href="#">Mexico <span>Hub</span></a>
+          <a class="topbar__brand" href="#">Amdocs <span>Mexico Hub</span></a>
           <div class="topbar__actions" id="auth-bar">
             <button type="button" class="btn btn--ghost btn--sm" id="btn-google-signin" hidden>
               Google
@@ -63,6 +63,8 @@
       <header class="hero">
         <div class="hero__atmosphere" aria-hidden="true"></div>
         <div class="wrap hero__content">
+          <p class="hero__company">Amdocs</p>
+          <p class="hero__company-tag">make it amazing</p>
           <p class="brand" id="brand">MX</p>
           <h1 class="hero__headline" id="headline">
             Every activity that puts Mexico on stage.
@@ -252,12 +254,12 @@
         </p>
         <div class="form-grid">
           <div class="field field--full">
-            <label for="ev-name">Name</label>
+            <label for="ev-name">Name <span class="req" aria-hidden="true">*</span></label>
             <input id="ev-name" name="name" required maxlength="120" placeholder="Event name" />
           </div>
           <div class="field">
-            <label for="ev-category">Category</label>
-            <select id="ev-category" name="category">
+            <label for="ev-category">Category <span class="req" aria-hidden="true">*</span></label>
+            <select id="ev-category" name="category" required>
               <option>Hackathon</option>
               <option>Sports</option>
               <option>Culture</option>
@@ -267,43 +269,43 @@
             </select>
           </div>
           <div class="field">
-            <label for="ev-status">Status</label>
-            <select id="ev-status" name="status">
+            <label for="ev-status">Status <span class="req" aria-hidden="true">*</span></label>
+            <select id="ev-status" name="status" required>
               <option>Upcoming</option>
               <option>Completed</option>
               <option>Recurring</option>
             </select>
           </div>
           <div class="field">
-            <label for="ev-visibility">Visibility</label>
-            <select id="ev-visibility" name="visibility">
+            <label for="ev-visibility">Visibility <span class="req" aria-hidden="true">*</span></label>
+            <select id="ev-visibility" name="visibility" required>
               <option>High</option>
               <option>Medium</option>
               <option>Internal</option>
             </select>
           </div>
           <div class="field">
-            <label for="ev-confidence">Data confidence</label>
-            <select id="ev-confidence" name="confidence">
+            <label for="ev-confidence">Data confidence <span class="req" aria-hidden="true">*</span></label>
+            <select id="ev-confidence" name="confidence" required>
               <option value="Editor" selected>Editor</option>
               <option value="Verified">Verified</option>
               <option value="Seed">Seed</option>
             </select>
           </div>
           <div class="field">
-            <label for="ev-when">When</label>
+            <label for="ev-when">When <span class="req" aria-hidden="true">*</span></label>
             <input id="ev-when" name="when" placeholder="e.g. Aug 2026" required />
           </div>
           <div class="field">
-            <label for="ev-sort">Sort key (YYYY-MM-DD)</label>
+            <label for="ev-sort">Sort key (YYYY-MM-DD) <span class="opt">(optional)</span></label>
             <input id="ev-sort" name="sortKey" type="date" />
           </div>
           <div class="field field--full">
-            <label for="ev-audience">Audience</label>
+            <label for="ev-audience">Audience <span class="req" aria-hidden="true">*</span></label>
             <input id="ev-audience" name="audience" placeholder="Who it's for" required />
           </div>
           <div class="field field--full">
-            <label for="ev-highlight">Highlight</label>
+            <label for="ev-highlight">Highlight <span class="req" aria-hidden="true">*</span></label>
             <textarea
               id="ev-highlight"
               name="highlight"
@@ -319,21 +321,24 @@
             </label>
           </div>
           <div class="field field--full">
-            <p class="modal__subtitle" style="margin:0.5rem 0">Materials (optional links)</p>
+            <p class="modal__subtitle" style="margin:0.5rem 0">
+              Materials <span class="opt">(optional)</span>
+            </p>
             <p class="modal__hint">
-              Paste SharePoint / OneDrive / Stream links here for the activity brief.
-              Participants upload their own PPT/video when they use <strong>Register team</strong>.
+              Paste SharePoint / OneDrive / Stream / Drive links for the activity brief.
+              Participants can add their own PPT/video when they register (also optional).
             </p>
           </div>
           <div class="field">
-            <label for="ev-ppt-url">PPT / deck URL</label>
+            <label for="ev-ppt-url">PPT / deck URL <span class="opt">(optional)</span></label>
             <input id="ev-ppt-url" type="url" placeholder="https://…" />
           </div>
           <div class="field">
-            <label for="ev-video-url">Video URL</label>
+            <label for="ev-video-url">Video URL <span class="opt">(optional)</span></label>
             <input id="ev-video-url" type="url" placeholder="https://…" />
           </div>
         </div>
+        <p class="modal__hint"><span class="req">*</span> Required fields</p>
         <p class="form-error" id="create-error" hidden></p>
         <div class="modal__actions">
           <button type="button" class="btn btn--ghost" id="btn-create-cancel">Cancel</button>
@@ -355,54 +360,57 @@
         <input type="hidden" id="reg-event-id" />
         <div class="form-grid">
           <div class="field">
-            <label for="reg-invite">Invite code (optional)</label>
+            <label for="reg-invite">Invite code <span class="opt">(optional)</span></label>
             <input id="reg-invite" maxlength="16" placeholder="From organizer email / OPEN" style="text-transform:uppercase" />
           </div>
           <div class="field">
-            <label for="reg-team-name">Team name</label>
+            <label for="reg-team-name">Team name <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-team-name" required maxlength="120" />
           </div>
           <div class="field">
-            <label for="reg-lead-name">Lead name</label>
+            <label for="reg-lead-name">Lead name <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-lead-name" required />
           </div>
           <div class="field">
-            <label for="reg-lead-email">Lead email</label>
+            <label for="reg-lead-email">Lead email <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-lead-email" type="email" required />
           </div>
           <div class="field field--full">
             <div class="members-head">
-              <label>Team members</label>
+              <label>Team members <span class="req" aria-hidden="true">*</span> <span class="opt">(at least one name)</span></label>
               <button type="button" class="btn btn--ghost btn--sm" id="btn-add-member">Add member</button>
             </div>
             <div id="reg-members" class="members-list"></div>
           </div>
           <div class="field field--full">
-            <p class="modal__subtitle" style="margin:0.25rem 0">Team materials — PPT &amp; video</p>
+            <p class="modal__subtitle" style="margin:0.25rem 0">
+              Team materials — PPT &amp; video <span class="opt">(optional)</span>
+            </p>
             <p class="modal__hint">
-              Prefer <strong>Google</strong> sign-in, then choose PPT/video files — they upload to
-              your Google Drive. Or paste links. SharePoint upload still needs Microsoft admin consent.
+              Optional. Sign in with <strong>Google</strong> to upload files to Drive, or paste links.
+              You can register without materials and add them later.
             </p>
           </div>
           <div class="field">
-            <label for="reg-ppt">PPT file upload (Google Drive)</label>
+            <label for="reg-ppt">PPT file <span class="opt">(optional)</span></label>
             <input id="reg-ppt" type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" />
           </div>
           <div class="field">
-            <label for="reg-video">Video file upload (Google Drive)</label>
+            <label for="reg-video">Video file <span class="opt">(optional)</span></label>
             <input id="reg-video" type="file" accept="video/*,.mp4,.mov,.webm" />
           </div>
           <div class="field">
-            <label for="reg-ppt-url">Or PPT URL</label>
+            <label for="reg-ppt-url">PPT URL <span class="opt">(optional)</span></label>
             <input id="reg-ppt-url" type="url" placeholder="https://drive.google.com/… or SharePoint" />
           </div>
           <div class="field">
-            <label for="reg-video-url">Or video URL</label>
+            <label for="reg-video-url">Video URL <span class="opt">(optional)</span></label>
             <input id="reg-video-url" type="url" placeholder="https://…" />
           </div>
         </div>
         <p class="modal__hint">
-          File uploads go to Google Drive when signed in with Google (caps: ~50&nbsp;MB PPT, ~250&nbsp;MB video).
+          <span class="req">*</span> Required · PPT/video are optional.
+          Uploads use Google Drive when signed in with Google (~50&nbsp;MB PPT, ~250&nbsp;MB video).
         </p>
         <p class="form-error" id="register-error" hidden></p>
         <div class="modal__actions">

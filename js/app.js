@@ -177,6 +177,7 @@
     els.brand.innerHTML = `${site.brand}<span>.</span>`;
     els.lede.textContent = site.tagline;
     els.heroMeta.innerHTML = `
+      <span>${site.company} · ${site.companyTagline}</span>
       <span>${site.name}</span>
       <span>${site.region}</span>
       <span>As of ${site.asOf}</span>
@@ -408,7 +409,7 @@
   }
 
   function renderFooter() {
-    els.footer.textContent = `${site.name} · ${site.region} · ${events.length} activities`;
+    els.footer.innerHTML = `<strong>${site.company}</strong> · <em>${site.companyTagline}</em> · ${site.name} · ${site.region} · ${events.length} activities`;
   }
 
   function showError(el, message) {
