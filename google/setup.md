@@ -1,54 +1,169 @@
-# Google sign-in setup (Mexico Hub)
+# Mexico Hub — Google sign-in install guide
 
-Static GitHub Pages uses **Google Identity Services** (OAuth Web client). No client secret is stored in the repo.
+Follow these steps once. No code changes are required except pasting your **Client ID** into `js/google-config.js` (or send the Client ID to whoever maintains the repo).
 
-## 1. Create OAuth client
+**Live site:** https://sumitjindalmx.github.io/mexico-hub/  
+**Repo:** https://github.com/SumitJindalMX/mexico-hub
 
-1. Open [Google Cloud Console](https://console.cloud.google.com/)
-2. Create or select a project (e.g. `mexico-hub`)
-3. **APIs & Services → OAuth consent screen**
-   - User type: **External** (or Internal if using a Google Workspace you admin)
-   - App name: `Mexico Hub`
-   - Support email: your address
-   - Authorized domains: add `github.io`
-   - Scopes: `openid`, `email`, `profile` (default)
-   - Add yourself as a test user while the app is in **Testing**
-4. **APIs & Services → Credentials → Create credentials → OAuth client ID**
-   - Application type: **Web application**
-   - Name: `Mexico Hub Pages`
-   - **Authorized JavaScript origins**
-     - `https://sumitjindalmx.github.io`
-     - `http://localhost` (optional, for local file/server testing)
-   - Redirect URIs: not required for the token popup flow
-5. Copy the **Client ID** (`….apps.googleusercontent.com`)
+---
 
-## 2. Wire into the site
+## Prerequisites
 
-In `js/google-config.js`:
+- A Google account (personal Gmail or Google Workspace)
+- Access to [Google Cloud Console](https://console.cloud.google.com/)
+- Ability to commit/push to `mexico-hub` **or** someone who can paste the Client ID for you
+
+---
+
+## Step 1 — Create / select a Google Cloud project
+
+1. Open https://console.cloud.google.com/
+2. Top bar → project picker → **New Project**
+3. Name: `mexico-hub` (or any name)
+4. Create → select that project
+
+---
+
+## Step 2 — Configure the OAuth consent screen
+
+1. Left menu → **APIs & Services** → **OAuth consent screen**
+2. Choose:
+   - **External** — if anyone with a Google account should sign in (typical)
+   - **Internal** — only if you admin an Amdocs Google Workspace and want company accounts only
+3. Click **Create**
+4. Fill:
+   - **App name:** `Mexico Hub`
+   - **User support email:** your email
+   - **Developer contact:** your email
+5. **Save and Continue**
+6. **Scopes** → leave defaults (`openid`, `email`, `profile`) → **Save and Continue**
+7. **Test users** (while app is in Testing):
+   - **Add users** → add your Gmail / work Google address
+   - Add every person who should test before you publish
+8. **Save and Continue** → back to dashboard
+
+**Authorized domains** (if asked):
+
+- Add: `github.io`
+
+---
+
+## Step 3 — Create the OAuth Web client
+
+1. **APIs & Services** → **Credentials**
+2. **+ Create credentials** → **OAuth client ID**
+3. Application type: **Web application**
+4. Name: `Mexico Hub Pages`
+5. **Authorized JavaScript origins** → **Add URI**:
+   - `https://sumitjindalmx.github.io`
+   - (Optional for local testing) `http://localhost`
+   - (Optional) `http://127.0.0.1`
+6. **Authorized redirect URIs** — leave empty (this site uses the Google popup / token flow)
+7. Click **Create**
+8. Copy the **Client ID**  
+   It looks like:  
+   `123456789-xxxx.apps.googleusercontent.com`
+
+Do **not** create or download a client secret for this SPA flow. Do **not** commit any secret to GitHub.
+
+---
+
+## Step 4 — Put the Client ID in the site
+
+Edit `js/google-config.js` in the repo:
 
 ```js
-enabled: true,
-clientId: "PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com",
+window.GDL_GOOGLE = {
+  enabled: true,
+  clientId: "PASTE_YOUR_CLIENT_ID_HERE.apps.googleusercontent.com",
+  scopes: "openid email profile",
+  allowedEmailDomains: [
+    // Optional: lock to company / Gmail only
+    // "amdocs.com",
+    // "gmail.com",
+  ],
+  sessionKey: "gdl.google.session",
+  // …
+};
 ```
 
-Optional: restrict domains:
+Then:
+
+```bash
+git add js/google-config.js
+git commit -m "Configure Google OAuth client ID"
+git push origin main
+```
+
+Wait 1–2 minutes for GitHub Pages to update.
+
+---
+
+## Step 5 — Verify on the live site
+
+1. Open https://sumitjindalmx.github.io/mexico-hub/
+2. Hard refresh (`Ctrl+Shift+R`)
+3. Click **Google sign in** (top bar)
+4. Pick your Google account (must be a **test user** if consent screen is still Testing)
+5. Confirm the top bar shows your email
+6. Open an activity → **Register team** — lead name/email should prefill
+
+---
+
+## Step 6 — (Later) Publish the app for everyone
+
+While status is **Testing**, only listed test users can sign in.
+
+When ready for all users:
+
+1. OAuth consent screen → **Publish app**
+2. Complete Google’s verification if prompted (for sensitive scopes; basic email/profile is usually lighter)
+
+---
+
+## Optional — Restrict email domains
+
+In `js/google-config.js`:
 
 ```js
 allowedEmailDomains: ["amdocs.com", "gmail.com"],
 ```
 
-Commit and push to `main` (GitHub Pages).
+Empty array = any Google account allowed (still subject to consent screen / test users).
 
-## 3. Verify
+---
 
-1. Open https://sumitjindalmx.github.io/mexico-hub/
-2. Hard-refresh
-3. Click **Google sign in**
-4. Pick account → register form should prefill name/email
+## Troubleshooting
 
-## Notes
+| Symptom | Fix |
+|--------|-----|
+| Alert: “Google sign-in is not configured” | `clientId` missing or not pushed to `main` |
+| `origin_mismatch` / blocked | Add `https://sumitjindalmx.github.io` under **Authorized JavaScript origins** (no path, no trailing slash) |
+| “Access blocked: app is in testing” | Add the user under OAuth consent screen → **Test users** |
+| Popup closes / GIS script error | Corporate proxy (Zscaler) may block `accounts.google.com` — ask IT to allow it |
+| Button works but email empty | Confirm scopes include `openid email profile` |
 
-- While the consent screen is in **Testing**, only listed test users can sign in.
-- Publish the app on the consent screen when you want all Google users (or your Workspace).
-- If the GIS script is blocked by Zscaler, ask IT to allow `accounts.google.com` / `googleapis.com`.
-- Google sign-in identifies the participant; registrations still submit via Gmail compose, GitHub Issue, or GitHub editor publish until SharePoint consent is granted.
+---
+
+## What Google sign-in does on Mexico Hub
+
+- Identifies the participant (name + email)
+- Prefills the registration form
+- **Submit registration** (when signed in with Google) opens Gmail compose to the organizer inbox and downloads a JSON copy
+
+It does **not** replace:
+
+- **Editor sign in** (GitHub PAT) — publishing events / `data/*.json`
+- **Microsoft sign in** — SharePoint lists / file uploads (needs Entra admin consent)
+
+---
+
+## Checklist
+
+- [ ] Google Cloud project created
+- [ ] OAuth consent screen configured + test users added
+- [ ] OAuth Web client created
+- [ ] JS origin: `https://sumitjindalmx.github.io`
+- [ ] Client ID pasted into `js/google-config.js`
+- [ ] Pushed to `main`
+- [ ] Live site: Google sign in works

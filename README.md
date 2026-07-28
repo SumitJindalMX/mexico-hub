@@ -26,8 +26,9 @@ Full SharePoint setup: [sharepoint/lists-setup.md](sharepoint/lists-setup.md)
 
 - Browse and filter Mexico activities
 - Editors publish activities (GitHub allowlist + PAT)
-- Participants register teams (invite + Microsoft account)
-- PPT / video uploads to SharePoint
+- Participants register teams (Google sign-in, Gmail/GitHub fallback, or Microsoft when consented)
+- PPT / video uploads to SharePoint (Microsoft) or paste links
+- Invite codes via Gmail / GitHub (`google/setup.md`, `sharepoint/lists-setup.md`)
 
 ## Open locally
 
