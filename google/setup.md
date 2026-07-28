@@ -56,9 +56,10 @@ Follow these steps once. No code changes are required except pasting your **Clie
 4. Name: `Mexico Hub Pages`
 5. **Authorized JavaScript origins** → **Add URI**:
    - `https://sumitjindalmx.github.io`
-   - (Optional for local testing) `http://localhost`
-   - (Optional) `http://127.0.0.1`
-6. **Authorized redirect URIs** — leave empty (this site uses the Google popup / token flow)
+   - (Optional) `http://localhost`
+6. **Authorized redirect URIs** → **Add URI** (required for redirect sign-in):
+   - `https://sumitjindalmx.github.io/mexico-hub/`
+   - Exact match, **with** trailing slash
 7. Click **Create**
 8. Copy the **Client ID**  
    It looks like:  
@@ -138,9 +139,10 @@ Empty array = any Google account allowed (still subject to consent screen / test
 | Symptom | Fix |
 |--------|-----|
 | Alert: “Google sign-in is not configured” | `clientId` missing or not pushed to `main` |
-| `origin_mismatch` / blocked | Add `https://sumitjindalmx.github.io` under **Authorized JavaScript origins** (no path, no trailing slash) |
+| `origin_mismatch` / `redirect_uri_mismatch` | Origins: `https://sumitjindalmx.github.io` · Redirect: `https://sumitjindalmx.github.io/mexico-hub/` (trailing slash) |
 | “Access blocked: app is in testing” | Add the user under OAuth consent screen → **Test users** |
-| Popup closes / GIS script error | Corporate proxy (Zscaler) may block `accounts.google.com` — ask IT to allow it |
+| Popup blocked / GIS script error | Site falls back to **full-page Google redirect** — still add the redirect URI above |
+| Zscaler blocks `accounts.google.com` | Ask IT to allow Google accounts; redirect still needs that host |
 | Button works but email empty | Confirm scopes include `openid email profile` |
 
 ---

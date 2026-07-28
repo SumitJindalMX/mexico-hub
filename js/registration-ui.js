@@ -301,10 +301,10 @@
           alert(
             "Google sign-in needs an OAuth Web client ID.\n\n" +
               "1) Google Cloud Console → create OAuth client (Web)\n" +
-              "2) Authorized JS origin: https://sumitjindalmx.github.io\n" +
-              "3) Paste clientId into js/google-config.js\n" +
-              "4) Push to GitHub Pages\n\n" +
-              "Details: google/setup.md in the mexico-hub repo.",
+              "2) JS origin: https://sumitjindalmx.github.io\n" +
+              "3) Redirect URI: https://sumitjindalmx.github.io/mexico-hub/\n" +
+              "4) Paste clientId into js/google-config.js and push\n\n" +
+              "Details: google/setup.md",
           );
           return;
         }
