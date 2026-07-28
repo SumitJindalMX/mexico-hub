@@ -13,8 +13,16 @@ window.GDL_GOOGLE = {
    */
   clientId: "552990941460-oa958pl87fbg2b2lrbd7fsqbd257t87c.apps.googleusercontent.com",
 
-  /** Scopes for identity (add drive.file later if you want Drive uploads) */
-  scopes: "openid email profile",
+  /**
+   * Identity + Drive (upload PPT/video without SharePoint).
+   * Enable "Google Drive API" in Google Cloud → APIs & Services → Library.
+   * Add scope on OAuth consent screen if prompted.
+   */
+  scopes:
+    "openid email profile https://www.googleapis.com/auth/drive.file",
+
+  maxPptBytes: 50 * 1024 * 1024,
+  maxVideoBytes: 250 * 1024 * 1024,
 
   /** Optional: only allow these email domains (empty = any Google account) */
   allowedEmailDomains: [

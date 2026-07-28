@@ -265,6 +265,28 @@
     // Unknown codes still allowed (organizer may have emailed a one-off code)
   }
 
+  async function attachDriveUploads(form) {
+    if (!form.pptFile && !form.videoFile) return form;
+    if (!window.GDLGoogleAuth?.getProfile?.()) {
+      throw new Error(
+        "To upload PPT/video files, click Google in the top bar first (Drive access). Or clear the file inputs and paste links instead.",
+      );
+    }
+    if (!window.GDLGoogleDrive) {
+      throw new Error("Google Drive uploader not loaded. Hard-refresh the page.");
+    }
+    const urls = await window.GDLGoogleDrive.resolveMaterialUrls(form, (msg) => {
+      showError($("register-error"), msg);
+    });
+    return {
+      ...form,
+      pptFile: null,
+      videoFile: null,
+      pptUrl: urls.pptUrl,
+      videoUrl: urls.videoUrl,
+    };
+  }
+
   function requireTeamBasics(form) {
     if (!form.teamName.trim() || !form.leadName.trim() || !form.leadEmail.trim()) {
       return "Team name, lead name, and lead email are required.";
@@ -343,65 +365,61 @@
 
       try {
         await maybeValidateGithubInvite(form);
+        let payload = form;
 
         if (window.GDLM365Auth.getProfile()) {
-          const result = await submitM365(form, appApi);
+          const result = await submitM365(payload, appApi);
           $("modal-register").close();
           alert(`Team "${result.teamName}" registered to SharePoint.`);
           return;
         }
 
+        // Upload files to Google Drive when present (no SharePoint needed)
+        if (payload.pptFile || payload.videoFile) {
+          payload = await attachDriveUploads(payload);
+          showError($("register-error"), "");
+        }
+
         const gh = window.GDLAuth.getSession();
         if (gh) {
-          if (form.pptFile || form.videoFile) {
-            showError(
-              $("register-error"),
-              "Large file upload needs Microsoft/SharePoint. Clear the file inputs and paste PPT/video URLs instead, then submit again.",
-            );
-            return;
-          }
           const record = await window.GDLRegistrationsStore.submitViaGitHubEditor(
-            form,
+            payload,
             gh,
           );
           $("modal-register").close();
           alert(
-            `Team "${record.teamName}" saved to GitHub (data/registrations.json). Pages will refresh in about a minute.`,
+            `Team "${record.teamName}" saved to GitHub` +
+              (record.pptUrl || record.videoUrl
+                ? " (materials linked from Google Drive)."
+                : ".") +
+              " Pages will refresh in about a minute.",
           );
           return;
         }
 
-        // Google-signed-in participants → Gmail compose (identified submit)
         const google = window.GDLGoogleAuth?.getProfile?.();
         if (google) {
-          if (form.pptFile || form.videoFile) {
-            showError(
-              $("register-error"),
-              "File upload needs SharePoint. Clear file inputs and paste PPT/video URLs, then submit again.",
-            );
-            return;
-          }
           const record = window.GDLRegistrationsStore.buildRecord({
-            ...form,
+            ...payload,
             channel: "google",
             createdBy: google.email,
           });
           window.GDLRegistrationsStore.downloadJson(record);
-          window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+          window.GDLRegistrationsStore.openGmailCompose(record, payload.eventName);
           $("modal-register").close();
           return;
         }
 
         showError(
           $("register-error"),
-          "Use Google sign in + Submit, or “Submit via Gmail” / “Submit via GitHub Issue”, or Editor sign in.",
+          "Sign in with Google (for file upload + submit), or use Submit via Gmail / GitHub Issue with material links.",
         );
       } catch (err) {
         const msg = err.message || "Registration failed.";
         if (/admin|consent|AADSTS|approval/i.test(msg)) {
           showError(
             $("register-error"),
-            msg + " — Use Gmail or GitHub Issue fallback instead.",
+            msg + " — Or sign in with Google to upload to Drive.",
           );
         } else {
           showError($("register-error"), msg);
@@ -417,51 +435,42 @@
         showError($("register-error"), basicErr);
         return null;
       }
-      if (form.pptFile || form.videoFile) {
-        showError(
-          $("register-error"),
-          "Gmail / GitHub Issue paths support links only. Clear file uploads and paste PPT/video URLs.",
-        );
-        return null;
-      }
       return window.GDLRegistrationsStore.buildRecord({
         ...form,
         channel: "fallback",
       });
     }
 
-    $("btn-register-gmail")?.addEventListener("click", async () => {
+    async function runFallbackSubmit(channel) {
       showError($("register-error"), "");
-      const form = collectForm();
+      let form = collectForm();
       try {
         await maybeValidateGithubInvite(form);
+        if (form.pptFile || form.videoFile) {
+          form = await attachDriveUploads(form);
+        }
       } catch (err) {
         showError($("register-error"), err.message);
         return;
       }
       const record = prepareFallbackRecord(form);
       if (!record) return;
-      record.channel = "gmail";
+      record.channel = channel;
       window.GDLRegistrationsStore.downloadJson(record);
-      window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+      if (channel === "gmail") {
+        window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+      } else {
+        window.GDLRegistrationsStore.openGitHubIssue(record, form.eventName);
+      }
       $("modal-register").close();
+    }
+
+    $("btn-register-gmail")?.addEventListener("click", () => {
+      runFallbackSubmit("gmail");
     });
 
-    $("btn-register-github")?.addEventListener("click", async () => {
-      showError($("register-error"), "");
-      const form = collectForm();
-      try {
-        await maybeValidateGithubInvite(form);
-      } catch (err) {
-        showError($("register-error"), err.message);
-        return;
-      }
-      const record = prepareFallbackRecord(form);
-      if (!record) return;
-      record.channel = "github-issue";
-      window.GDLRegistrationsStore.downloadJson(record);
-      window.GDLRegistrationsStore.openGitHubIssue(record, form.eventName);
-      $("modal-register").close();
+    $("btn-register-github")?.addEventListener("click", () => {
+      runFallbackSubmit("github-issue");
     });
 
     $("btn-organize-cancel")?.addEventListener("click", () => {

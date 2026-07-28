@@ -134,6 +134,19 @@ Empty array = any Google account allowed (still subject to consent screen / test
 
 ---
 
+## Drive uploads (PPT / video)
+
+1. Google Cloud → **APIs & Services → Library** → enable **Google Drive API**
+2. OAuth consent screen → add scope  
+   `https://www.googleapis.com/auth/drive.file`  
+   (already requested by the site config)
+3. Sign out of Google on Mexico Hub, then **Google** sign in again and approve Drive
+4. Register team → choose PPT/video files → Submit
+
+Files land in the signed-in user's Drive and are shared as “anyone with the link”.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Fix |

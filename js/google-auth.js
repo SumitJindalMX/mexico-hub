@@ -206,12 +206,14 @@
     return new Promise(() => {});
   }
 
-  async function loginViaGisPopup() {
+  async function loginViaGisPopup(options = {}) {
     await waitForGis();
+    const scope = options.scope || cfg().scopes;
+    const prompt = options.prompt || "select_account";
     return new Promise((resolve, reject) => {
       const client = window.google.accounts.oauth2.initTokenClient({
         client_id: cfg().clientId,
-        scope: cfg().scopes,
+        scope,
         callback: async (resp) => {
           if (resp.error) {
             reject(new Error(formatGoogleError(resp.error_description || resp.error)));
@@ -219,7 +221,9 @@
           }
           try {
             accessToken = resp.access_token;
-            profile = await fetchUserInfo(accessToken);
+            if (!profile) {
+              profile = await fetchUserInfo(accessToken);
+            }
             persist();
             resolve(profile);
           } catch (err) {
@@ -239,7 +243,7 @@
           );
         },
       });
-      client.requestAccessToken({ prompt: "select_account" });
+      client.requestAccessToken({ prompt });
     });
   }
 
@@ -273,15 +277,25 @@
         "Google sign-in is not configured yet. See google/setup.md.",
       );
     }
-    // If GIS is already present, try popup (stays on page). Else redirect.
     if (window.google?.accounts?.oauth2) {
       try {
         return await loginViaGisPopup();
       } catch (err) {
-        // Fall through to redirect for origin / popup issues
         console.warn("Google popup failed, using redirect:", err);
       }
     }
+    return loginViaRedirect();
+  }
+
+  /** Force a token that includes Drive upload scope (consent if needed). */
+  async function loginForDrive() {
+    if (!cfg().isConfigured()) {
+      throw new Error("Google is not configured. See google/setup.md.");
+    }
+    if (window.google?.accounts?.oauth2) {
+      return loginViaGisPopup({ prompt: "consent" });
+    }
+    // Redirect path also requests drive.file via scopes in config
     return loginViaRedirect();
   }
 
@@ -305,6 +319,7 @@
   window.GDLGoogleAuth = {
     init,
     login,
+    loginForDrive,
     logout,
     getProfile,
     getAccessToken,
