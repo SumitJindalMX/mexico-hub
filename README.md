@@ -8,6 +8,12 @@ Platform for **activities across Mexico** — hackathons, culture, talent, sport
 
 Repo: https://github.com/SumitJindalMX/mexico-hub
 
+## User guide
+
+**[docs/Mexico-Hub-User-Guide.docx](docs/Mexico-Hub-User-Guide.docx)** — how to browse activities, create events (editors), register teams, upload materials, and manage invites.
+
+Regenerate: `py -3 scripts/build-user-guide.py`
+
 ## Entra app (update these in Azure Portal)
 
 | Setting | Value |
