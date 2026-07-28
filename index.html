@@ -63,8 +63,11 @@
       <header class="hero">
         <div class="hero__atmosphere" aria-hidden="true"></div>
         <div class="wrap hero__content">
-          <p class="hero__company">Amdocs</p>
-          <p class="hero__company-tag">make it amazing</p>
+          <p class="hero__eyebrow">
+            <span class="hero__company">Amdocs</span>
+            <span class="hero__dot" aria-hidden="true">·</span>
+            <span class="hero__company-tag">make it amazing</span>
+          </p>
           <p class="brand" id="brand">MX</p>
           <h1 class="hero__headline" id="headline">
             Every activity that puts Mexico on stage.
@@ -72,56 +75,55 @@
           <p class="hero__lede" id="lede"></p>
           <div class="hero__actions">
             <a class="btn btn--primary" href="#events">Browse activities</a>
-            <a class="btn btn--ghost" href="#themes">How we show up</a>
+            <a class="btn btn--ghost btn--sm" href="#pulse">Mexico pulse</a>
           </div>
           <div class="hero__meta" id="hero-meta"></div>
         </div>
       </header>
 
       <main>
-        <section class="section" id="pulse" aria-labelledby="pulse-title">
+        <section class="section section--tight" id="pulse" aria-labelledby="pulse-title">
           <div class="wrap">
-            <div class="section__head">
-              <p class="section__kicker">Mexico pulse</p>
-              <h2 class="section__title" id="pulse-title">What Mexico is known for right now</h2>
-              <p class="section__sub">
-                Snapshot metrics from major programs and ongoing talent initiatives across the country.
-              </p>
-            </div>
-            <div class="pulse-grid" id="pulse-grid"></div>
+            <details class="fold" open>
+              <summary class="fold__summary">
+                <span class="section__kicker">Mexico pulse</span>
+                <span class="section__title" id="pulse-title">What Mexico is known for right now</span>
+                <span class="fold__hint">Snapshot metrics</span>
+              </summary>
+              <div class="fold__body">
+                <div class="pulse-grid" id="pulse-grid"></div>
+              </div>
+            </details>
           </div>
         </section>
 
         <hr class="divider wrap" />
 
-        <section class="section" id="themes" aria-labelledby="themes-title">
+        <section class="section section--tight" id="themes" aria-labelledby="themes-title">
           <div class="wrap">
-            <div class="section__head">
-              <p class="section__kicker">Platform</p>
-              <h2 class="section__title" id="themes-title">Four ways Mexico shows up</h2>
-              <p class="section__sub">
-                Use these themes when briefing leadership, recruiting, or local delivery comms.
-              </p>
-            </div>
-            <div class="themes-panel">
-              <div class="theme-grid" id="theme-grid"></div>
-            </div>
+            <details class="fold">
+              <summary class="fold__summary">
+                <span class="section__kicker">Platform</span>
+                <span class="section__title" id="themes-title">Four ways Mexico shows up</span>
+                <span class="fold__hint">Themes for briefing &amp; recruiting</span>
+              </summary>
+              <div class="fold__body">
+                <div class="themes-panel">
+                  <div class="theme-grid" id="theme-grid"></div>
+                </div>
+              </div>
+            </details>
           </div>
         </section>
 
         <hr class="divider wrap" />
 
-        <section class="section" id="events" aria-labelledby="events-title">
+        <section class="section section--events" id="events" aria-labelledby="events-title">
           <div class="wrap">
-            <div class="section__head section__head--row">
+            <div class="section__head section__head--row section__head--compact">
               <div>
                 <p class="section__kicker">Activities</p>
                 <h2 class="section__title" id="events-title">Hackathons &amp; other activities</h2>
-                <p class="section__sub">
-                  Filter Mexico activities, then open one on the right.
-                  Register teams with Google, Gmail, or GitHub — PPT/video via links
-                  (or SharePoint after Microsoft consent).
-                </p>
               </div>
               <button
                 type="button"
@@ -192,25 +194,29 @@
 
         <hr class="divider wrap" />
 
-        <section class="section" id="ops" aria-labelledby="ops-title">
+        <section class="section section--tight" id="ops" aria-labelledby="ops-title">
           <div class="wrap">
-            <div class="section__head">
-              <p class="section__kicker">Next</p>
-              <h2 class="section__title" id="ops-title">Mexico ops checklist</h2>
-              <p class="section__sub">Actions to keep Mexico Hub visibility current through 2026.</p>
-            </div>
-            <div class="table-wrap">
-              <table class="data">
-                <thead>
-                  <tr>
-                    <th>Action</th>
-                    <th>Owner</th>
-                    <th>Why it matters</th>
-                  </tr>
-                </thead>
-                <tbody id="checklist-body"></tbody>
-              </table>
-            </div>
+            <details class="fold">
+              <summary class="fold__summary">
+                <span class="section__kicker">Next</span>
+                <span class="section__title" id="ops-title">Mexico ops checklist</span>
+                <span class="fold__hint">Keep visibility current through 2026</span>
+              </summary>
+              <div class="fold__body">
+                <div class="table-wrap">
+                  <table class="data">
+                    <thead>
+                      <tr>
+                        <th>Action</th>
+                        <th>Owner</th>
+                        <th>Why it matters</th>
+                      </tr>
+                    </thead>
+                    <tbody id="checklist-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </details>
           </div>
         </section>
       </main>

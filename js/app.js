@@ -276,10 +276,8 @@
     els.brand.innerHTML = `${site.brand}<span>.</span>`;
     els.lede.textContent = site.tagline;
     els.heroMeta.innerHTML = `
-      <span>${site.company} · ${site.companyTagline}</span>
       <span>${site.name}</span>
       <span>${site.region}</span>
-      <span>As of ${site.asOf}</span>
     `;
   }
 
