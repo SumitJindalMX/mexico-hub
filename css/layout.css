@@ -8,7 +8,7 @@
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--line);
-  background: rgba(26, 15, 12, 0.92);
+  background: rgba(255, 250, 243, 0.92);
   backdrop-filter: blur(12px);
 }
 
@@ -42,7 +42,7 @@
 }
 
 .topbar__brand span {
-  color: var(--mx-gold);
+  color: var(--mx-red);
 }
 
 .topbar__actions {
@@ -83,10 +83,10 @@
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(ellipse 70% 45% at 8% -5%, rgba(13, 122, 69, 0.4), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 95% 5%, rgba(200, 16, 46, 0.3), transparent 50%),
-    radial-gradient(ellipse 50% 35% at 50% 100%, rgba(240, 180, 41, 0.16), transparent 55%),
-    linear-gradient(180deg, #140c0a 0%, #1f1210 42%, #160e0c 100%);
+    radial-gradient(ellipse 80% 55% at 0% 0%, rgba(0, 140, 69, 0.28), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 100% 0%, rgba(206, 17, 38, 0.22), transparent 50%),
+    radial-gradient(ellipse 60% 45% at 50% 100%, rgba(232, 163, 23, 0.3), transparent 55%),
+    linear-gradient(180deg, #fffaf3 0%, #ffe8c8 38%, #fff3e2 100%);
 }
 
 .wrap {
@@ -116,26 +116,26 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 248, 239, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 248, 239, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(0, 140, 69, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(206, 17, 38, 0.06) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: linear-gradient(180deg, #000 20%, transparent 88%);
+  mask-image: linear-gradient(180deg, #000 15%, transparent 85%);
   animation: grid-drift 28s linear infinite;
 }
 
 .hero__atmosphere::after {
   content: "";
   position: absolute;
-  width: min(72vw, 680px);
+  width: min(75vw, 720px);
   aspect-ratio: 1;
-  right: -10%;
-  top: 4%;
+  right: -12%;
+  top: 0;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 40% 40%, rgba(240, 180, 41, 0.35), transparent 45%),
-    radial-gradient(circle at 70% 60%, rgba(200, 16, 46, 0.28), transparent 55%),
-    radial-gradient(circle at 30% 70%, rgba(13, 122, 69, 0.32), transparent 50%);
-  filter: blur(10px);
+    radial-gradient(circle at 35% 35%, rgba(232, 163, 23, 0.55), transparent 42%),
+    radial-gradient(circle at 70% 55%, rgba(206, 17, 38, 0.35), transparent 48%),
+    radial-gradient(circle at 25% 75%, rgba(0, 140, 69, 0.4), transparent 50%);
+  filter: blur(6px);
   animation: pulse-orb 7s var(--ease) infinite alternate;
 }
 
@@ -157,7 +157,7 @@
 }
 
 .brand span {
-  background: linear-gradient(120deg, var(--mx-gold), var(--mx-red-soft));
+  background: linear-gradient(120deg, var(--mx-green), var(--mx-gold) 45%, var(--mx-red));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -219,7 +219,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--mx-gold);
+  color: var(--mx-green-deep);
 }
 
 .section__title {

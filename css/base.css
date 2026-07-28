@@ -34,13 +34,13 @@ select {
 }
 
 a {
-  color: var(--mx-gold);
+  color: var(--mx-green-deep);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--mx-cream);
+  color: var(--mx-red);
 }
 
 h1,
@@ -63,6 +63,6 @@ p {
 }
 
 ::selection {
-  background: var(--mx-green);
-  color: var(--mx-cream);
+  background: var(--mx-gold-soft);
+  color: var(--text);
 }
