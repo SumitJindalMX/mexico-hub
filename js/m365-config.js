@@ -4,14 +4,14 @@
  * See sharepoint/lists-setup.md
  */
 window.GDL_M365 = {
-  /** Set to true after you paste a real clientId below */
-  enabled: false,
+  /** Entra SPA linked — set false to disable Microsoft sign-in / registration */
+  enabled: true,
 
   /** Amdocs Entra tenant ID (resolved from amdocs.com) */
   tenantId: "c8eca3ca-1276-46d5-9d9d-a0f2a028920f",
 
-  /** SPA application (client) ID — paste from Entra app registration */
-  clientId: "YOUR_CLIENT_ID",
+  /** SPA application (client) ID */
+  clientId: "04d07e0d-5a22-4e10-81bd-6c76f93182fb",
 
   /** Must match Entra redirect URIs */
   redirectUri:
