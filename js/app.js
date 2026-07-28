@@ -11,6 +11,7 @@
     category: document.getElementById("category"),
     status: document.getElementById("status"),
     visibility: document.getElementById("visibility"),
+    confidence: document.getElementById("confidence"),
     q: document.getElementById("q"),
     resultsMeta: document.getElementById("results-meta"),
     eventList: document.getElementById("event-list"),
@@ -37,6 +38,7 @@
     category: "All",
     status: "All",
     visibility: "All",
+    confidence: "All",
     query: "",
     selectedId: null,
     session: window.GDLAuth.getSession(),
@@ -44,7 +46,15 @@
   };
 
   function chipClass(_kind, value) {
-    return `chip chip--${String(value).toLowerCase()}`;
+    const v = String(value || "").toLowerCase();
+    if (v === "verified" || v === "editor" || v === "seed") {
+      return `chip chip--${v}`;
+    }
+    return `chip chip--${v}`;
+  }
+
+  function confidenceOf(event) {
+    return event.confidence || (event.createdBy ? "Editor" : "Seed");
   }
 
   function fillSelectLabeled(select, values, allLabel) {
@@ -60,6 +70,8 @@
         if (state.category !== "All" && e.category !== state.category) return false;
         if (state.status !== "All" && e.status !== state.status) return false;
         if (state.visibility !== "All" && e.visibility !== state.visibility)
+          return false;
+        if (state.confidence !== "All" && confidenceOf(e) !== state.confidence)
           return false;
         if (q) {
           const hay = `${e.name} ${e.audience} ${e.highlight} ${e.category}`.toLowerCase();
@@ -208,6 +220,7 @@
         <span class="${chipClass("cat", event.category)}">${event.category}</span>
         <span class="${chipClass("st", event.status)}">${event.status}</span>
         <span class="${chipClass("vis", event.visibility)}">${event.visibility} visibility</span>
+        <span class="${chipClass("conf", confidenceOf(event))}" title="Data confidence">${confidenceOf(event)}</span>
         ${
           event.registrationOpen
             ? `<span class="chip chip--upcoming">Registration open</span>`
@@ -225,6 +238,17 @@
       <div class="detail__block">
         <p class="detail__label">Highlight</p>
         <p class="detail__text">${event.highlight}</p>
+      </div>
+      <div class="detail__block">
+        <p class="detail__label">Data source / authenticity</p>
+        <p class="detail__text">${
+          event.sourceNote ||
+          (confidenceOf(event) === "Verified"
+            ? "Confirmed against official Mexico / site ops calendar."
+            : confidenceOf(event) === "Editor"
+              ? "Published by an allowlisted editor."
+              : "Seeded from public LinkedIn mentions — not an official calendar.")
+        }</p>
       </div>
       ${byline}
       <div class="detail-actions">${actions}</div>
@@ -272,6 +296,7 @@
             <span class="${chipClass("cat", e.category)}">${e.category}</span>
             <span class="${chipClass("st", e.status)}">${e.status}</span>
             <span class="${chipClass("vis", e.visibility)}">${e.visibility}</span>
+            <span class="${chipClass("conf", confidenceOf(e))}">${confidenceOf(e)}</span>
             ${e.registrationOpen ? `<span class="chip chip--upcoming">Reg open</span>` : ""}
           </div>
         </button>
@@ -345,6 +370,7 @@
     fillSelectLabeled(els.category, filters.categories, "All categories");
     fillSelectLabeled(els.status, filters.statuses, "All statuses");
     fillSelectLabeled(els.visibility, filters.visibilities, "All visibility");
+    fillSelectLabeled(els.confidence, filters.confidences, "All confidence");
 
     els.category.addEventListener("change", (e) => {
       state.category = e.target.value;
@@ -356,6 +382,10 @@
     });
     els.visibility.addEventListener("change", (e) => {
       state.visibility = e.target.value;
+      renderList();
+    });
+    els.confidence.addEventListener("change", (e) => {
+      state.confidence = e.target.value;
       renderList();
     });
     els.q.addEventListener("input", (e) => {
@@ -425,6 +455,7 @@
           category: document.getElementById("ev-category").value,
           status: document.getElementById("ev-status").value,
           visibility: document.getElementById("ev-visibility").value,
+          confidence: document.getElementById("ev-confidence").value,
           when: document.getElementById("ev-when").value,
           sortKey: document.getElementById("ev-sort").value,
           audience: document.getElementById("ev-audience").value,

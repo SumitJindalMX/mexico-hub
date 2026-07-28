@@ -92,5 +92,6 @@ window.GDL = {
     ],
     statuses: ["All", "Upcoming", "Completed", "Recurring"],
     visibilities: ["All", "High", "Medium", "Internal"],
+    confidences: ["All", "Verified", "Editor", "Seed"],
   },
 };

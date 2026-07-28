@@ -140,7 +140,17 @@
                 <label for="visibility">Visibility</label>
                 <select id="visibility"></select>
               </div>
+              <div class="field">
+                <label for="confidence">Data confidence</label>
+                <select id="confidence"></select>
+              </div>
             </div>
+
+            <p class="confidence-legend">
+              <span class="chip chip--verified">Verified</span> official / site-ops confirmed
+              <span class="chip chip--editor">Editor</span> published by allowlisted editor
+              <span class="chip chip--seed">Seed</span> public LinkedIn–derived seed (not system of record)
+            </p>
 
             <p class="results-meta" id="results-meta"></p>
 
@@ -151,10 +161,11 @@
 
             <div class="bars" id="category-bars" aria-label="Events by category"></div>
             <p class="footnote">
-              Source: public LinkedIn posts (Amdocs Mexico leadership &amp; hackathon
-              participants) · anniversary window Jul–Aug 2025 · upcoming rows are planning
-              placeholders. New events published by allowlisted editors update
-              <code>data/events.json</code> on GitHub.
+              <strong>Authenticity:</strong> Seed rows are from public LinkedIn mentions about
+              Amdocs Mexico / GDL (Aug 2025) — illustrative, not an official calendar.
+              Editor rows are published by allowlisted GitHub users.
+              Verified rows should only be set after site ops / comms confirmation.
+              New activities update <code>data/events.json</code> on GitHub.
             </p>
           </div>
         </section>
@@ -260,6 +271,14 @@
               <option>High</option>
               <option>Medium</option>
               <option>Internal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ev-confidence">Data confidence</label>
+            <select id="ev-confidence" name="confidence">
+              <option value="Editor" selected>Editor</option>
+              <option value="Verified">Verified</option>
+              <option value="Seed">Seed</option>
             </select>
           </div>
           <div class="field">

@@ -477,6 +477,29 @@
   color: var(--text-faint);
 }
 
+.chip--verified {
+  color: var(--ok);
+  border-color: rgba(93, 204, 138, 0.5);
+}
+.chip--editor {
+  color: #9fe7dc;
+  border-color: rgba(47, 158, 144, 0.45);
+}
+.chip--seed {
+  color: var(--text-faint);
+  border-color: var(--line-strong);
+}
+
+.confidence-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
+  margin: 0 0 var(--space-3);
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
 /* Detail panel */
 .detail {
   position: sticky;

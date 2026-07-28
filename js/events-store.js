@@ -105,6 +105,13 @@
       highlight: form.highlight.trim() || "",
       visibility: form.visibility,
       registrationOpen: Boolean(form.registrationOpen),
+      confidence: form.confidence || "Editor",
+      sourceNote:
+        form.confidence === "Verified"
+          ? "Confirmed against official Mexico / site ops calendar."
+          : form.confidence === "Seed"
+            ? "Seeded / illustrative — not an official calendar entry."
+            : `Published by GitHub editor @${actor}`,
       createdBy: actor,
       createdAt: new Date().toISOString(),
     };
