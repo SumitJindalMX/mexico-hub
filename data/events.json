@@ -176,6 +176,19 @@
       "audience": "ATT BSS Evolution teams at GDL",
       "highlight": "Suggested local visibility event for ATT delivery — align with PI / site calendar",
       "visibility": "Internal"
+    },
+    {
+      "id": "cala-hackthon-2026-ms4p36wm",
+      "name": "Cala hackthon 2026",
+      "category": "Hackathon",
+      "status": "Upcoming",
+      "when": "Aug 2026",
+      "sortKey": "2026-07-28",
+      "audience": "All CALA people",
+      "highlight": "Cala hackthon",
+      "visibility": "High",
+      "createdBy": "SumitJindalMX",
+      "createdAt": "2026-07-28T13:31:59.542Z"
     }
   ]
 }
