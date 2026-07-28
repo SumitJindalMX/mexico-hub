@@ -126,6 +126,89 @@
   background: var(--ink);
   color: var(--text);
   resize: vertical;
+  font: inherit;
+}
+
+.code-lab {
+  margin-top: 0.35rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line-strong);
+  background: rgba(0, 140, 69, 0.04);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.code-lab__grid {
+  margin: 0;
+}
+
+.code-lab textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  min-height: 160px;
+  background: #fffaf3;
+}
+
+.code-lab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.code-lab__report {
+  min-height: 0;
+}
+
+.code-lab__status {
+  margin: 0 0 0.35rem;
+  font-weight: 650;
+  font-size: 0.92rem;
+}
+
+.code-lab__status.is-ok {
+  color: #007a3d;
+}
+
+.code-lab__status.is-bad {
+  color: #b10e24;
+}
+
+.code-lab__meta {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.code-lab__issues,
+.code-lab__results,
+.code-lab__testlist {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.code-lab__issue--error {
+  color: #b10e24;
+}
+
+.code-lab__issue--warn {
+  color: #9a6b00;
+}
+
+.code-lab__results .is-pass {
+  color: #007a3d;
+}
+
+.code-lab__results .is-fail {
+  color: #b10e24;
+}
+
+.code-lab__results .is-skip {
+  color: var(--text-faint);
 }
 
 .form-error {

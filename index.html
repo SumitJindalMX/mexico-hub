@@ -432,9 +432,50 @@
             <label for="reg-video-url">Video URL <span class="opt">(optional)</span></label>
             <input id="reg-video-url" type="url" placeholder="https://…" />
           </div>
+          <div class="field field--full code-lab" id="reg-code-lab" data-code-lab>
+            <p class="modal__subtitle" style="margin:0.25rem 0">
+              Source code <span class="opt">(optional)</span>
+            </p>
+            <p class="modal__hint">
+              Paste solution code and/or a repo link. Validate syntax, generate tests, and run JS tests in a browser sandbox.
+              Python/Java get static checks + downloadable test stubs.
+            </p>
+            <div class="form-grid code-lab__grid">
+              <div class="field">
+                <label for="reg-code-lang">Language</label>
+                <select id="reg-code-lang" data-cv-language>
+                  <option value="auto">Auto-detect</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                  <option value="java">Java</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="reg-repo-url">Repo URL <span class="opt">(optional)</span></label>
+                <input id="reg-repo-url" data-cv-repo type="url" placeholder="https://github.com/…" />
+              </div>
+              <div class="field field--full">
+                <label for="reg-source">Source paste <span class="opt">(optional)</span></label>
+                <textarea
+                  id="reg-source"
+                  data-cv-source
+                  rows="8"
+                  spellcheck="false"
+                  placeholder="Paste your solution here…"
+                ></textarea>
+              </div>
+            </div>
+            <div class="code-lab__actions">
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-validate>Validate</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-generate>Generate tests</button>
+              <button type="button" class="btn btn--primary btn--sm" data-cv-run>Run tests</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-download>Download harness</button>
+            </div>
+            <div class="code-lab__report" data-cv-report id="reg-code-report" aria-live="polite"></div>
+          </div>
         </div>
         <p class="modal__hint">
-          <span class="req">*</span> Required · PPT/video are optional.
+          <span class="req">*</span> Required · PPT/video/source are optional.
           Uploads use Google Drive when signed in with Google (~50&nbsp;MB PPT, ~250&nbsp;MB video).
         </p>
         <p class="form-error" id="register-error" hidden></p>
@@ -539,6 +580,7 @@
     <script src="js/m365-config.js"></script>
     <script src="js/m365-auth.js"></script>
     <script src="js/graph-api.js"></script>
+    <script src="js/code-validator.js"></script>
     <script src="js/registration-ui.js"></script>
     <script src="js/app.js"></script>
   </body>

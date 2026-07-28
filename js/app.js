@@ -178,7 +178,20 @@
               ? `<a href="${esc(r.videoUrl)}" target="_blank" rel="noopener">Video</a>`
               : "No video"
           }
+          ·
+          ${
+            r.repoUrl
+              ? `<a href="${esc(r.repoUrl)}" target="_blank" rel="noopener">Repo</a>`
+              : "No repo"
+          }
         </p>
+        ${
+          r.codeProvided
+            ? `<p class="detail__text">Code · ${esc(r.language || "source")} · ${esc(
+                r.validation?.summary || r.validation?.status || "submitted",
+              )}</p>`
+            : ""
+        }
       </article>
     `,
       )

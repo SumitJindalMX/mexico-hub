@@ -47,6 +47,20 @@
   }
 
   function collectForm() {
+    const lab = $("reg-code-lab")?.__gdlCodeLab;
+    let snapshot = lab?.getSnapshot?.() || null;
+    if (
+      !snapshot &&
+      window.GDLCodeValidator &&
+      (($("reg-source")?.value || "").trim() || ($("reg-repo-url")?.value || "").trim())
+    ) {
+      snapshot = window.GDLCodeValidator.snapshotForRecord(
+        $("reg-source")?.value || "",
+        $("reg-code-lang")?.value || "auto",
+        $("reg-repo-url")?.value || "",
+        null,
+      );
+    }
     return {
       eventId: $("reg-event-id").value,
       eventName: $("reg-event-name").textContent,
@@ -59,6 +73,10 @@
       videoFile: $("reg-video").files[0] || null,
       pptUrl: $("reg-ppt-url")?.value || "",
       videoUrl: $("reg-video-url")?.value || "",
+      repoUrl: $("reg-repo-url")?.value || "",
+      language: $("reg-code-lang")?.value || "auto",
+      sourceCode: $("reg-source")?.value || "",
+      codeSnapshot: snapshot,
     };
   }
 
@@ -73,6 +91,11 @@
     members.innerHTML = memberRowHtml();
     $("reg-invite").required = false;
     $("reg-invite").placeholder = "Optional — OPEN or code from organizer";
+    const report = $("reg-code-report");
+    if (report) report.innerHTML = "";
+    if (window.GDLCodeValidator && $("reg-code-lab")) {
+      window.GDLCodeValidator.bindPanel($("reg-code-lab"));
+    }
     const ms = window.GDLM365Auth.getProfile();
     const google = window.GDLGoogleAuth?.getProfile?.();
     if (ms) {
@@ -143,7 +166,16 @@
           ${r.pptUrl ? `<a href="${r.pptUrl}" target="_blank" rel="noopener">PPT</a>` : "No PPT"}
           ·
           ${r.videoUrl ? `<a href="${r.videoUrl}" target="_blank" rel="noopener">Video</a>` : "No video"}
+          ·
+          ${r.repoUrl ? `<a href="${r.repoUrl}" target="_blank" rel="noopener">Repo</a>` : "No repo"}
         </p>
+        ${
+          r.codeProvided
+            ? `<p class="modal__hint">Code: ${r.language || "source"} · ${
+                r.validation?.summary || r.validation?.status || "submitted"
+              }</p>`
+            : ""
+        }
       </article>
     `,
       )
@@ -316,6 +348,16 @@
           ? `<a href="${record.videoUrl}" target="_blank" rel="noopener">Open link</a>`
           : "Not attached (optional)"
       }</div>`,
+      `<div><strong>Repo:</strong> ${
+        record.repoUrl
+          ? `<a href="${record.repoUrl}" target="_blank" rel="noopener">Open repo</a>`
+          : "Not attached (optional)"
+      }</div>`,
+      `<div><strong>Source validation:</strong> ${
+        record.codeProvided
+          ? `${record.validation?.summary || record.validation?.status || "provided"} (${record.language || "code"})`
+          : "Not provided (optional)"
+      }</div>`,
     ].join("");
     $("confirm-next").textContent =
       nextSteps ||
@@ -409,9 +451,13 @@
               pptUrl: payload.pptUrl,
               videoUrl: payload.videoUrl,
               eventId: payload.eventId,
+              repoUrl: payload.codeSnapshot?.repoUrl || payload.repoUrl || "",
+              language: payload.codeSnapshot?.language || payload.language || "",
+              codeProvided: Boolean(payload.codeSnapshot?.codeProvided),
+              validation: payload.codeSnapshot?.validation || null,
             },
             payload.eventName,
-            "Saved to SharePoint. Organizers can review teams there.",
+            "Saved to SharePoint. Organizers can review teams there. Source validation details are included in your confirmation (repo columns optional in SharePoint).",
           );
           appApi.onRegistrationChanged?.();
           return;

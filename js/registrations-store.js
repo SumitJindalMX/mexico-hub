@@ -77,7 +77,7 @@
   }
 
   function buildRecord(form) {
-    return {
+    const base = {
       id: `reg-${Date.now().toString(36)}`,
       eventId: form.eventId,
       teamName: form.teamName.trim(),
@@ -91,6 +91,21 @@
       createdAt: new Date().toISOString(),
       createdBy: form.createdBy || "",
     };
+    const code = form.codeSnapshot || null;
+    if (code) {
+      base.repoUrl = code.repoUrl || "";
+      base.language = code.language || "";
+      base.codeProvided = Boolean(code.codeProvided);
+      base.sourceCode = code.sourceCode || "";
+      base.validation = code.validation || null;
+    } else {
+      base.repoUrl = (form.repoUrl || "").trim();
+      base.language = form.language || "";
+      base.codeProvided = Boolean((form.sourceCode || "").trim());
+      base.sourceCode = (form.sourceCode || "").trim().slice(0, 12000);
+      base.validation = form.validation || null;
+    }
+    return base;
   }
 
   async function submitViaGitHubEditor(form, session) {
@@ -130,6 +145,10 @@
       `Invite: ${record.inviteCode}`,
       `PPT: ${record.pptUrl || "(none)"}`,
       `Video: ${record.videoUrl || "(none)"}`,
+      `Repo: ${record.repoUrl || "(none)"}`,
+      `Language: ${record.language || "(none)"}`,
+      `Code provided: ${record.codeProvided ? "yes" : "no"}`,
+      `Validation: ${record.validation?.summary || record.validation?.status || "(none)"}`,
       ``,
       `Members:`,
       ...(record.members.length
@@ -159,6 +178,10 @@
         `- **Invite:** ${record.inviteCode}`,
         `- **PPT:** ${record.pptUrl || "_none_"}`,
         `- **Video:** ${record.videoUrl || "_none_"}`,
+        `- **Repo:** ${record.repoUrl || "_none_"}`,
+        `- **Language:** ${record.language || "_none_"}`,
+        `- **Code:** ${record.codeProvided ? "provided" : "_none_"}`,
+        `- **Validation:** ${record.validation?.summary || record.validation?.status || "_none_"}`,
         ``,
         `### Members`,
         ...(record.members.length
