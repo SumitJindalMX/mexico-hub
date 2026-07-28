@@ -832,19 +832,42 @@ table.data td:nth-child(3) {
   color: var(--text-muted);
 }
 
-/* Promo reel */
-.promo {
+/* Journey film — below first viewport */
+.film {
+  padding: var(--space-6) 0 var(--space-7);
+  background:
+    linear-gradient(180deg, rgba(0, 140, 69, 0.04), transparent 28%),
+    linear-gradient(180deg, #fff8ef, #fffaf3);
+}
+
+.film__inner {
   display: grid;
-  gap: 0.55rem;
-  animation: rise 0.8s var(--ease) 0.08s both;
+  gap: var(--space-4);
+}
+
+.film__header {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 40rem;
+}
+
+.film__lede {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.02rem;
+  line-height: 1.5;
+  max-width: 36rem;
 }
 
 .promo-reel {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--line-strong);
+  position: relative;
+  border-radius: calc(var(--radius-lg) + 4px);
+  border: 1px solid rgba(20, 30, 26, 0.55);
   overflow: hidden;
-  background: #fffaf3;
-  box-shadow: 0 16px 40px rgba(80, 40, 20, 0.12);
+  background: #0a1210;
+  box-shadow:
+    0 24px 60px rgba(20, 30, 26, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
 .promo-reel__canvas {
@@ -852,27 +875,34 @@ table.data td:nth-child(3) {
   width: 100%;
   height: auto;
   vertical-align: middle;
-  background: #fffaf3;
+  background: #0a1210;
+}
+
+.promo-reel__overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 0 4.5rem 0;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.35);
 }
 
 .promo-reel__bar {
-  padding: 0.55rem 0.7rem 0.7rem;
-  background: rgba(255, 255, 255, 0.92);
-  border-top: 1px solid var(--line);
+  padding: 0.65rem 0.85rem 0.85rem;
+  background: linear-gradient(180deg, #121a17, #0e1512);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .promo-reel__track {
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
-  background: rgba(80, 40, 20, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.6rem;
 }
 
 .promo-reel__progress {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--mx-green), var(--mx-gold), var(--mx-red));
+  background: linear-gradient(90deg, #008c45, #e8a317, #ce1126);
   transition: width 0.05s linear;
 }
 
@@ -883,10 +913,23 @@ table.data td:nth-child(3) {
   align-items: center;
 }
 
+.promo-reel__controls .btn {
+  color: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.promo-reel__controls .btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 .promo-reel__label {
   margin-left: auto;
-  font-size: 0.75rem;
-  color: var(--text-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .promo__caption {
@@ -897,6 +940,6 @@ table.data td:nth-child(3) {
 }
 
 .promo-reel.is-playing {
-  outline: 2px solid rgba(0, 140, 69, 0.2);
-  outline-offset: 2px;
+  outline: 2px solid rgba(0, 140, 69, 0.35);
+  outline-offset: 3px;
 }

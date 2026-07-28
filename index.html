@@ -62,7 +62,7 @@
 
       <header class="hero">
         <div class="hero__atmosphere" aria-hidden="true"></div>
-        <div class="wrap hero__layout">
+        <div class="wrap">
           <div class="hero__content">
             <p class="hero__eyebrow">
               <span class="hero__company">Amdocs</span>
@@ -76,14 +76,26 @@
             <p class="hero__lede" id="lede"></p>
             <div class="hero__actions">
               <a class="btn btn--primary" href="#events">Browse activities</a>
-              <a class="btn btn--ghost btn--sm" href="#promo">Watch promo</a>
+              <a class="btn btn--ghost btn--sm" href="#promo">Watch the journey</a>
             </div>
             <div class="hero__meta" id="hero-meta"></div>
           </div>
+        </div>
+      </header>
 
-          <aside class="promo" id="promo" aria-label="Mexico Hub promotional reel">
+      <main>
+        <section class="film" id="promo" aria-label="Amdocs Mexico journey film">
+          <div class="wrap film__inner">
+            <div class="film__header">
+              <p class="section__kicker">The film</p>
+              <h2 class="section__title" id="film-title">The Amdocs Mexico journey</h2>
+              <p class="film__lede">
+                A continuous story of talent, innovation, and community — from Guadalajara to CDMX and across Mexico.
+              </p>
+            </div>
             <div class="promo-reel" id="promo-reel">
-              <canvas class="promo-reel__canvas" width="960" height="540"></canvas>
+              <canvas class="promo-reel__canvas" width="1280" height="720"></canvas>
+              <div class="promo-reel__overlay" aria-hidden="true"></div>
               <div class="promo-reel__bar">
                 <div class="promo-reel__track">
                   <div class="promo-reel__progress" data-promo-progress></div>
@@ -91,19 +103,17 @@
                 <div class="promo-reel__controls">
                   <button type="button" class="btn btn--ghost btn--sm" data-promo-play>Pause</button>
                   <button type="button" class="btn btn--ghost btn--sm" data-promo-mute>Sound off</button>
-                  <button type="button" class="btn btn--ghost btn--sm" data-promo-save>Save clip</button>
-                  <span class="promo-reel__label" data-promo-label>1 / 6</span>
+                  <button type="button" class="btn btn--ghost btn--sm" data-promo-save>Save film</button>
+                  <span class="promo-reel__label" data-promo-label>Amdocs Mexico</span>
                 </div>
               </div>
             </div>
             <p class="promo__caption">
-              20-second tour — browse, register, share materials, organize. Use <em>Save clip</em> for a WebM to share.
+              Autoplays when you scroll here · continuous loop · use <em>Save film</em> for a shareable WebM
             </p>
-          </aside>
-        </div>
-      </header>
+          </div>
+        </section>
 
-      <main>
         <section class="section section--tight" id="pulse" aria-labelledby="pulse-title">
           <div class="wrap">
             <details class="fold" open>
