@@ -139,6 +139,10 @@
                 <input id="q" type="search" placeholder="Search events…" autocomplete="off" />
               </div>
               <div class="field">
+                <label for="city">City</label>
+                <select id="city"></select>
+              </div>
+              <div class="field">
                 <label for="category">Category</label>
                 <select id="category"></select>
               </div>
@@ -154,6 +158,11 @@
                 <label for="confidence">Data confidence</label>
                 <select id="confidence"></select>
               </div>
+            </div>
+
+            <div class="featured" id="featured-strip" hidden>
+              <p class="featured__kicker">Featured upcoming</p>
+              <div class="featured__row" id="featured-row"></div>
             </div>
 
             <p class="confidence-legend">
@@ -248,10 +257,11 @@
 
     <dialog class="modal" id="modal-create">
       <form method="dialog" class="modal__panel modal__panel--wide" id="form-create">
-        <h2 class="modal__title">Create activity</h2>
-        <p class="modal__lede">
+        <h2 class="modal__title" id="create-modal-title">Create activity</h2>
+        <p class="modal__lede" id="create-modal-lede">
           Publishes to the Mexico Hub catalog (GitHub Pages rebuild may take ~1 minute).
         </p>
+        <input type="hidden" id="ev-id" value="" />
         <div class="form-grid">
           <div class="field field--full">
             <label for="ev-name">Name <span class="req" aria-hidden="true">*</span></label>
@@ -295,6 +305,14 @@
           <div class="field">
             <label for="ev-when">When <span class="req" aria-hidden="true">*</span></label>
             <input id="ev-when" name="when" placeholder="e.g. Aug 2026" required />
+          </div>
+          <div class="field">
+            <label for="ev-city">City <span class="req" aria-hidden="true">*</span></label>
+            <select id="ev-city" name="city" required>
+              <option value="Mexico" selected>Mexico (nationwide)</option>
+              <option value="GDL">GDL (Guadalajara)</option>
+              <option value="CDMX">CDMX</option>
+            </select>
           </div>
           <div class="field">
             <label for="ev-sort">Sort key (YYYY-MM-DD) <span class="opt">(optional)</span></label>
@@ -473,6 +491,19 @@
         <p class="form-error" id="organize-error" hidden></p>
         <div class="modal__actions">
           <button type="button" class="btn btn--ghost" id="btn-organize-cancel">Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modal-confirm">
+      <div class="modal__panel">
+        <p class="confirm__badge">Submitted</p>
+        <h2 class="modal__title">Registration received</h2>
+        <p class="modal__lede" id="confirm-summary"></p>
+        <div class="confirm__details" id="confirm-details"></div>
+        <p class="modal__hint" id="confirm-next"></p>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--primary" id="btn-confirm-close">Done</button>
         </div>
       </div>
     </dialog>

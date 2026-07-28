@@ -294,6 +294,35 @@
     return "";
   }
 
+  function showConfirmation(record, eventName, nextSteps) {
+    const modal = $("modal-confirm");
+    if (!modal) {
+      alert(`Team "${record.teamName}" submitted.`);
+      return;
+    }
+    $("confirm-summary").textContent =
+      `Team “${record.teamName}” for ${eventName || record.eventId} is in.`;
+    $("confirm-details").innerHTML = [
+      `<div><strong>Lead:</strong> ${record.leadName || "—"} · ${record.leadEmail || ""}</div>`,
+      `<div><strong>Invite:</strong> ${record.inviteCode || "OPEN"}</div>`,
+      `<div><strong>Channel:</strong> ${record.channel || "—"}</div>`,
+      `<div><strong>PPT:</strong> ${
+        record.pptUrl
+          ? `<a href="${record.pptUrl}" target="_blank" rel="noopener">Open link</a>`
+          : "Not attached (optional)"
+      }</div>`,
+      `<div><strong>Video:</strong> ${
+        record.videoUrl
+          ? `<a href="${record.videoUrl}" target="_blank" rel="noopener">Open link</a>`
+          : "Not attached (optional)"
+      }</div>`,
+    ].join("");
+    $("confirm-next").textContent =
+      nextSteps ||
+      "Organizers will review your submission. You can close this window.";
+    modal.showModal();
+  }
+
   function wire(appApi) {
     const members = $("reg-members");
     const addMember = $("btn-add-member");
@@ -370,7 +399,21 @@
         if (window.GDLM365Auth.getProfile()) {
           const result = await submitM365(payload, appApi);
           $("modal-register").close();
-          alert(`Team "${result.teamName}" registered to SharePoint.`);
+          showConfirmation(
+            {
+              teamName: result.teamName || payload.teamName,
+              leadName: payload.leadName,
+              leadEmail: payload.leadEmail,
+              inviteCode: payload.inviteCode,
+              channel: "sharepoint",
+              pptUrl: payload.pptUrl,
+              videoUrl: payload.videoUrl,
+              eventId: payload.eventId,
+            },
+            payload.eventName,
+            "Saved to SharePoint. Organizers can review teams there.",
+          );
+          appApi.onRegistrationChanged?.();
           return;
         }
 
@@ -387,13 +430,12 @@
             gh,
           );
           $("modal-register").close();
-          alert(
-            `Team "${record.teamName}" saved to GitHub` +
-              (record.pptUrl || record.videoUrl
-                ? " (materials linked from Google Drive)."
-                : ".") +
-              " Pages will refresh in about a minute.",
+          showConfirmation(
+            record,
+            payload.eventName,
+            "Saved to GitHub (data/registrations.json). The activity page will show the team after Pages refreshes (~1 minute).",
           );
+          appApi.onRegistrationChanged?.();
           return;
         }
 
@@ -407,6 +449,11 @@
           window.GDLRegistrationsStore.downloadJson(record);
           window.GDLRegistrationsStore.openGmailCompose(record, payload.eventName);
           $("modal-register").close();
+          showConfirmation(
+            record,
+            payload.eventName,
+            "Gmail compose opened to the organizer inbox. A JSON copy was downloaded for your records. Send the email to complete submission.",
+          );
           return;
         }
 
@@ -459,8 +506,18 @@
       window.GDLRegistrationsStore.downloadJson(record);
       if (channel === "gmail") {
         window.GDLRegistrationsStore.openGmailCompose(record, form.eventName);
+        showConfirmation(
+          record,
+          form.eventName,
+          "Gmail compose opened. Send the email to complete your registration. A JSON copy was downloaded.",
+        );
       } else {
         window.GDLRegistrationsStore.openGitHubIssue(record, form.eventName);
+        showConfirmation(
+          record,
+          form.eventName,
+          "GitHub Issue form opened. Create the issue to complete your registration. A JSON copy was downloaded.",
+        );
       }
       $("modal-register").close();
     }
@@ -471,6 +528,10 @@
 
     $("btn-register-github")?.addEventListener("click", () => {
       runFallbackSubmit("github-issue");
+    });
+
+    $("btn-confirm-close")?.addEventListener("click", () => {
+      $("modal-confirm")?.close();
     });
 
     $("btn-organize-cancel")?.addEventListener("click", () => {
@@ -609,5 +670,6 @@
     wire,
     openRegisterModal,
     openOrganizeModal,
+    showConfirmation,
   };
 })();

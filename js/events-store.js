@@ -61,7 +61,7 @@
       events,
     };
     const body = {
-      message: `chore: add event by @${actor}`,
+      message: `chore: catalog update by @${actor}`,
       content: toBase64Utf8(JSON.stringify(payload, null, 2) + "\n"),
       branch: "main",
     };
@@ -87,6 +87,63 @@
     return res.json();
   }
 
+  async function updateEvent(form, session) {
+    if (!session?.token) throw new Error("Sign in as an authorized editor first.");
+    const id = (form.id || "").trim();
+    if (!id) throw new Error("Missing event id for update.");
+    const remote = await getRemoteFile(session.token);
+    const idx = remote.events.findIndex((e) => e.id === id);
+    if (idx < 0) throw new Error("Event not found in the catalog.");
+    const prev = remote.events[idx];
+    const sortKey =
+      form.sortKey.trim() || prev.sortKey || new Date().toISOString().slice(0, 10);
+    const updated = {
+      ...prev,
+      name: form.name.trim() || prev.name,
+      category: form.category || prev.category,
+      status: form.status || prev.status,
+      when: form.when.trim() || prev.when,
+      sortKey,
+      audience: form.audience.trim() || prev.audience,
+      highlight: form.highlight.trim() || prev.highlight,
+      visibility: form.visibility || prev.visibility,
+      registrationOpen: Boolean(form.registrationOpen),
+      confidence: form.confidence || prev.confidence || "Editor",
+      pptUrl: (form.pptUrl || "").trim(),
+      videoUrl: (form.videoUrl || "").trim(),
+      city: (form.city || prev.city || "Mexico").trim() || "Mexico",
+      updatedBy: session.login,
+      updatedAt: new Date().toISOString(),
+      sourceNote:
+        form.confidence === "Verified"
+          ? "Confirmed against official Mexico / site ops calendar."
+          : form.confidence === "Seed"
+            ? "Seeded / illustrative — not an official calendar entry."
+            : `Updated by GitHub editor @${session.login}`,
+    };
+    const next = [...remote.events];
+    next[idx] = updated;
+    await saveEvents(session.token, next, remote.sha, session.login);
+    return { event: updated, events: next };
+  }
+
+  async function setRegistrationOpen(eventId, open, session) {
+    if (!session?.token) throw new Error("Sign in as an authorized editor first.");
+    const remote = await getRemoteFile(session.token);
+    const idx = remote.events.findIndex((e) => e.id === eventId);
+    if (idx < 0) throw new Error("Event not found.");
+    const next = [...remote.events];
+    next[idx] = {
+      ...next[idx],
+      registrationOpen: Boolean(open),
+      updatedBy: session.login,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEvents(session.token, next, remote.sha, session.login);
+    return { event: next[idx], events: next };
+  }
+
+  // enrich create with city
   function buildEvent(form, actor) {
     const name = form.name.trim();
     if (!name) throw new Error("Event name is required.");
@@ -106,6 +163,7 @@
       visibility: form.visibility,
       registrationOpen: Boolean(form.registrationOpen),
       confidence: form.confidence || "Editor",
+      city: (form.city || "Mexico").trim() || "Mexico",
       pptUrl: (form.pptUrl || "").trim(),
       videoUrl: (form.videoUrl || "").trim(),
       sourceNote:
@@ -134,6 +192,8 @@
   window.GDLEventsStore = {
     loadPublicEvents,
     createEvent,
+    updateEvent,
+    setRegistrationOpen,
     slugify,
   };
 })();

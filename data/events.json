@@ -13,7 +13,8 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "GDL"
     },
     {
       "id": "cala-hack-a-tech-2025",
@@ -27,7 +28,8 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "genai-fair",
@@ -41,7 +43,8 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "bw-anniversary-party",
@@ -55,105 +58,113 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "soccer-tournament",
       "name": "Soccer Tournament",
       "category": "Sports",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-07-20",
       "audience": "Employees",
       "highlight": "Site sports tournament during anniversary program",
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "bowling-tournament",
       "name": "Bowling Tournament",
       "category": "Sports",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-07-22",
       "audience": "Employees",
       "highlight": "Cross-team social competition",
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "kart-racing",
       "name": "Kart Racing Challenge",
       "category": "Sports",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-07-25",
       "audience": "Employees",
       "highlight": "High-energy outdoor / venue event in anniversary slate",
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "arcade-videogames",
       "name": "Arcade & Videogame Challenges",
       "category": "Culture",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-07-28",
       "audience": "Employees",
       "highlight": "Casual gaming challenges for site engagement",
       "visibility": "Internal",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "escape-rooms",
       "name": "Escape Rooms",
       "category": "Culture",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-07-30",
       "audience": "Teams",
       "highlight": "Team-building puzzle events",
       "visibility": "Internal",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "photography-contest",
       "name": "Photography Contest",
       "category": "Culture",
       "status": "Completed",
-      "when": "Jul–Aug 2025",
+      "when": "Jul\u2013Aug 2025",
       "sortKey": "2025-08-05",
       "audience": "Employees",
       "highlight": "Creative contest tied to anniversary storytelling",
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "step-challenge",
       "name": "Site Step Challenge",
       "category": "Sports",
       "status": "Completed",
-      "when": "~45 days · mid-2025",
+      "when": "~45 days \u00b7 mid-2025",
       "sortKey": "2025-07-01",
       "audience": "Employees",
       "highlight": "Wellness challenge; top finishers near ~500k steps",
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "graduates-program",
@@ -167,7 +178,8 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "GDL"
     },
     {
       "id": "ambassadors-club",
@@ -181,7 +193,8 @@
       "visibility": "Medium",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "leadership-visits",
@@ -195,7 +208,8 @@
       "visibility": "High",
       "registrationOpen": false,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "genai-hackathon-2026",
@@ -205,25 +219,27 @@
       "when": "TBD 2026",
       "sortKey": "2026-08-01",
       "audience": "CALA / Mexico teams",
-      "highlight": "Placeholder for next annual hackathon — confirm dates with site ops",
+      "highlight": "Placeholder for next annual hackathon \u2014 confirm dates with site ops",
       "visibility": "High",
       "registrationOpen": true,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "Mexico"
     },
     {
       "id": "hackathon-internal-att",
       "name": "ATT / BSSe Innovation Day @ GDL",
       "category": "Hackathon",
       "status": "Upcoming",
-      "when": "Propose · 2026",
+      "when": "Propose \u00b7 2026",
       "sortKey": "2026-09-01",
       "audience": "ATT BSS Evolution teams (GDL city)",
-      "highlight": "Suggested local visibility event for ATT delivery — align with PI / site calendar",
+      "highlight": "Suggested local visibility event for ATT delivery \u2014 align with PI / site calendar",
       "visibility": "Internal",
       "registrationOpen": true,
       "confidence": "Seed",
-      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar)."
+      "sourceNote": "Seeded from public LinkedIn mentions (not an official calendar).",
+      "city": "GDL"
     },
     {
       "id": "cala-hackthon-2026-ms4p36wm",
@@ -239,7 +255,8 @@
       "createdAt": "2026-07-28T13:31:59.542Z",
       "registrationOpen": true,
       "confidence": "Editor",
-      "sourceNote": "Published by GitHub editor @SumitJindalMX"
+      "sourceNote": "Published by GitHub editor @SumitJindalMX",
+      "city": "Mexico"
     }
   ]
 }
