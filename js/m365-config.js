@@ -17,7 +17,7 @@ window.GDL_M365 = {
   redirectUri:
     typeof location !== "undefined"
       ? `${location.origin}${location.pathname.replace(/index\.html$/, "")}`
-      : "https://sumitjindalmx.github.io/gdl-site-visibility/",
+      : "https://sumitjindalmx.github.io/mexico-hub/",
 
   /** Graph scopes (delegated) */
   scopes: ["User.Read", "Sites.ReadWrite.All"],

@@ -5,7 +5,7 @@
  */
 window.GDL_AUTH = {
   owner: "SumitJindalMX",
-  repo: "gdl-site-visibility",
+  repo: "mexico-hub",
   eventsPath: "data/events.json",
   /** GitHub logins allowed to create / publish events */
   authorizedUsers: [

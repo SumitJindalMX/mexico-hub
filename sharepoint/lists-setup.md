@@ -1,62 +1,61 @@
-# SharePoint / Entra setup for GDL registration
+# SharePoint / Entra setup for Mexico Hub
 
 The public GitHub Pages app uses **MSAL (SPA)** + **Microsoft Graph** with **delegated** permissions. No client secrets are stored in the site.
 
 ## 1. Entra ID app registration
 
-1. Azure Portal → **Microsoft Entra ID** → **App registrations** → **New registration**
-2. Name: `GDL Site Visibility`
-3. Supported account types: **Accounts in this organizational directory only** (Amdocs tenant)
+1. Azure Portal → **Microsoft Entra ID** → **App registrations**
+2. Open the existing app (client ID `04d07e0d-5a22-4e10-81bd-6c76f93182fb`) **or** create new:
+   - Name: **Mexico Hub**
+   - Supported accounts: **This organizational directory only** (Amdocs tenant)
+3. **Branding / display name:** set to **Mexico Hub**
 4. Redirect URI → **Single-page application (SPA)**:
-   - `https://sumitjindalmx.github.io/gdl-site-visibility/`
-   - `http://localhost:5500/` (or your local static server origin)
-5. After create, copy:
+   - `https://sumitjindalmx.github.io/mexico-hub/`  ← **required (new)**
+   - `http://localhost:5500/` (optional, local)
+   - Remove obsolete: `https://sumitjindalmx.github.io/gdl-site-visibility/`
+5. Confirm:
    - **Application (client) ID** → `js/m365-config.js` → `clientId`
-   - **Directory (tenant) ID** → `tenantId`
+   - **Directory (tenant) ID** → `tenantId` (`c8eca3ca-1276-46d5-9d9d-a0f2a028920f`)
 6. **API permissions** (delegated):
    - `Microsoft Graph` → `User.Read`
    - `Microsoft Graph` → `Sites.ReadWrite.All`  
-     (or `Sites.Selected` + grant the app access to the GDL site — preferred for least privilege)
+     (or `Sites.Selected` + grant on the target site)
 7. Click **Grant admin consent** for the tenant  
    (**Who:** Amdocs Entra / Identity admins — not end users.  
-   **Where:** Azure Portal → **Entra ID** → **Enterprise applications** → app `GDL Site Visibility` → **Permissions** → **Grant admin consent**,  
-   **or** **Entra ID** → **Admin consent requests** → find the pending request → **Review** → Approve.)
-8. **Authentication** → ensure SPA platform is set; no client secret required
+   **Where:** Azure Portal → **Entra ID** → **Enterprise applications** → app **Mexico Hub** → **Permissions** → **Grant admin consent**,  
+   **or** **Entra ID** → **Admin consent requests** → **Review** → Approve.)
+8. **Authentication** → SPA platform; no client secret required
 
 ### If users see “request submitted / needs approval”
 
-That is **not** a GDL app queue. Amdocs blocks users from self-consenting to Graph permissions like `Sites.ReadWrite.All`.
-
 | Who approves | Where |
 |--------------|--------|
-| Entra ID / Identity / Cloud admins (Amdocs IT) | [Admin consent requests](https://portal.azure.com/#view/Microsoft_AAD_IAM/ConsentPoliciesMenuBlade/~/AdminConsentRequests) |
-| Or the app owner with **Cloud Application Administrator** | Enterprise app → Permissions → **Grant admin consent for Amdocs** |
+| Entra ID / Identity admins (Amdocs IT) | [Admin consent requests](https://portal.azure.com/#view/Microsoft_AAD_IAM/ConsentPoliciesMenuBlade/~/AdminConsentRequests) |
+| Or Cloud Application Administrator | Enterprise app → Permissions → **Grant admin consent for Amdocs** |
 
 Tell IT:
 
-- App name: **GDL Site Visibility**
+- App name: **Mexico Hub**
 - Application (client) ID: `04d07e0d-5a22-4e10-81bd-6c76f93182fb`
 - Tenant: Amdocs (`c8eca3ca-1276-46d5-9d9d-a0f2a028920f`)
-- Permissions needed (delegated): `User.Read`, `Sites.ReadWrite.All` (or `Sites.Selected`)
-- Redirect URI: `https://sumitjindalmx.github.io/gdl-site-visibility/`
-
-Until an admin approves, Microsoft sign-in / SharePoint registration will stay blocked.
+- Permissions (delegated): `User.Read`, `Sites.ReadWrite.All` (or `Sites.Selected`)
+- Redirect URI: `https://sumitjindalmx.github.io/mexico-hub/`
 
 ## 2. SharePoint site
 
-Create (or reuse) a site, e.g. `https://amdocs.sharepoint.com/sites/GDLVisibility`.
+Create (or reuse) a site, e.g. `https://amdocs.sharepoint.com/sites/MexicoHub` or `…/GDLVisibility`.
 
-Grant a security group of **participants** and **organizers** at least **Contribute** on this site (delegated Graph writes as the signed-in user).
+Grant participants and organizers at least **Contribute**.
 
 Set `siteUrl` in `js/m365-config.js`.
 
 ## 3. Lists
 
-### GDL_Invites
+### GDL_Invites (or rename display to MexicoHub_Invites — keep internal name in sync with config)
 
 | Column | Type | Notes |
 |--------|------|--------|
-| Title | Single line | Invite **code** (auto-generated) |
+| Title | Single line | Invite **code** |
 | EventId | Single line | Matches `events.json` `id` |
 | MaxUses | Number | e.g. 50 |
 | UsedCount | Number | Default 0 |
@@ -67,61 +66,48 @@ Set `siteUrl` in `js/m365-config.js`.
 
 | Column | Type | Notes |
 |--------|------|--------|
-| Title | Single line | Team name (also TeamName) |
+| Title | Single line | Team name |
 | EventId | Single line | |
 | TeamName | Single line | |
 | LeadName | Single line | |
 | LeadEmail | Single line | |
-| LeadUpn | Single line | From Microsoft account |
+| LeadUpn | Single line | |
 | InviteCode | Single line | |
 | PptUrl | Hyperlink or Single line | |
 | VideoUrl | Hyperlink or Single line | |
-| Status | Single line | e.g. Submitted |
-| UploadFolder | Single line | Folder under library |
+| Status | Single line | |
+| UploadFolder | Single line | |
 
 ### GDL_TeamMembers
 
 | Column | Type | Notes |
 |--------|------|--------|
 | Title | Single line | Member name |
-| RegistrationId | Single line | SharePoint item id of registration |
+| RegistrationId | Single line | Registration item id |
 | MemberName | Single line | |
 | MemberEmail | Single line | |
 | Role | Single line | |
 
-List **internal names** must match `js/m365-config.js` → `lists` (or rename config to match).
+List names must match `js/m365-config.js` → `lists`.
 
 ## 4. Document library
 
-Create library **GDL_Uploads**. Participants upload under `{eventId}/{registrationFolder}/`.
+**GDL_Uploads** (or rename; keep config `uploadsLibrary` in sync).
 
 ## 5. Enable the app
 
-In `js/m365-config.js`:
-
-```js
-enabled: true,
-tenantId: "<directory-id>",
-clientId: "<application-id>",
-siteUrl: "https://amdocs.sharepoint.com/sites/GDLVisibility",
-organizerUpns: ["you@amdocs.com"],
-```
-
-Commit and push so GitHub Pages picks up the config.
+In `js/m365-config.js`: `enabled: true`, real `tenantId` / `clientId`, `siteUrl`, `organizerUpns`.
 
 ## 6. Smoke test
 
-1. Open the live site → **Microsoft sign in**
-2. As an organizer UPN → open an event with **Registration open** → **Manage invites** → generate a code
-3. As a participant (company account + Contribute) → **Register team** → invite + members + PPT/video → submit
-4. Confirm list items and files appear in SharePoint
+1. Open https://sumitjindalmx.github.io/mexico-hub/ → **Microsoft sign in**
+2. Organizer → **Manage invites**
+3. Participant → **Register team** with invite + files
 
 ## Troubleshooting
 
 | Symptom | Likely cause |
 |---------|----------------|
-| “M365 is not configured” | `enabled` false or placeholder tenant/client IDs |
-| AADSTS errors on login | Redirect URI mismatch or wrong tenant |
-| Graph 403 on lists | Missing Contribute / admin consent / wrong site URL |
-| Graph 404 on library | `GDL_Uploads` name mismatch |
-| Invite not found | Code/EventId mismatch; create indexed columns if filters fail |
+| AADSTS50011 redirect mismatch | Old redirect still only; add `…/mexico-hub/` |
+| 401 No access in Azure Portal | Your account is not an Entra admin — ask IT |
+| Graph 403 | Missing Contribute / admin consent |

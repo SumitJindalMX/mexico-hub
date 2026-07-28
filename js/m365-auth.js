@@ -8,7 +8,7 @@
     if (typeof window.msal === "undefined" || !window.msal.PublicClientApplication) {
       throw new Error(
         "MSAL library not loaded. Use the site URL with a trailing slash " +
-          "(…/gdl-site-visibility/) and hard-refresh. Check Network that " +
+          "(…/mexico-hub/) and hard-refresh. Check Network that " +
           "js/vendor/msal-browser.min.js returns 200.",
       );
     }
@@ -95,7 +95,7 @@
           "Microsoft is waiting for an Amdocs Entra admin to approve this app. " +
             "You cannot approve it yourself. Ask Identity/IT to open Azure Portal → " +
             "Entra ID → Admin consent requests (or Enterprise applications → " +
-            "GDL Site Visibility → Permissions → Grant admin consent). " +
+            "Mexico Hub → Permissions → Grant admin consent). " +
             "App client ID: " +
             cfg().clientId,
         );
