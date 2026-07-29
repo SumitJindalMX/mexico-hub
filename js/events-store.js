@@ -112,6 +112,12 @@
       pptUrl: (form.pptUrl || "").trim(),
       videoUrl: (form.videoUrl || "").trim(),
       city: (form.city || prev.city || "Mexico").trim() || "Mexico",
+      capacity:
+        form.capacity === "" || form.capacity == null
+          ? prev.capacity ?? null
+          : Number(form.capacity) || null,
+      registrationClosesAt: (form.registrationClosesAt || "").trim() || prev.registrationClosesAt || "",
+      demoSlots: Array.isArray(form.demoSlots) ? form.demoSlots : prev.demoSlots || [],
       updatedBy: session.login,
       updatedAt: new Date().toISOString(),
       sourceNote:
@@ -164,6 +170,12 @@
       registrationOpen: Boolean(form.registrationOpen),
       confidence: form.confidence || "Editor",
       city: (form.city || "Mexico").trim() || "Mexico",
+      capacity:
+        form.capacity === "" || form.capacity == null
+          ? null
+          : Number(form.capacity) || null,
+      registrationClosesAt: (form.registrationClosesAt || "").trim(),
+      demoSlots: Array.isArray(form.demoSlots) ? form.demoSlots : [],
       pptUrl: (form.pptUrl || "").trim(),
       videoUrl: (form.videoUrl || "").trim(),
       sourceNote:
@@ -175,6 +187,22 @@
       createdBy: actor,
       createdAt: new Date().toISOString(),
     };
+  }
+
+  async function patchEventFields(eventId, patch, session) {
+    if (!session?.token) throw new Error("Sign in as an authorized editor first.");
+    const remote = await getRemoteFile(session.token);
+    const idx = remote.events.findIndex((e) => e.id === eventId);
+    if (idx < 0) throw new Error("Event not found.");
+    const next = [...remote.events];
+    next[idx] = {
+      ...next[idx],
+      ...patch,
+      updatedBy: session.login,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEvents(session.token, next, remote.sha, session.login);
+    return { event: next[idx], events: next };
   }
 
   async function createEvent(form, session) {
@@ -194,6 +222,7 @@
     createEvent,
     updateEvent,
     setRegistrationOpen,
+    patchEventFields,
     slugify,
   };
 })();

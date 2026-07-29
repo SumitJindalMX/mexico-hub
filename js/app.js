@@ -52,6 +52,9 @@
     m365Profile: null,
     googleProfile: null,
     registrations: [],
+    scores: [],
+    gallery: [],
+    notifications: [],
   };
 
   function esc(s) {
@@ -200,12 +203,12 @@
 
   function renderAuthBar() {
     const session = state.session;
-    els.btnCreate.hidden = !session;
+    const roles = window.GDLRoles?.getRoleFlags?.() || {};
+    els.btnCreate.hidden = !roles.editor;
 
     // GitHub editor controls
     if (!session) {
       els.btnSignIn.hidden = false;
-      // remove gh user chip if present
       els.authBar.querySelector("#gh-user-chip")?.remove();
       els.authBar.querySelector("#btn-signout")?.remove();
     } else {
@@ -227,6 +230,7 @@
           window.GDLAuth.signOut();
           state.session = null;
           renderAuthBar();
+          renderPortalExtras();
           renderList();
         });
         els.authBar.insertBefore(chip, els.btnSignIn);
@@ -234,11 +238,9 @@
       }
     }
 
-    // Google participant
     const googleReady = window.GDLGoogleAuth?.isConfigured?.();
     const googleProfile = state.googleProfile;
     if (!googleReady) {
-      // Still show the button so people can see setup instructions
       els.btnGoogleSignIn.hidden = false;
       els.btnGoogleSignOut.hidden = true;
       els.googleUser.hidden = true;
@@ -253,8 +255,7 @@
       els.googleUser.textContent = googleProfile.email || googleProfile.name;
     }
 
-    // Microsoft participant / organizer
-    const m365Ready = window.GDLM365Auth?.isConfigured?.();
+    const m365Ready = window.GDLRoles?.isEntraEnabled?.() && window.GDLM365Auth?.isConfigured?.();
     const profile = state.m365Profile;
     if (!m365Ready) {
       els.btnMsSignIn.hidden = true;
@@ -271,17 +272,20 @@
       const org = window.GDLM365Auth.isOrganizer(profile) ? " · organizer" : "";
       els.msUser.textContent = `${profile.upn}${org}`;
     }
+
+    window.GDLRoles?.applyRoleVisibility?.();
   }
 
   function onM365AuthChanged() {
-    state.m365Profile = window.GDLM365Auth.getProfile();
+    state.m365Profile = window.GDLM365Auth?.getProfile?.() || null;
     renderAuthBar();
     renderList();
   }
 
   function onGoogleAuthChanged() {
-    state.googleProfile = window.GDLGoogleAuth.getProfile();
+    state.googleProfile = window.GDLGoogleAuth?.getProfile?.() || null;
     renderAuthBar();
+    renderPortalExtras();
     renderList();
   }
 
@@ -322,6 +326,17 @@
   }
 
   function collectCreateForm() {
+    let demoSlots = [];
+    const rawSlots = document.getElementById("ev-demo-slots")?.value || "";
+    if (rawSlots.trim()) {
+      try {
+        demoSlots = JSON.parse(rawSlots);
+        if (!Array.isArray(demoSlots)) throw new Error("Demo slots must be a JSON array.");
+      } catch (err) {
+        throw new Error(err.message || "Invalid demo slots JSON.");
+      }
+    }
+    const closesLocal = document.getElementById("ev-closes")?.value || "";
     return {
       id: document.getElementById("ev-id")?.value || "",
       name: document.getElementById("ev-name").value,
@@ -335,6 +350,9 @@
       audience: document.getElementById("ev-audience").value,
       highlight: document.getElementById("ev-highlight").value,
       registrationOpen: document.getElementById("ev-registration-open").checked,
+      capacity: document.getElementById("ev-capacity")?.value || "",
+      registrationClosesAt: closesLocal ? new Date(closesLocal).toISOString() : "",
+      demoSlots,
       pptUrl: document.getElementById("ev-ppt-url").value,
       videoUrl: document.getElementById("ev-video-url").value,
     };
@@ -374,6 +392,21 @@
     document.getElementById("ev-audience").value = event.audience || "";
     document.getElementById("ev-highlight").value = event.highlight || "";
     document.getElementById("ev-registration-open").checked = !!event.registrationOpen;
+    document.getElementById("ev-capacity").value = event.capacity || "";
+    if (event.registrationClosesAt) {
+      const d = new Date(event.registrationClosesAt);
+      if (!Number.isNaN(d.getTime())) {
+        const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
+        document.getElementById("ev-closes").value = local;
+      }
+    } else {
+      document.getElementById("ev-closes").value = "";
+    }
+    document.getElementById("ev-demo-slots").value = event.demoSlots?.length
+      ? JSON.stringify(event.demoSlots, null, 2)
+      : "";
     document.getElementById("ev-ppt-url").value = event.pptUrl || "";
     document.getElementById("ev-video-url").value = event.videoUrl || "";
     els.modalCreate.showModal();
@@ -386,36 +419,34 @@
       return;
     }
     els.detail.classList.remove("empty");
+    window.GDLPortal?.setEventHash?.(event.id);
+
+    const roles = window.GDLRoles?.getRoleFlags?.() || {};
+    const gate = window.GDLPortal.isRegistrationClosed(event, state.registrations);
     const byline = event.createdBy
       ? `<p class="detail__text" style="margin-top:0.75rem;font-size:0.85rem">Added by @${esc(event.createdBy)}</p>`
       : "";
-    const isEditor = !!state.session;
 
     let actions = "";
-    if (event.registrationOpen) {
+    if (!gate.closed) {
       actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team &amp; upload PPT/video</button>`;
-      if (!state.m365Profile && !state.googleProfile) {
-        actions += `
-        <div class="setup-banner">
-          <strong>How to register</strong>
-          <ol style="margin:0.4rem 0 0;padding-left:1.2rem;color:var(--text-muted);font-size:0.9rem">
-            <li>Optional: <em>Google</em> sign-in (top bar) for prefill + Drive uploads</li>
-            <li>Fill team / lead (PPT &amp; video optional)</li>
-            <li>Submit registration, or use Gmail / GitHub Issue</li>
-          </ol>
-        </div>`;
-      }
     } else {
-      actions += `<p class="modal__hint">Registration is closed for this activity.</p>`;
+      actions += `<p class="modal__hint">${esc(gate.reason || "Registration is closed for this activity.")}</p>`;
     }
-    if (isEditor || event.registrationOpen) {
+    actions += `<button type="button" class="btn btn--ghost btn--sm" data-ics-id="${esc(event.id)}">Add to calendar (ICS)</button>`;
+    if (roles.organizer || event.registrationOpen) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;
     }
-    if (isEditor) {
+    if (roles.editor) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-edit-event">Edit activity</button>`;
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-toggle-reg">${
         event.registrationOpen ? "Close registration" : "Open registration"
       }</button>`;
+    }
+    if (roles.organizer) {
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-export-judge">Export judge pack</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-publish-scores">Publish scoreboard</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-announce">Announce</button>`;
     }
 
     const materials =
@@ -429,6 +460,9 @@
         </p>
       </div>`
         : "";
+
+    const eventScores = window.GDLScoresStore.scoresForEvent(state.scores, event.id);
+    const regs = window.GDLPortal.regsForEvent(state.registrations, event.id);
 
     els.detail.innerHTML = `
       <p class="detail__kicker">Event brief</p>
@@ -445,6 +479,8 @@
             : `<span class="chip">Registration closed</span>`
         }
       </div>
+      ${window.GDLPortal.countdownHtml(event)}
+      ${window.GDLPortal.capacityHtml(event, state.registrations)}
       <div class="detail__block">
         <p class="detail__label">When</p>
         <p class="detail__text">${esc(event.when)}</p>
@@ -462,10 +498,23 @@
         <p class="detail__text">${esc(event.highlight)}</p>
       </div>
       ${materials}
+      ${window.GDLPortal.demoSlotsHtml(event)}
       <div class="detail__block">
         <p class="detail__label">Registered teams</p>
         ${renderRegsBlock(event.id)}
       </div>
+      <div class="detail__block">
+        <p class="detail__label">Scoreboard</p>
+        ${window.GDLPortal.scoreboardHtml(event.id, state.scores, window.GDLRoles.can("viewUnpublishedScores"))}
+      </div>
+      ${
+        window.GDLRoles.can("score")
+          ? `<div class="detail__block" data-role-required="judge,organizer,editor">
+        <p class="detail__label">Judge scoring</p>
+        ${window.GDLPortal.judgeFormHtml(event, regs, eventScores)}
+      </div>`
+          : ""
+      }
       <div class="detail__block">
         <p class="detail__label">Data source / authenticity</p>
         <p class="detail__text">${esc(
@@ -482,6 +531,11 @@
     `;
 
     document.getElementById("btn-open-register")?.addEventListener("click", () => {
+      const again = window.GDLPortal.isRegistrationClosed(event, state.registrations);
+      if (again.closed) {
+        alert(again.reason);
+        return;
+      }
       window.GDLRegistrationUI.openRegisterModal(event);
     });
     document.getElementById("btn-open-organize")?.addEventListener("click", () => {
@@ -501,17 +555,132 @@
         events = next;
         window.GDL.events = next;
         state.selectedId = updated.id;
+        renderPortalExtras();
         renderList();
-        renderFeatured();
-        renderFooter();
-        alert(
-          updated.registrationOpen
-            ? "Registration is now open."
-            : "Registration is now closed.",
-        );
       } catch (err) {
         alert(err.message || "Could not update registration.");
       }
+    });
+    document.getElementById("btn-export-judge")?.addEventListener("click", () => {
+      window.GDLPortal.exportJudgePackCsv(event, regs, eventScores);
+    });
+    document.getElementById("btn-publish-scores")?.addEventListener("click", async () => {
+      try {
+        await window.GDLScoresStore.setPublished(event.id, true, state.session);
+        state.scores = await window.GDLScoresStore.loadPublic();
+        const top = [...eventScores].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+        if (top && confirm(`Promote ${top.teamName} to winners gallery?`)) {
+          await window.GDLGalleryStore.addItem(
+            {
+              eventId: event.id,
+              eventName: event.name,
+              teamName: top.teamName,
+              place: "1st (published scoreboard)",
+              highlight: event.highlight || "",
+              repoUrl: regs.find((r) => r.id === top.registrationId)?.repoUrl || "",
+            },
+            state.session,
+          );
+          state.gallery = await window.GDLGalleryStore.loadPublic();
+        }
+        renderPortalExtras();
+        renderList();
+        alert("Scoreboard published.");
+      } catch (err) {
+        alert(err.message || "Could not publish scores.");
+      }
+    });
+    document.getElementById("btn-announce")?.addEventListener("click", async () => {
+      const title = prompt("Announcement title", `${event.name} update`);
+      if (!title) return;
+      const body = prompt("Announcement body", "Registration / judging update from Mexico Hub organizers.");
+      if (!body) return;
+      try {
+        await window.GDLNotificationsStore.publish({ title, body, eventId: event.id }, state.session);
+        state.notifications = await window.GDLNotificationsStore.loadPublic();
+        refreshNotifyUi();
+        if (confirm("Also open Gmail compose to broadcast?")) {
+          window.GDLNotificationsStore.openGmailBroadcast(title, body);
+        }
+      } catch (err) {
+        alert(err.message || "Could not publish announcement.");
+      }
+    });
+    els.detail.querySelectorAll("[data-judge-form]").forEach((form) => {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        try {
+          await window.GDLScoresStore.upsertScore(
+            {
+              eventId: form.getAttribute("data-event-id"),
+              registrationId: form.getAttribute("data-reg-id"),
+              teamName: form.getAttribute("data-team"),
+              demo: fd.get("demo"),
+              deck: fd.get("deck"),
+              code: fd.get("code"),
+              notes: fd.get("notes"),
+              published: false,
+            },
+            state.session,
+          );
+          state.scores = await window.GDLScoresStore.loadPublic();
+          renderList();
+          alert("Score saved.");
+        } catch (err) {
+          alert(err.message || "Could not save score.");
+        }
+      });
+    });
+    els.detail.querySelectorAll("[data-ics-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const ev = events.find((x) => x.id === btn.getAttribute("data-ics-id"));
+        if (ev) window.GDLCalendar.downloadEventIcs(ev);
+      });
+    });
+  }
+
+  function renderPortalExtras() {
+    const email = state.googleProfile?.email || null;
+    window.GDLPortal.renderMyRegs(
+      document.getElementById("my-regs-grid"),
+      state.registrations,
+      events,
+      email,
+    );
+    window.GDLPortal.renderCalendar(document.getElementById("calendar-grid"), events);
+    window.GDLPortal.renderGallery(document.getElementById("gallery-grid"), state.gallery);
+    window.GDLPortal.renderAnalytics(
+      document.getElementById("analytics-grid"),
+      events,
+      state.registrations,
+    );
+    document.getElementById("calendar-grid")?.querySelectorAll("[data-ics-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const ev = events.find((x) => x.id === btn.getAttribute("data-ics-id"));
+        if (ev) window.GDLCalendar.downloadEventIcs(ev);
+      });
+    });
+    window.GDLRoles.applyRoleVisibility();
+    window.GDLi18n.apply();
+  }
+
+  function refreshNotifyUi() {
+    const derived = window.GDLNotificationsStore.deriveLocal(events, state.registrations);
+    const all = [...derived, ...(state.notifications || [])];
+    const read = window.GDLNotificationsStore.readSet();
+    window.GDLPortal.renderNotifications(document.getElementById("notify-list"), all, read);
+    const unread = all.filter((n) => !read.has(n.id)).length;
+    const badge = document.getElementById("notify-count");
+    if (badge) {
+      badge.hidden = unread === 0;
+      badge.textContent = String(unread);
+    }
+    document.getElementById("notify-list")?.querySelectorAll("[data-notify-id]").forEach((el) => {
+      el.addEventListener("click", () => {
+        window.GDLNotificationsStore.markRead(el.getAttribute("data-notify-id"));
+        refreshNotifyUi();
+      });
     });
   }
 
@@ -649,6 +818,32 @@
       renderList();
     });
 
+    document.getElementById("btn-lang")?.addEventListener("click", () => {
+      window.GDLi18n.toggle();
+    });
+    document.getElementById("btn-tour")?.addEventListener("click", () => {
+      window.GDLTour.start(true);
+    });
+    document.getElementById("btn-notify")?.addEventListener("click", () => {
+      const panel = document.getElementById("notify-panel");
+      const btn = document.getElementById("btn-notify");
+      if (!panel) return;
+      panel.hidden = !panel.hidden;
+      btn?.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+    });
+    document.getElementById("btn-notify-perm")?.addEventListener("click", async () => {
+      const p = await window.GDLNotificationsStore.requestBrowserPermission();
+      alert(`Browser notifications: ${p}`);
+    });
+    window.addEventListener("hashchange", () => {
+      const id = window.GDLPortal.parseHashEventId();
+      if (id) {
+        state.selectedId = id;
+        renderList();
+        document.getElementById("events")?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
     els.btnSignIn.addEventListener("click", () => {
       showError(els.signInError, "");
       els.pat.value = "";
@@ -668,6 +863,7 @@
         state.session = await window.GDLAuth.signIn(els.pat.value);
         els.modalSignIn.close();
         renderAuthBar();
+        renderPortalExtras();
         renderList();
       } catch (err) {
         showError(els.signInError, err.message || "Sign in failed.");
@@ -707,6 +903,8 @@
         renderBars();
         renderFeatured();
         renderFooter();
+        renderPortalExtras();
+        refreshNotifyUi();
       } catch (err) {
         showError(
           els.createError,
@@ -723,6 +921,8 @@
       } catch {
         state.registrations = [];
       }
+      renderPortalExtras();
+      refreshNotifyUi();
       renderList();
     }
 
@@ -735,6 +935,7 @@
 
   async function boot() {
     bind();
+    window.GDLi18n?.apply?.();
     renderAuthBar();
     renderHero();
     renderPulse();
@@ -744,6 +945,7 @@
     renderList();
     renderBars();
     renderFeatured();
+    renderPortalExtras();
 
     try {
       await window.GDLGoogleAuth.init();
@@ -753,8 +955,12 @@
     }
 
     try {
-      await window.GDLM365Auth.init();
-      onM365AuthChanged();
+      if (window.GDLRoles?.isEntraEnabled?.()) {
+        await window.GDLM365Auth.init();
+        onM365AuthChanged();
+      } else {
+        renderAuthBar();
+      }
     } catch {
       renderAuthBar();
     }
@@ -763,20 +969,41 @@
       const loaded = await window.GDLEventsStore.loadPublicEvents();
       events = loaded;
       window.GDL.events = loaded;
+      const hashId = window.GDLPortal?.parseHashEventId?.();
+      if (hashId) state.selectedId = hashId;
       renderList();
       renderBars();
       renderFeatured();
       renderFooter();
+      renderPortalExtras();
     } catch (err) {
       els.resultsMeta.textContent = `Could not load live events file — ${err.message}`;
     }
 
     try {
       state.registrations = await window.GDLRegistrationsStore.loadPublic();
-      renderList();
     } catch {
-      /* optional until first registration publish */
+      state.registrations = [];
     }
+    try {
+      state.scores = await window.GDLScoresStore.loadPublic();
+    } catch {
+      state.scores = [];
+    }
+    try {
+      state.gallery = await window.GDLGalleryStore.loadPublic();
+    } catch {
+      state.gallery = [];
+    }
+    try {
+      state.notifications = await window.GDLNotificationsStore.loadPublic();
+    } catch {
+      state.notifications = [];
+    }
+    renderPortalExtras();
+    refreshNotifyUi();
+    renderList();
+    setTimeout(() => window.GDLTour?.start?.(false), 800);
   }
 
   boot();

@@ -81,6 +81,23 @@
   }
 
   function openRegisterModal(event) {
+    const gate = window.GDLPortal?.isRegistrationClosed?.(
+      event,
+      /* regs loaded lazily — capacity still checked in UI detail; soft check here */
+      null,
+    );
+    if (event && !event.registrationOpen) {
+      alert("Registration is closed for this activity.");
+      return;
+    }
+    if (event?.registrationClosesAt) {
+      const t = Date.parse(event.registrationClosesAt);
+      if (Number.isFinite(t) && Date.now() > t) {
+        alert("Registration deadline has passed.");
+        return;
+      }
+    }
+    void gate;
     const modal = $("modal-register");
     const form = $("form-register");
     const members = $("reg-members");
@@ -438,7 +455,7 @@
         await maybeValidateGithubInvite(form);
         let payload = form;
 
-        if (window.GDLM365Auth.getProfile()) {
+        if (window.GDLM365Auth.getProfile() && window.GDLRoles?.isEntraEnabled?.()) {
           const result = await submitM365(payload, appApi);
           $("modal-register").close();
           showConfirmation(

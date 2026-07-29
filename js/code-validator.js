@@ -796,8 +796,73 @@ ${pack.harness}
     }
   }
 
-  async function fetchFromRepoRoot(owner, repo, ref, token) {
+  function promptFilePicker(files, title) {
+    return new Promise((resolve, reject) => {
+      const codeFiles = (files || []).filter(
+        (f) => f.type === "file" && /\.(js|mjs|cjs|ts|py|java|tsx|jsx)$/i.test(f.name || f.path || ""),
+      );
+      const choices = codeFiles.length ? codeFiles : (files || []).filter((f) => f.type === "file");
+      if (!choices.length) {
+        reject(new Error("No files found in this folder."));
+        return;
+      }
+      const modal = document.createElement("dialog");
+      modal.className = "modal";
+      modal.innerHTML = `<form method="dialog" class="modal__panel">
+        <h2 class="modal__title">${title || "Pick a source file"}</h2>
+        <p class="modal__lede">Select which file to pull into the validator.</p>
+        <div class="field">
+          <label for="cv-file-pick">File</label>
+          <select id="cv-file-pick">${choices
+            .map((f) => `<option value="${String(f.path).replace(/"/g, "&quot;")}">${String(f.path)}</option>`)
+            .join("")}</select>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" data-cv-pick-cancel>Cancel</button>
+          <button type="submit" class="btn btn--primary">Pull file</button>
+        </div>
+      </form>`;
+      document.body.appendChild(modal);
+      const form = modal.querySelector("form");
+      const cleanup = () => modal.remove();
+      modal.querySelector("[data-cv-pick-cancel]")?.addEventListener("click", () => {
+        cleanup();
+        reject(new Error("File pick cancelled."));
+      });
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const path = modal.querySelector("#cv-file-pick").value;
+        cleanup();
+        resolve(path);
+      });
+      modal.showModal();
+    });
+  }
+
+  async function listDir(owner, repo, ref, path, token) {
+    const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(
+      path || "",
+    )}?ref=${encodeURIComponent(ref)}`;
+    const listing = await githubGetJson(api, token);
+    if (!Array.isArray(listing)) {
+      throw new Error("Expected a directory listing from GitHub.");
+    }
+    return listing;
+  }
+
+  async function fetchFromRepoRoot(owner, repo, ref, token, { pickFile = true } = {}) {
     const branch = ref === "HEAD" ? await resolveDefaultBranch(owner, repo, token) : ref;
+    if (pickFile) {
+      try {
+        const listing = await listDir(owner, repo, branch, "", token);
+        const path = await promptFilePicker(listing, `Pick a file in ${owner}/${repo}`);
+        return fetchGitHubFile(owner, repo, branch, path, token);
+      } catch (err) {
+        if (err?.needsAuth) throw err;
+        if (String(err.message || "").includes("cancelled")) throw err;
+        /* fall through to auto entry */
+      }
+    }
     const tried = [];
     for (const candidate of ENTRY_CANDIDATES) {
       tried.push(candidate);
@@ -809,31 +874,10 @@ ${pack.harness}
         };
       } catch (err) {
         if (err?.needsAuth) throw err;
-        /* try next */
       }
-    }
-    try {
-      const listing = await githubGetJson(
-        `https://api.github.com/repos/${owner}/${repo}/contents/?ref=${encodeURIComponent(branch)}`,
-        token,
-      );
-      if (Array.isArray(listing)) {
-        const codeFile = listing.find(
-          (f) => f.type === "file" && /\.(js|mjs|cjs|ts|py|java)$/i.test(f.name),
-        );
-        if (codeFile) {
-          const file = await fetchGitHubFile(owner, repo, branch, codeFile.path, token);
-          return {
-            ...file,
-            note: `${file.note} (first code file in repo root)`,
-          };
-        }
-      }
-    } catch (err) {
-      if (err?.needsAuth) throw err;
     }
     throw new Error(
-      `Could not find a source file in ${owner}/${repo}. Tried: ${tried.slice(0, 6).join(", ")}… Paste a file URL like https://github.com/${owner}/${repo}/blob/${branch}/yourfile.js or paste the code.`,
+      `Could not find a source file in ${owner}/${repo}. Tried: ${tried.slice(0, 6).join(", ")}…`,
     );
   }
 
@@ -863,11 +907,13 @@ ${pack.harness}
         return fetchGitHubFile(parsed.owner, parsed.repo, branch, parsed.path, token);
       }
       if (parsed.kind === "dir") {
-        throw new Error(
-          "That URL is a folder. Paste a file URL (…/blob/branch/path/file.js) or the repo root to auto-pick an entry file.",
-        );
+        const branch =
+          ref === "HEAD" ? await resolveDefaultBranch(parsed.owner, parsed.repo, token) : ref;
+        const listing = await listDir(parsed.owner, parsed.repo, branch, parsed.path, token);
+        const path = await promptFilePicker(listing, `Pick a file in ${parsed.path || "/"}`);
+        return fetchGitHubFile(parsed.owner, parsed.repo, branch, path, token);
       }
-      return fetchFromRepoRoot(parsed.owner, parsed.repo, ref, token);
+      return fetchFromRepoRoot(parsed.owner, parsed.repo, ref, token, { pickFile: true });
     });
   }
 

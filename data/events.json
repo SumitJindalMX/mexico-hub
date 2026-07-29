@@ -257,6 +257,41 @@
       "confidence": "Editor",
       "sourceNote": "Published by GitHub editor @SumitJindalMX",
       "city": "Mexico"
+    },
+    {
+      "id": "mexico-hub-demo-hack-2026",
+      "name": "Mexico Hub Role-Aware Demo Hackathon",
+      "category": "Hackathon",
+      "status": "Upcoming",
+      "when": "Aug 2026",
+      "sortKey": "2026-08-15",
+      "audience": "Mexico engineering + innovation teams",
+      "highlight": "Test event for judging, capacity, deadlines, demo slots, and code pull",
+      "visibility": "High",
+      "registrationOpen": true,
+      "confidence": "Editor",
+      "city": "GDL",
+      "capacity": 24,
+      "registrationClosesAt": "2026-08-10T23:59:00-06:00",
+      "demoSlots": [
+        {
+          "at": "2026-08-15T10:00:00-06:00",
+          "label": "Opening + team check-in",
+          "link": "",
+          "teamId": ""
+        },
+        {
+          "at": "2026-08-15T14:00:00-06:00",
+          "label": "Demo block A",
+          "link": "",
+          "teamId": ""
+        }
+      ],
+      "pptUrl": "",
+      "videoUrl": "",
+      "sourceNote": "Seeded for role-aware portal testing",
+      "createdBy": "SumitJindalMX",
+      "createdAt": "2026-07-29T12:00:00.000Z"
     }
   ]
 }

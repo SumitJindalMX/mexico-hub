@@ -38,7 +38,29 @@
       <div class="topbar">
         <div class="wrap topbar__inner">
           <a class="topbar__brand" href="#">Amdocs <span>Mexico Hub</span></a>
+          <nav class="topbar__nav" aria-label="Primary">
+            <a href="#events" data-i18n="nav.browse">Browse</a>
+            <a href="#my-regs" data-i18n="nav.myRegs" data-role-required="participant,judge,organizer,editor">My regs</a>
+            <a href="#calendar" data-i18n="nav.calendar">Calendar</a>
+            <a href="#gallery" data-i18n="nav.gallery">Winners</a>
+            <a href="#analytics" data-i18n="nav.analytics" data-role-required="organizer,editor">Analytics</a>
+          </nav>
           <div class="topbar__actions" id="auth-bar">
+            <span class="role-chip" id="role-chip" title="Your portal role">Visitor</span>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-lang" title="Toggle language">ES</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-tour" data-i18n="nav.tour">Tour</button>
+            <div class="notify-wrap">
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-notify" aria-expanded="false" aria-controls="notify-panel">
+                Alerts <span class="notify-dot" id="notify-count" hidden>0</span>
+              </button>
+              <div class="notify-panel" id="notify-panel" hidden>
+                <div class="notify-panel__head">
+                  <strong data-i18n="notify.title">Notifications</strong>
+                  <button type="button" class="btn btn--ghost btn--sm" id="btn-notify-perm">Browser alerts</button>
+                </div>
+                <div id="notify-list"></div>
+              </div>
+            </div>
             <button type="button" class="btn btn--ghost btn--sm" id="btn-google-signin" hidden>
               Google
             </button>
@@ -46,15 +68,16 @@
             <button type="button" class="btn btn--ghost btn--sm" id="btn-google-signout" hidden>
               Sign out
             </button>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signin" hidden>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signin" hidden data-entra>
               Microsoft
             </button>
-            <span id="ms-user" class="topbar__user" hidden></span>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signout" hidden>
+            <span id="ms-user" class="topbar__user" hidden data-entra></span>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signout" hidden data-entra>
               Sign out
             </button>
+            <span class="modal__hint topbar__entra-hint" data-entra-hint hidden>Entra off</span>
             <button type="button" class="btn btn--ghost btn--sm" id="btn-signin">
-              Editor
+              GitHub
             </button>
           </div>
         </div>
@@ -75,7 +98,8 @@
             </h1>
             <p class="hero__lede" id="lede"></p>
             <div class="hero__actions">
-              <a class="btn btn--primary" href="#events">Browse activities</a>
+              <a class="btn btn--primary" href="#events" data-i18n="hero.cta">Browse activities</a>
+              <a class="btn btn--ghost btn--sm" href="#calendar" data-i18n="nav.calendar">Calendar</a>
             </div>
             <div class="hero__meta" id="hero-meta"></div>
           </div>
@@ -83,6 +107,46 @@
       </header>
 
       <main>
+        <section class="section section--tight" id="my-regs" data-role-required="participant,judge,organizer,editor" aria-labelledby="my-regs-title">
+          <div class="wrap">
+            <div class="section__head section__head--compact">
+              <p class="section__kicker">You</p>
+              <h2 class="section__title" id="my-regs-title" data-i18n="section.myRegs">My registrations</h2>
+            </div>
+            <div class="my-regs-grid" id="my-regs-grid"></div>
+          </div>
+        </section>
+
+        <section class="section section--tight" id="calendar" aria-labelledby="calendar-title">
+          <div class="wrap">
+            <div class="section__head section__head--compact">
+              <p class="section__kicker">Schedule</p>
+              <h2 class="section__title" id="calendar-title" data-i18n="section.calendar">Activity calendar</h2>
+            </div>
+            <div id="calendar-grid"></div>
+          </div>
+        </section>
+
+        <section class="section section--tight" id="gallery" aria-labelledby="gallery-title">
+          <div class="wrap">
+            <div class="section__head section__head--compact">
+              <p class="section__kicker">Highlights</p>
+              <h2 class="section__title" id="gallery-title" data-i18n="section.gallery">Winners gallery</h2>
+            </div>
+            <div class="gallery-grid" id="gallery-grid"></div>
+          </div>
+        </section>
+
+        <section class="section section--tight" id="analytics" data-role-required="organizer,editor" aria-labelledby="analytics-title">
+          <div class="wrap">
+            <div class="section__head section__head--compact">
+              <p class="section__kicker">Ops</p>
+              <h2 class="section__title" id="analytics-title" data-i18n="section.analytics">Ops analytics</h2>
+            </div>
+            <div id="analytics-grid"></div>
+          </div>
+        </section>
+
         <section class="section section--tight" id="pulse" aria-labelledby="pulse-title">
           <div class="wrap">
             <details class="fold" open>
@@ -377,6 +441,22 @@
               Open participant registration (invite optional · Gmail / GitHub / Microsoft)
             </label>
           </div>
+          <div class="field">
+            <label for="ev-capacity">Capacity <span class="opt">(optional)</span></label>
+            <input id="ev-capacity" type="number" min="1" placeholder="e.g. 24" />
+          </div>
+          <div class="field">
+            <label for="ev-closes">Registration closes <span class="opt">(optional)</span></label>
+            <input id="ev-closes" type="datetime-local" />
+          </div>
+          <div class="field field--full">
+            <label for="ev-demo-slots">Demo slots JSON <span class="opt">(optional)</span></label>
+            <textarea
+              id="ev-demo-slots"
+              rows="3"
+              placeholder='[{"at":"2026-08-15T10:00:00-06:00","label":"Opening","link":""}]'
+            ></textarea>
+          </div>
           <div class="field field--full">
             <p class="modal__subtitle" style="margin:0.5rem 0">
               Materials <span class="opt">(optional)</span>
@@ -605,9 +685,18 @@
     <script src="js/data.js"></script>
     <script src="js/auth-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/roles.js"></script>
+    <script src="js/github-json-store.js"></script>
     <script src="js/events-store.js"></script>
     <script src="js/registrations-store.js"></script>
+    <script src="js/scores-store.js"></script>
+    <script src="js/gallery-store.js"></script>
+    <script src="js/notifications-store.js"></script>
     <script src="js/invites-store.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/tour.js"></script>
+    <script src="js/calendar-ics.js"></script>
+    <script src="js/portal-features.js"></script>
     <script src="js/google-config.js"></script>
     <script src="js/google-auth.js"></script>
     <script src="js/google-drive.js"></script>

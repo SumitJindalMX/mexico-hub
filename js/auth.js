@@ -20,7 +20,11 @@
 
   function isAuthorizedLogin(login) {
     const needle = String(login || "").toLowerCase();
-    return cfg.authorizedUsers.some((u) => u.toLowerCase() === needle);
+    const editors = [
+      ...(cfg.roles?.editors || []),
+      ...(cfg.authorizedUsers || []),
+    ];
+    return editors.some((u) => String(u).toLowerCase() === needle);
   }
 
   async function githubFetch(path, token, options = {}) {

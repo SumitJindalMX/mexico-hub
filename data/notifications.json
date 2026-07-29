@@ -1,0 +1,13 @@
+{
+  "updatedAt": "2026-07-29",
+  "notifications": [
+    {
+      "id": "n-welcome",
+      "title": "Welcome to Mexico Hub",
+      "body": "Browse activities, register teams, and (with GitHub roles) judge or organize. Microsoft Entra is wired but disabled until admin consent.",
+      "eventId": "",
+      "createdAt": "2026-07-29T12:00:00.000Z",
+      "createdBy": "seed"
+    }
+  ]
+}

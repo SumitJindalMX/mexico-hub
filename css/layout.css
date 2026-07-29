@@ -31,6 +31,40 @@
   gap: var(--space-3);
   min-height: 52px;
   padding-block: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.topbar__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+}
+
+.topbar__nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.topbar__nav a:hover {
+  color: var(--mx-green-deep);
+}
+
+.role-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(0, 140, 69, 0.08);
+  color: var(--mx-green-deep);
+}
+
+.topbar__entra-hint {
+  font-size: 0.72rem;
+  margin: 0;
 }
 
 .topbar__brand {

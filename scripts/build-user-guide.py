@@ -347,8 +347,20 @@ def build():
     add_para(
         doc,
         "Microsoft sign-in and SharePoint list/file storage need Amdocs Entra admin consent. "
-        "Until that is granted, use Google Drive uploads and Gmail / GitHub Issue submission paths. "
+        "They are implemented in code but disabled by default (js/auth-config.js → entraEnabled: false). "
+        "Flip to true after consent. Until then, use Google Drive uploads and Gmail / GitHub Issue submission paths. "
         "Details: sharepoint/lists-setup.md in the repository.",
+    )
+    add_heading_styled(doc, "8.1 Roles, judging, and portal extras", 2)
+    add_bullets(
+        doc,
+        [
+            "Roles are GitHub allowlists in auth-config.js (editors / organizers / judges).",
+            "Judges score demo, deck, and code; organizers publish scoreboard and promote gallery winners.",
+            "Organizers export judge CSV, post announcements, and view analytics.",
+            "Calendar + ICS, deep links (#event/id), ES/EN, tour, capacity and deadlines are available broadly.",
+            "Repo pull supports private GitHub (PAT popup) and multi-file picker.",
+        ],
     )
 
     # 9 Troubleshooting
