@@ -71,9 +71,11 @@
       const key = el.getAttribute("data-i18n");
       if (key) el.textContent = t(key);
     });
-    const btn = document.getElementById("btn-lang");
-    if (btn) btn.textContent = lang() === "es" ? "EN" : "ES";
-    document.documentElement.lang = lang();
+    const current = lang();
+    document.querySelectorAll("[data-lang]").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.getAttribute("data-lang") === current);
+    });
+    document.documentElement.lang = current;
   }
 
   function toggle() {

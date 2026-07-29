@@ -206,36 +206,42 @@
     const roles = window.GDLRoles?.getRoleFlags?.() || {};
     els.btnCreate.hidden = !roles.editor;
 
-    // GitHub editor controls
+    const menu = document.getElementById("account-menu");
+    const sessionBox = document.getElementById("account-session");
+    const label = document.getElementById("account-label");
+    const accountBtn = document.getElementById("btn-account");
+
+    // Clear prior GH session UI inside account menu
+    sessionBox?.replaceChildren();
+    document.getElementById("btn-gh-signout")?.remove();
+
     if (!session) {
       els.btnSignIn.hidden = false;
-      els.authBar.querySelector("#gh-user-chip")?.remove();
-      els.authBar.querySelector("#btn-signout")?.remove();
+      if (label && !state.googleProfile) label.textContent = "Sign in";
     } else {
       els.btnSignIn.hidden = true;
-      if (!els.authBar.querySelector("#btn-signout")) {
-        const chip = document.createElement("div");
-        chip.id = "gh-user-chip";
-        chip.className = "topbar__user";
-        chip.innerHTML = `
+      if (sessionBox) {
+        sessionBox.hidden = false;
+        sessionBox.innerHTML = `
           <img class="topbar__avatar" src="${session.avatar || ""}" alt="" width="28" height="28" />
           <span>@${session.login}</span>
         `;
-        const out = document.createElement("button");
-        out.type = "button";
-        out.id = "btn-signout";
-        out.className = "btn btn--ghost btn--sm";
-        out.textContent = "Sign out";
-        out.addEventListener("click", () => {
-          window.GDLAuth.signOut();
-          state.session = null;
-          renderAuthBar();
-          renderPortalExtras();
-          renderList();
-        });
-        els.authBar.insertBefore(chip, els.btnSignIn);
-        els.authBar.insertBefore(out, els.btnSignIn);
       }
+      if (label) label.textContent = `@${session.login}`;
+      const out = document.createElement("button");
+      out.type = "button";
+      out.id = "btn-gh-signout";
+      out.className = "account__item";
+      out.textContent = "Sign out of GitHub";
+      out.addEventListener("click", () => {
+        window.GDLAuth.signOut();
+        state.session = null;
+        closeAccountMenu();
+        renderAuthBar();
+        renderPortalExtras();
+        renderList();
+      });
+      menu?.appendChild(out);
     }
 
     const googleReady = window.GDLGoogleAuth?.isConfigured?.();
@@ -251,9 +257,11 @@
     } else {
       els.btnGoogleSignIn.hidden = true;
       els.btnGoogleSignOut.hidden = false;
-      els.googleUser.hidden = false;
-      els.googleUser.textContent = googleProfile.email || googleProfile.name;
+      els.googleUser.hidden = true;
+      if (label && !session) label.textContent = googleProfile.email || "Google";
     }
+
+    if (!session && !googleProfile && label) label.textContent = "Sign in";
 
     const m365Ready = window.GDLRoles?.isEntraEnabled?.() && window.GDLM365Auth?.isConfigured?.();
     const profile = state.m365Profile;
@@ -268,12 +276,40 @@
     } else {
       els.btnMsSignIn.hidden = true;
       els.btnMsSignOut.hidden = false;
-      els.msUser.hidden = false;
-      const org = window.GDLM365Auth.isOrganizer(profile) ? " · organizer" : "";
-      els.msUser.textContent = `${profile.upn}${org}`;
+      els.msUser.hidden = true;
+    }
+
+    if (sessionBox && !session) sessionBox.hidden = true;
+    if (accountBtn) {
+      accountBtn.title = roles.editor
+        ? "Editor account"
+        : roles.organizer
+          ? "Organizer account"
+          : roles.judge
+            ? "Judge account"
+            : roles.participant
+              ? "Participant account"
+              : "Sign in";
     }
 
     window.GDLRoles?.applyRoleVisibility?.();
+  }
+
+  function closeAccountMenu() {
+    const menu = document.getElementById("account-menu");
+    const btn = document.getElementById("btn-account");
+    if (menu) menu.hidden = true;
+    btn?.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleAccountMenu() {
+    const menu = document.getElementById("account-menu");
+    const btn = document.getElementById("btn-account");
+    if (!menu) return;
+    const open = menu.hidden;
+    menu.hidden = !open;
+    btn?.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) document.getElementById("notify-panel") && (document.getElementById("notify-panel").hidden = true);
   }
 
   function onM365AuthChanged() {
@@ -811,16 +847,40 @@
       renderList();
     });
 
-    document.getElementById("btn-lang")?.addEventListener("click", () => {
-      window.GDLi18n.toggle();
+    document.getElementById("btn-lang-en")?.addEventListener("click", () => {
+      window.GDLi18n.setLang("en");
+    });
+    document.getElementById("btn-lang-es")?.addEventListener("click", () => {
+      window.GDLi18n.setLang("es");
+    });
+    document.getElementById("btn-account")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAccountMenu();
+    });
+    document.getElementById("account-menu")?.addEventListener("click", (e) => {
+      // Keep menu open unless a sign-in path starts; close after sign-in buttons
+      const t = e.target.closest("button");
+      if (t && t.id && /signin|signout|btn-signin/.test(t.id)) {
+        setTimeout(closeAccountMenu, 0);
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".account")) closeAccountMenu();
+      if (!e.target.closest(".notify-wrap")) {
+        const panel = document.getElementById("notify-panel");
+        if (panel) panel.hidden = true;
+        document.getElementById("btn-notify")?.setAttribute("aria-expanded", "false");
+      }
     });
     document.getElementById("btn-tour")?.addEventListener("click", () => {
       window.GDLTour.start(true);
     });
-    document.getElementById("btn-notify")?.addEventListener("click", () => {
+    document.getElementById("btn-notify")?.addEventListener("click", (e) => {
+      e.stopPropagation();
       const panel = document.getElementById("notify-panel");
       const btn = document.getElementById("btn-notify");
       if (!panel) return;
+      closeAccountMenu();
       panel.hidden = !panel.hidden;
       btn?.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
     });

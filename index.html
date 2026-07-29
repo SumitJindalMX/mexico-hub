@@ -45,39 +45,80 @@
             <a href="#analytics" data-i18n="nav.analytics" data-role-required="organizer,editor">Analytics</a>
           </nav>
           <div class="topbar__actions" id="auth-bar">
-            <span class="role-chip" id="role-chip" title="Your portal role">Visitor</span>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-lang" title="Toggle language">ES</button>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-tour" data-i18n="nav.tour">Tour</button>
-            <div class="notify-wrap">
-              <button type="button" class="btn btn--ghost btn--sm" id="btn-notify" aria-expanded="false" aria-controls="notify-panel">
-                Alerts <span class="notify-dot" id="notify-count" hidden>0</span>
+            <div class="topbar__utils">
+              <div class="lang-toggle" role="group" aria-label="Language">
+                <button type="button" class="lang-toggle__btn is-active" id="btn-lang-en" data-lang="en">
+                  EN
+                </button>
+                <button type="button" class="lang-toggle__btn" id="btn-lang-es" data-lang="es">
+                  ES
+                </button>
+              </div>
+              <button type="button" class="topbar-icon" id="btn-tour" title="Tour" aria-label="Start tour">
+                <span aria-hidden="true">?</span>
               </button>
-              <div class="notify-panel" id="notify-panel" hidden>
-                <div class="notify-panel__head">
-                  <strong data-i18n="notify.title">Notifications</strong>
-                  <button type="button" class="btn btn--ghost btn--sm" id="btn-notify-perm">Browser alerts</button>
+              <div class="notify-wrap">
+                <button
+                  type="button"
+                  class="topbar-icon"
+                  id="btn-notify"
+                  title="Alerts"
+                  aria-label="Notifications"
+                  aria-expanded="false"
+                  aria-controls="notify-panel"
+                >
+                  <span class="topbar-icon__bell" aria-hidden="true"></span>
+                  <span class="notify-dot" id="notify-count" hidden>0</span>
+                </button>
+                <div class="notify-panel" id="notify-panel" hidden>
+                  <div class="notify-panel__head">
+                    <strong data-i18n="notify.title">Notifications</strong>
+                    <button type="button" class="btn btn--ghost btn--sm" id="btn-notify-perm">
+                      Browser alerts
+                    </button>
+                  </div>
+                  <div id="notify-list"></div>
                 </div>
-                <div id="notify-list"></div>
               </div>
             </div>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-google-signin" hidden>
-              Google
-            </button>
-            <span id="google-user" class="topbar__user" hidden></span>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-google-signout" hidden>
-              Sign out
-            </button>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signin" hidden data-entra>
-              Microsoft
-            </button>
-            <span id="ms-user" class="topbar__user" hidden data-entra></span>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-ms-signout" hidden data-entra>
-              Sign out
-            </button>
-            <span class="modal__hint topbar__entra-hint" data-entra-hint hidden>Entra off</span>
-            <button type="button" class="btn btn--ghost btn--sm" id="btn-signin">
-              GitHub
-            </button>
+
+            <div class="account">
+              <button
+                type="button"
+                class="account__trigger"
+                id="btn-account"
+                aria-expanded="false"
+                aria-controls="account-menu"
+              >
+                <span class="role-chip" id="role-chip">Visitor</span>
+                <span class="account__label" id="account-label">Sign in</span>
+                <span class="account__chev" aria-hidden="true"></span>
+              </button>
+              <div class="account__menu" id="account-menu" hidden>
+                <p class="account__hint">Choose how you sign in</p>
+                <div id="account-session" class="account__session" hidden></div>
+                <button type="button" class="account__item" id="btn-google-signin" hidden>
+                  Continue with Google
+                </button>
+                <button type="button" class="account__item" id="btn-google-signout" hidden>
+                  Sign out of Google
+                </button>
+                <button type="button" class="account__item" id="btn-signin">
+                  Continue with GitHub
+                </button>
+                <button type="button" class="account__item" id="btn-ms-signin" hidden data-entra>
+                  Continue with Microsoft
+                </button>
+                <button type="button" class="account__item" id="btn-ms-signout" hidden data-entra>
+                  Sign out of Microsoft
+                </button>
+                <span id="google-user" class="topbar__user" hidden></span>
+                <span id="ms-user" class="topbar__user" hidden data-entra></span>
+                <p class="account__footnote" data-entra-hint hidden>
+                  Microsoft Entra is wired but disabled until admin consent.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

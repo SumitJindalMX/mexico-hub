@@ -8,8 +8,8 @@
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 250, 243, 0.92);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 250, 243, 0.94);
+  backdrop-filter: blur(14px);
 }
 
 .topbar::before {
@@ -25,46 +25,50 @@
 }
 
 .topbar__inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: 52px;
-  padding-block: 0.4rem;
-  flex-wrap: wrap;
+  gap: var(--space-4);
+  min-height: 58px;
+  padding-block: 0.45rem;
+}
+
+@media (max-width: 860px) {
+  .topbar__inner {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2);
+  }
+
+  .topbar__nav {
+    grid-column: 1 / -1;
+    order: 3;
+    padding-bottom: 0.25rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 }
 
 .topbar__nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 0.85rem;
-  font-size: 0.82rem;
+  justify-content: center;
+  gap: 0.15rem;
+  font-size: 0.88rem;
 }
 
 .topbar__nav a {
   color: var(--text-muted);
   text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease);
 }
 
 .topbar__nav a:hover {
   color: var(--mx-green-deep);
-}
-
-.role-chip {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
   background: rgba(0, 140, 69, 0.08);
-  color: var(--mx-green-deep);
-}
-
-.topbar__entra-hint {
-  font-size: 0.72rem;
-  margin: 0;
 }
 
 .topbar__brand {
@@ -73,6 +77,7 @@
   letter-spacing: -0.03em;
   color: var(--text);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .topbar__brand span {
@@ -81,17 +86,205 @@
 
 .topbar__actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  gap: 0.65rem;
+}
+
+.topbar__utils {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-right: 0.55rem;
+  border-right: 1px solid var(--line);
+}
+
+.lang-toggle {
+  display: inline-flex;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: rgba(80, 40, 20, 0.06);
+  border: 1px solid var(--line);
+}
+
+.lang-toggle__btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.lang-toggle__btn.is-active {
+  background: #fff;
+  color: var(--mx-green-deep);
+  box-shadow: 0 1px 3px rgba(80, 40, 20, 0.12);
+}
+
+.topbar-icon {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+
+.topbar-icon:hover {
+  background: rgba(0, 140, 69, 0.08);
+  border-color: var(--line);
+  color: var(--mx-green-deep);
+}
+
+.topbar-icon__bell {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.6px solid currentColor;
+  border-radius: 50% 50% 45% 45%;
+  position: relative;
+  display: block;
+}
+
+.topbar-icon__bell::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.22rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  transform: translateX(-50%);
+}
+
+.role-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 140, 69, 0.12);
+  color: var(--mx-green-deep);
+  white-space: nowrap;
+}
+
+.account {
+  position: relative;
+}
+
+.account__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+
+.account__trigger:hover,
+.account__trigger[aria-expanded="true"] {
+  border-color: rgba(0, 140, 69, 0.45);
+  box-shadow: 0 6px 18px rgba(80, 40, 20, 0.08);
+}
+
+.account__label {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account__chev {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid var(--text-muted);
+  border-bottom: 1.5px solid var(--text-muted);
+  transform: rotate(45deg);
+  margin-top: -0.15rem;
+  opacity: 0.7;
+}
+
+.account__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  width: min(17.5rem, 88vw);
+  padding: 0.65rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: #fffaf3;
+  box-shadow: 0 18px 40px rgba(40, 20, 10, 0.16);
+  display: grid;
+  gap: 0.35rem;
+  z-index: 40;
+}
+
+.account__hint,
+.account__footnote {
+  margin: 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.account__item {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.account__item:hover {
+  background: rgba(0, 140, 69, 0.08);
+  border-color: rgba(0, 140, 69, 0.18);
+}
+
+.account__session {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  margin-bottom: 0.15rem;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 140, 69, 0.06);
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .topbar__user {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  display: none;
 }
 
 .topbar__avatar {

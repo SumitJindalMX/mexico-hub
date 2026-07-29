@@ -919,15 +919,21 @@ table.data td:nth-child(3) {
 /* Role-aware portal extras */
 .notify-wrap { position: relative; }
 .notify-dot {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.05rem;
   display: inline-flex;
-  min-width: 1.1rem;
+  min-width: 1rem;
+  height: 1rem;
   justify-content: center;
-  margin-left: 0.2rem;
+  align-items: center;
   border-radius: 999px;
   background: var(--mx-red);
   color: #fff;
-  font-size: 0.65rem;
-  padding: 0.05rem 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 0.2rem;
 }
 .notify-panel {
   position: absolute;
