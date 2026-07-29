@@ -38,7 +38,7 @@ Set `entraEnabled: true` after Entra admin consent. Until then Microsoft buttons
 - Activity catalog with capacity, registration deadline countdown, demo slots
 - Team registration (Gmail / GitHub / Google Drive materials + optional code pull/validate)
 - Judging scoreboard + CSV judge pack + winners gallery
-- Calendar + ICS download, deep links `#event/<id>`
+- Activity ICS download from the event brief, deep links `#event/<id>`
 - Notifications (in-app + optional browser alerts + Gmail broadcast)
 - Analytics for organizers, ES/EN toggle, first-visit tour
 
