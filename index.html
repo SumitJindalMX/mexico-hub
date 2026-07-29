@@ -73,7 +73,7 @@
                 <div class="notify-panel" id="notify-panel" hidden>
                   <div class="notify-panel__head">
                     <strong data-i18n="notify.title">Notifications</strong>
-                    <button type="button" class="btn btn--ghost btn--sm" id="btn-notify-perm">
+                    <button type="button" class="btn btn--ghost btn--sm" id="btn-notify-perm" data-i18n="notify.browser">
                       Browser alerts
                     </button>
                   </div>
@@ -95,26 +95,26 @@
                 <span class="account__chev" aria-hidden="true"></span>
               </button>
               <div class="account__menu" id="account-menu" hidden>
-                <p class="account__hint">Choose how you sign in</p>
+                <p class="account__hint" data-i18n="account.hint">Choose how you sign in</p>
                 <div id="account-session" class="account__session" hidden></div>
-                <button type="button" class="account__item" id="btn-google-signin" hidden>
+                <button type="button" class="account__item" id="btn-google-signin" hidden data-i18n="account.google">
                   Continue with Google
                 </button>
-                <button type="button" class="account__item" id="btn-google-signout" hidden>
+                <button type="button" class="account__item" id="btn-google-signout" hidden data-i18n="account.googleOut">
                   Sign out of Google
                 </button>
-                <button type="button" class="account__item" id="btn-signin">
+                <button type="button" class="account__item" id="btn-signin" data-i18n="account.github">
                   Continue with GitHub
                 </button>
-                <button type="button" class="account__item" id="btn-ms-signin" hidden data-entra>
+                <button type="button" class="account__item" id="btn-ms-signin" hidden data-entra data-i18n="account.ms">
                   Continue with Microsoft
                 </button>
-                <button type="button" class="account__item" id="btn-ms-signout" hidden data-entra>
+                <button type="button" class="account__item" id="btn-ms-signout" hidden data-entra data-i18n="account.msOut">
                   Sign out of Microsoft
                 </button>
                 <span id="google-user" class="topbar__user" hidden></span>
                 <span id="ms-user" class="topbar__user" hidden data-entra></span>
-                <p class="account__footnote" data-entra-hint hidden>
+                <p class="account__footnote" data-entra-hint hidden data-i18n="account.entraHint">
                   Microsoft Entra is wired but disabled until admin consent.
                 </p>
               </div>
@@ -133,7 +133,7 @@
               <span class="hero__company-tag">make it amazing</span>
             </p>
             <p class="brand" id="brand">MX</p>
-            <h1 class="hero__headline" id="headline">
+            <h1 class="hero__headline" id="headline" data-i18n="hero.headline">
               Every activity that puts Mexico on stage.
             </h1>
             <p class="hero__lede" id="lede"></p>
@@ -149,7 +149,7 @@
         <section class="section section--tight" id="my-regs" data-role-required="participant,judge,organizer,editor" aria-labelledby="my-regs-title">
           <div class="wrap">
             <div class="section__head section__head--compact">
-              <p class="section__kicker">You</p>
+              <p class="section__kicker" data-i18n="kicker.you">You</p>
               <h2 class="section__title" id="my-regs-title" data-i18n="section.myRegs">My registrations</h2>
             </div>
             <div class="my-regs-grid" id="my-regs-grid"></div>
@@ -159,7 +159,7 @@
         <section class="section section--tight" id="gallery" aria-labelledby="gallery-title">
           <div class="wrap">
             <div class="section__head section__head--compact">
-              <p class="section__kicker">Highlights</p>
+              <p class="section__kicker" data-i18n="kicker.highlights">Highlights</p>
               <h2 class="section__title" id="gallery-title" data-i18n="section.gallery">Winners gallery</h2>
             </div>
             <div class="gallery-grid" id="gallery-grid"></div>
@@ -169,7 +169,7 @@
         <section class="section section--tight" id="analytics" data-role-required="organizer,editor" aria-labelledby="analytics-title">
           <div class="wrap">
             <div class="section__head section__head--compact">
-              <p class="section__kicker">Ops</p>
+              <p class="section__kicker" data-i18n="kicker.ops">Ops</p>
               <h2 class="section__title" id="analytics-title" data-i18n="section.analytics">Ops analytics</h2>
             </div>
             <div id="analytics-grid"></div>
@@ -180,9 +180,9 @@
           <div class="wrap">
             <details class="fold" open>
               <summary class="fold__summary">
-                <span class="section__kicker">Mexico pulse</span>
-                <span class="section__title" id="pulse-title">What Mexico is known for right now</span>
-                <span class="fold__hint">Snapshot metrics</span>
+                <span class="section__kicker" data-i18n="kicker.pulse">Mexico pulse</span>
+                <span class="section__title" id="pulse-title" data-i18n="section.pulse">What Mexico is known for right now</span>
+                <span class="fold__hint" data-i18n="section.pulseHint">Snapshot metrics</span>
               </summary>
               <div class="fold__body">
                 <div class="pulse-grid" id="pulse-grid"></div>
@@ -197,9 +197,9 @@
           <div class="wrap">
             <details class="fold" open>
               <summary class="fold__summary">
-                <span class="section__kicker">Platform</span>
-                <span class="section__title" id="themes-title">Four ways Mexico shows up</span>
-                <span class="fold__hint">Themes for briefing &amp; recruiting</span>
+                <span class="section__kicker" data-i18n="kicker.platform">Platform</span>
+                <span class="section__title" id="themes-title" data-i18n="section.themes">Four ways Mexico shows up</span>
+                <span class="fold__hint" data-i18n="section.themesHint">Themes for briefing &amp; recruiting</span>
               </summary>
               <div class="fold__body">
                 <div class="themes-panel">
@@ -216,14 +216,15 @@
           <div class="wrap">
             <div class="section__head section__head--row section__head--compact">
               <div>
-                <p class="section__kicker">Activities</p>
-                <h2 class="section__title" id="events-title">Hackathons &amp; other activities</h2>
+                <p class="section__kicker" data-i18n="kicker.activities">Activities</p>
+                <h2 class="section__title" id="events-title" data-i18n="section.events">Hackathons &amp; other activities</h2>
               </div>
               <button
                 type="button"
                 class="btn btn--primary"
                 id="btn-create-event"
                 hidden
+                data-i18n="btn.create"
               >
                 Create activity
               </button>
@@ -231,40 +232,43 @@
 
             <div class="filters" role="search">
               <div class="field field--grow">
-                <label for="q">Search</label>
-                <input id="q" type="search" placeholder="Search events…" autocomplete="off" />
+                <label for="q" data-i18n="filter.search">Search</label>
+                <input id="q" type="search" data-i18n-placeholder="filter.searchPh" placeholder="Search events…" autocomplete="off" />
               </div>
               <div class="field">
-                <label for="city">City</label>
+                <label for="city" data-i18n="filter.city">City</label>
                 <select id="city"></select>
               </div>
               <div class="field">
-                <label for="category">Category</label>
+                <label for="category" data-i18n="filter.category">Category</label>
                 <select id="category"></select>
               </div>
               <div class="field">
-                <label for="status">Status</label>
+                <label for="status" data-i18n="filter.status">Status</label>
                 <select id="status"></select>
               </div>
               <div class="field">
-                <label for="visibility">Visibility</label>
+                <label for="visibility" data-i18n="filter.visibility">Visibility</label>
                 <select id="visibility"></select>
               </div>
               <div class="field">
-                <label for="confidence">Data confidence</label>
+                <label for="confidence" data-i18n="filter.confidence">Data confidence</label>
                 <select id="confidence"></select>
               </div>
             </div>
 
             <div class="featured" id="featured-strip" hidden>
-              <p class="featured__kicker">Featured upcoming</p>
+              <p class="featured__kicker" data-i18n="featured.upcoming">Featured upcoming</p>
               <div class="featured__row" id="featured-row"></div>
             </div>
 
             <p class="confidence-legend">
-              <span class="chip chip--verified">Verified</span> official / site-ops confirmed
-              <span class="chip chip--editor">Editor</span> published by allowlisted editor
-              <span class="chip chip--seed">Seed</span> public LinkedIn–derived seed (not system of record)
+              <span class="chip chip--verified" data-i18n="conf.Verified">Verified</span>
+              <span data-i18n="legend.verified">official / site-ops confirmed</span>
+              <span class="chip chip--editor" data-i18n="conf.Editor">Editor</span>
+              <span data-i18n="legend.editor">published by allowlisted editor</span>
+              <span class="chip chip--seed" data-i18n="conf.Seed">Seed</span>
+              <span data-i18n="legend.seed">public LinkedIn–derived seed (not system of record)</span>
             </p>
 
             <p class="results-meta" id="results-meta"></p>
@@ -292,18 +296,18 @@
           <div class="wrap">
             <details class="fold" open>
               <summary class="fold__summary">
-                <span class="section__kicker">Next</span>
-                <span class="section__title" id="ops-title">Mexico ops checklist</span>
-                <span class="fold__hint">Keep visibility current through 2026</span>
+                <span class="section__kicker" data-i18n="kicker.next">Next</span>
+                <span class="section__title" id="ops-title" data-i18n="section.ops">Mexico ops checklist</span>
+                <span class="fold__hint" data-i18n="section.opsHint">Keep visibility current through 2026</span>
               </summary>
               <div class="fold__body">
                 <div class="table-wrap">
                   <table class="data">
                     <thead>
                       <tr>
-                        <th>Action</th>
-                        <th>Owner</th>
-                        <th>Why it matters</th>
+                        <th data-i18n="checklist.action">Action</th>
+                        <th data-i18n="checklist.owner">Owner</th>
+                        <th data-i18n="checklist.why">Why it matters</th>
                       </tr>
                     </thead>
                     <tbody id="checklist-body"></tbody>

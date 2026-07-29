@@ -16,65 +16,76 @@
   }
 
   function isRegistrationClosed(event, regs) {
-    if (!event?.registrationOpen) return { closed: true, reason: "Registration is closed." };
+    const t = window.GDLi18n?.t || ((k, v) => k);
+    if (!event?.registrationOpen) return { closed: true, reason: t("gate.closed") };
     if (event.registrationClosesAt) {
-      const t = Date.parse(event.registrationClosesAt);
-      if (Number.isFinite(t) && Date.now() > t) {
-        return { closed: true, reason: "Registration deadline has passed." };
+      const ts = Date.parse(event.registrationClosesAt);
+      if (Number.isFinite(ts) && Date.now() > ts) {
+        return { closed: true, reason: t("gate.deadline") };
       }
     }
     if (event.capacity > 0) {
       const n = regsForEvent(regs, event.id).length;
       if (n >= event.capacity) {
-        return { closed: true, reason: `Capacity reached (${n}/${event.capacity}).` };
+        return { closed: true, reason: t("gate.capacity", { n, cap: event.capacity }) };
       }
     }
     return { closed: false, reason: "" };
   }
 
   function countdownHtml(event) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     if (!event?.registrationClosesAt) return "";
-    const t = Date.parse(event.registrationClosesAt);
-    if (!Number.isFinite(t)) return "";
-    const ms = t - Date.now();
+    const ts = Date.parse(event.registrationClosesAt);
+    if (!Number.isFinite(ts)) return "";
+    const ms = ts - Date.now();
     if (ms <= 0) {
-      return `<p class="detail__countdown is-closed">Registration deadline passed</p>`;
+      return `<p class="detail__countdown is-closed">${t("countdown.passed")}</p>`;
     }
     const h = Math.floor(ms / 36e5);
     const d = Math.floor(h / 24);
-    const label = d >= 1 ? `${d}d ${h % 24}h left` : `${h}h left`;
-    return `<p class="detail__countdown">Closes ${esc(new Date(t).toLocaleString())} · <strong>${label}</strong></p>`;
+    const left = d >= 1 ? t("countdown.days", { d, h: h % 24 }) : t("countdown.hours", { h });
+    return `<p class="detail__countdown">${t("countdown.closes", {
+      when: esc(new Date(ts).toLocaleString()),
+      left: `<strong>${left}</strong>`,
+    })}</p>`;
   }
 
   function capacityHtml(event, regs) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     if (!(event?.capacity > 0)) return "";
     const n = regsForEvent(regs, event.id).length;
-    return `<p class="detail__capacity">Teams: <strong>${n} / ${event.capacity}</strong></p>`;
+    return `<p class="detail__capacity">${t("capacity.teams", {
+      n: `<strong>${n}</strong>`,
+      cap: `<strong>${event.capacity}</strong>`,
+    })}</p>`;
   }
 
   function demoSlotsHtml(event) {
+    const t = window.GDLi18n?.t || ((k) => k);
     const slots = event?.demoSlots || [];
     if (!slots.length) return "";
-    return `<div class="detail-block"><h3>Demo day schedule</h3><ul class="demo-slots">${slots
+    return `<div class="detail-block"><h3>${t("demo.title")}</h3><ul class="demo-slots">${slots
       .map(
         (s) =>
-          `<li><strong>${esc(new Date(s.at).toLocaleString())}</strong> — ${esc(s.label || "Slot")}${
-            s.link ? ` · <a href="${esc(s.link)}" target="_blank" rel="noopener">Join</a>` : ""
+          `<li><strong>${esc(new Date(s.at).toLocaleString())}</strong> — ${esc(s.label || t("demo.slot"))}${
+            s.link ? ` · <a href="${esc(s.link)}" target="_blank" rel="noopener">${t("demo.join")}</a>` : ""
           }</li>`,
       )
       .join("")}</ul></div>`;
   }
 
   function scoreboardHtml(eventId, scores, canSeeUnpublished) {
+    const t = window.GDLi18n?.t || ((k) => k);
     const mine = (scores || []).filter((s) => s.eventId === eventId);
     const visible = canSeeUnpublished ? mine : mine.filter((s) => s.published);
     if (!visible.length) {
       return canSeeUnpublished
-        ? `<p class="detail__text">No scores yet. Judges can score teams below.</p>`
-        : `<p class="detail__text">Scoreboard not published yet.</p>`;
+        ? `<p class="detail__text">${t("score.noneJudge")}</p>`
+        : `<p class="detail__text">${t("score.nonePublic")}</p>`;
     }
     const sorted = [...visible].sort((a, b) => (b.total || 0) - (a.total || 0));
-    return `<table class="data scoreboard"><thead><tr><th>Team</th><th>Demo</th><th>Deck</th><th>Code</th><th>Total</th></tr></thead><tbody>${sorted
+    return `<table class="data scoreboard"><thead><tr><th>${t("score.team")}</th><th>${t("score.demo")}</th><th>${t("score.deck")}</th><th>${t("score.code")}</th><th>${t("score.total")}</th></tr></thead><tbody>${sorted
       .map(
         (s) =>
           `<tr><td>${esc(s.teamName)}</td><td>${s.demo}</td><td>${s.deck}</td><td>${s.code}</td><td><strong>${s.total}</strong></td></tr>`,
@@ -83,7 +94,8 @@
   }
 
   function judgeFormHtml(event, regs, scores) {
-    if (!regs.length) return `<p class="detail__text">No teams to score yet.</p>`;
+    const t = window.GDLi18n?.t || ((k) => k);
+    if (!regs.length) return `<p class="detail__text">${t("score.noneTeams")}</p>`;
     return regs
       .map((r) => {
         const existing = (scores || []).find(
@@ -92,28 +104,29 @@
         return `<form class="judge-form" data-judge-form data-event-id="${esc(event.id)}" data-reg-id="${esc(r.id)}" data-team="${esc(r.teamName)}">
           <h4>${esc(r.teamName)}</h4>
           <div class="judge-form__grid">
-            <label>Demo <input type="number" min="1" max="5" name="demo" value="${existing?.demo || 3}" /></label>
-            <label>Deck <input type="number" min="1" max="5" name="deck" value="${existing?.deck || 3}" /></label>
-            <label>Code <input type="number" min="1" max="5" name="code" value="${existing?.code || 3}" /></label>
+            <label>${t("score.demo")} <input type="number" min="1" max="5" name="demo" value="${existing?.demo || 3}" /></label>
+            <label>${t("score.deck")} <input type="number" min="1" max="5" name="deck" value="${existing?.deck || 3}" /></label>
+            <label>${t("score.code")} <input type="number" min="1" max="5" name="code" value="${existing?.code || 3}" /></label>
           </div>
-          <label class="judge-form__notes">Notes <input type="text" name="notes" value="${esc(existing?.notes || "")}" /></label>
-          <button type="submit" class="btn btn--primary btn--sm">Save score</button>
+          <label class="judge-form__notes">${t("score.notes")} <input type="text" name="notes" value="${esc(existing?.notes || "")}" /></label>
+          <button type="submit" class="btn btn--primary btn--sm">${t("score.save")}</button>
         </form>`;
       })
       .join("");
   }
 
   function renderMyRegs(root, regs, events, email) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     if (!root) return;
     if (!email) {
-      root.innerHTML = `<p class="modal__hint">Sign in with Google to see registrations where you are the team lead.</p>`;
+      root.innerHTML = `<p class="modal__hint">${t("myRegs.needGoogle")}</p>`;
       return;
     }
     const mine = (regs || []).filter(
       (r) => String(r.leadEmail || "").toLowerCase() === String(email).toLowerCase(),
     );
     if (!mine.length) {
-      root.innerHTML = `<p class="modal__hint">No published registrations for <strong>${esc(email)}</strong> yet.</p>`;
+      root.innerHTML = `<p class="modal__hint">${t("myRegs.empty", { email: `<strong>${esc(email)}</strong>` })}</p>`;
       return;
     }
     root.innerHTML = mine
@@ -124,11 +137,11 @@
           <p>${esc(ev?.name || r.eventId)}</p>
           <p class="modal__hint">${esc(r.leadName || "")} · ${esc(r.leadEmail || "")}</p>
           <p>
-            ${r.pptUrl ? `<a href="${esc(r.pptUrl)}" target="_blank" rel="noopener">PPT</a>` : "No PPT"}
-            · ${r.videoUrl ? `<a href="${esc(r.videoUrl)}" target="_blank" rel="noopener">Video</a>` : "No video"}
-            · ${r.repoUrl ? `<a href="${esc(r.repoUrl)}" target="_blank" rel="noopener">Repo</a>` : "No repo"}
+            ${r.pptUrl ? `<a href="${esc(r.pptUrl)}" target="_blank" rel="noopener">${t("detail.ppt")}</a>` : t("detail.noPptShort")}
+            · ${r.videoUrl ? `<a href="${esc(r.videoUrl)}" target="_blank" rel="noopener">${t("detail.video")}</a>` : t("detail.noVideoShort")}
+            · ${r.repoUrl ? `<a href="${esc(r.repoUrl)}" target="_blank" rel="noopener">${t("detail.repo")}</a>` : t("detail.noRepo")}
           </p>
-          <a class="btn btn--ghost btn--sm" href="#event/${esc(r.eventId)}">Open activity</a>
+          <a class="btn btn--ghost btn--sm" href="#event/${esc(r.eventId)}">${t("myRegs.open")}</a>
         </article>`;
       })
       .join("");
@@ -163,19 +176,20 @@
   }
 
   function renderGallery(root, items) {
+    const t = window.GDLi18n?.t || ((k) => k);
     if (!root) return;
     if (!items?.length) {
-      root.innerHTML = `<p class="modal__hint">No gallery items yet. Organizers can promote winners after scoring.</p>`;
+      root.innerHTML = `<p class="modal__hint">${t("gallery.empty")}</p>`;
       return;
     }
     root.innerHTML = items
       .map(
         (g) => `<article class="gallery-card">
-        <p class="gallery-card__place">${esc(g.place || "Highlight")}</p>
+        <p class="gallery-card__place">${esc(g.place || t("gallery.highlight"))}</p>
         <h3>${esc(g.teamName)}</h3>
         <p>${esc(g.eventName || g.eventId)}</p>
         <p class="modal__hint">${esc(g.highlight || "")}</p>
-        ${g.repoUrl ? `<a href="${esc(g.repoUrl)}" target="_blank" rel="noopener">Repo</a>` : ""}
+        ${g.repoUrl ? `<a href="${esc(g.repoUrl)}" target="_blank" rel="noopener">${t("detail.repo")}</a>` : ""}
         ${g.mediaUrl ? ` · <a href="${esc(g.mediaUrl)}" target="_blank" rel="noopener">Media</a>` : ""}
       </article>`,
       )
@@ -183,6 +197,7 @@
   }
 
   function renderAnalytics(root, events, regs) {
+    const t = window.GDLi18n?.t || ((k) => k);
     if (!root) return;
     const byCat = {};
     const byCity = {};
@@ -200,25 +215,26 @@
     });
     root.innerHTML = `
       <div class="analytics-grid">
-        <div class="analytics-card"><p class="analytics-card__label">Activities</p><p class="analytics-card__value">${(events || []).length}</p></div>
-        <div class="analytics-card"><p class="analytics-card__label">Open registration</p><p class="analytics-card__value">${open}</p></div>
-        <div class="analytics-card"><p class="analytics-card__label">At capacity</p><p class="analytics-card__value">${full}</p></div>
-        <div class="analytics-card"><p class="analytics-card__label">Registrations</p><p class="analytics-card__value">${(regs || []).length}</p></div>
+        <div class="analytics-card"><p class="analytics-card__label">${t("analytics.activities")}</p><p class="analytics-card__value">${(events || []).length}</p></div>
+        <div class="analytics-card"><p class="analytics-card__label">${t("analytics.open")}</p><p class="analytics-card__value">${open}</p></div>
+        <div class="analytics-card"><p class="analytics-card__label">${t("analytics.full")}</p><p class="analytics-card__value">${full}</p></div>
+        <div class="analytics-card"><p class="analytics-card__label">${t("analytics.regs")}</p><p class="analytics-card__value">${(regs || []).length}</p></div>
       </div>
       <div class="analytics-split">
-        <div><h3>By category</h3><ul>${Object.entries(byCat)
-          .map(([k, v]) => `<li>${esc(k)}: ${v}</li>`)
+        <div><h3>${t("analytics.byCategory")}</h3><ul>${Object.entries(byCat)
+          .map(([k, v]) => `<li>${esc(t(`cat.${k}`) !== `cat.${k}` ? t(`cat.${k}`) : k)}: ${v}</li>`)
           .join("")}</ul></div>
-        <div><h3>By city</h3><ul>${Object.entries(byCity)
+        <div><h3>${t("analytics.byCity")}</h3><ul>${Object.entries(byCity)
           .map(([k, v]) => `<li>${esc(k)}: ${v}</li>`)
           .join("")}</ul></div>
       </div>`;
   }
 
   function renderNotifications(panel, list, readSet) {
+    const t = window.GDLi18n?.t || ((k) => k);
     if (!panel) return;
     if (!list?.length) {
-      panel.innerHTML = `<p class="modal__hint" data-i18n="notify.empty">No alerts right now.</p>`;
+      panel.innerHTML = `<p class="modal__hint">${t("notify.empty")}</p>`;
       return;
     }
     panel.innerHTML = list
@@ -227,7 +243,7 @@
         return `<article class="notify-item ${unread ? "is-unread" : ""}" data-notify-id="${esc(n.id)}">
           <h4>${esc(n.title)}</h4>
           <p>${esc(n.body)}</p>
-          ${n.eventId ? `<a href="#event/${esc(n.eventId)}">Open activity</a>` : ""}
+          ${n.eventId ? `<a href="#event/${esc(n.eventId)}">${t("myRegs.open")}</a>` : ""}
         </article>`;
       })
       .join("");

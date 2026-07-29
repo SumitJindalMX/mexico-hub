@@ -85,10 +85,40 @@
     return event.confidence || (event.createdBy ? "Editor" : "Seed");
   }
 
-  function fillSelectLabeled(select, values, allLabel) {
+  function fillSelectLabeled(select, values, allLabelKey, prefix) {
+    const t = window.GDLi18n?.t || ((k) => k);
     select.innerHTML = values
-      .map((v) => `<option value="${v}">${v === "All" ? allLabel : v}</option>`)
+      .map((v) => {
+        const label =
+          v === "All"
+            ? t(allLabelKey)
+            : prefix
+              ? t(`${prefix}.${v}`)
+              : v;
+        return `<option value="${v}">${label}</option>`;
+      })
       .join("");
+    // restore prior selection if still valid
+  }
+
+  function refreshFilters() {
+    const keep = {
+      category: state.category,
+      status: state.status,
+      visibility: state.visibility,
+      confidence: state.confidence,
+      city: state.city,
+    };
+    fillSelectLabeled(els.category, filters.categories, "filter.allCategories", "cat");
+    fillSelectLabeled(els.status, filters.statuses, "filter.allStatuses", "status");
+    fillSelectLabeled(els.visibility, filters.visibilities, "filter.allVisibility", "vis");
+    fillSelectLabeled(els.confidence, filters.confidences, "filter.allConfidence", "conf");
+    if (els.city) fillSelectLabeled(els.city, filters.cities, "filter.allCities", null);
+    els.category.value = keep.category;
+    els.status.value = keep.status;
+    els.visibility.value = keep.visibility;
+    els.confidence.value = keep.confidence;
+    if (els.city) els.city.value = keep.city;
   }
 
   function filteredEvents() {
@@ -139,7 +169,7 @@
       <button type="button" class="featured__chip" data-featured-id="${esc(e.id)}">
         <strong>${esc(e.name)}</strong>
         <span>${esc(e.when)} · ${esc(cityOf(e))}${
-          e.registrationOpen ? " · Reg open" : ""
+          e.registrationOpen ? ` · ${window.GDLi18n?.t?.("featured.regOpen") || "Reg open"}` : ""
         }</span>
       </button>
     `,
@@ -159,9 +189,10 @@
   }
 
   function renderRegsBlock(eventId) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     const regs = regsForEvent(eventId);
     if (!regs.length) {
-      return `<p class="detail__text">No published team registrations yet. Submissions via Gmail/GitHub Issue are reviewed by organizers; Editor submits appear here after Pages refresh.</p>`;
+      return `<p class="detail__text">${t("detail.regsEmpty")}</p>`;
     }
     return `<div class="detail-regs">${regs
       .map(
@@ -172,27 +203,28 @@
         <p>
           ${
             r.pptUrl
-              ? `<a href="${esc(r.pptUrl)}" target="_blank" rel="noopener">PPT</a>`
-              : "No PPT"
+              ? `<a href="${esc(r.pptUrl)}" target="_blank" rel="noopener">${t("detail.ppt")}</a>`
+              : t("detail.noPptShort")
           }
           ·
           ${
             r.videoUrl
-              ? `<a href="${esc(r.videoUrl)}" target="_blank" rel="noopener">Video</a>`
-              : "No video"
+              ? `<a href="${esc(r.videoUrl)}" target="_blank" rel="noopener">${t("detail.video")}</a>`
+              : t("detail.noVideoShort")
           }
           ·
           ${
             r.repoUrl
-              ? `<a href="${esc(r.repoUrl)}" target="_blank" rel="noopener">Repo</a>`
-              : "No repo"
+              ? `<a href="${esc(r.repoUrl)}" target="_blank" rel="noopener">${t("detail.repo")}</a>`
+              : t("detail.noRepo")
           }
         </p>
         ${
           r.codeProvided
-            ? `<p class="detail__text">Code · ${esc(r.language || "source")} · ${esc(
-                r.validation?.summary || r.validation?.status || "submitted",
-              )}</p>`
+            ? `<p class="detail__text">${t("detail.codeLine", {
+                lang: esc(r.language || "source"),
+                status: esc(r.validation?.summary || r.validation?.status || "submitted"),
+              })}</p>`
             : ""
         }
       </article>
@@ -217,7 +249,7 @@
 
     if (!session) {
       els.btnSignIn.hidden = false;
-      if (label && !state.googleProfile) label.textContent = "Sign in";
+      if (label && !state.googleProfile) label.textContent = window.GDLi18n?.t?.("account.signin") || "Sign in";
     } else {
       els.btnSignIn.hidden = true;
       if (sessionBox) {
@@ -232,7 +264,7 @@
       out.type = "button";
       out.id = "btn-gh-signout";
       out.className = "account__item";
-      out.textContent = "Sign out of GitHub";
+      out.textContent = window.GDLi18n?.t?.("account.githubOut") || "Sign out of GitHub";
       out.addEventListener("click", () => {
         window.GDLAuth.signOut();
         state.session = null;
@@ -261,7 +293,9 @@
       if (label && !session) label.textContent = googleProfile.email || "Google";
     }
 
-    if (!session && !googleProfile && label) label.textContent = "Sign in";
+    if (!session && !googleProfile && label) {
+      label.textContent = window.GDLi18n?.t?.("account.signin") || "Sign in";
+    }
 
     const m365Ready = window.GDLRoles?.isEntraEnabled?.() && window.GDLM365Auth?.isConfigured?.();
     const profile = state.m365Profile;
@@ -281,15 +315,16 @@
 
     if (sessionBox && !session) sessionBox.hidden = true;
     if (accountBtn) {
+      const t = window.GDLi18n?.t || ((k) => k);
       accountBtn.title = roles.editor
-        ? "Editor account"
+        ? t("account.title.editor")
         : roles.organizer
-          ? "Organizer account"
+          ? t("account.title.organizer")
           : roles.judge
-            ? "Judge account"
+            ? t("account.title.judge")
             : roles.participant
-              ? "Participant account"
-              : "Sign in";
+              ? t("account.title.participant")
+              : t("account.signin");
     }
 
     window.GDLRoles?.applyRoleVisibility?.();
@@ -326,8 +361,9 @@
   }
 
   function renderHero() {
+    const t = window.GDLi18n?.t || ((k) => k);
     els.brand.innerHTML = `${site.brand}<span>.</span>`;
-    els.lede.textContent = site.tagline;
+    els.lede.textContent = t("hero.tagline");
     els.heroMeta.innerHTML = `
       <span>${site.name}</span>
       <span>${site.region}</span>
@@ -335,13 +371,14 @@
   }
 
   function renderPulse() {
+    const t = window.GDLi18n?.t || ((k) => k);
     els.pulseGrid.innerHTML = pulse
       .map(
-        (p) => `
+        (p, i) => `
       <article class="pulse">
         <div class="pulse__value">${p.value}</div>
-        <div class="pulse__label">${p.label}</div>
-        <p class="pulse__detail">${p.detail}</p>
+        <div class="pulse__label">${t(`pulse.${i}.label`)}</div>
+        <p class="pulse__detail">${t(`pulse.${i}.detail`)}</p>
       </article>
     `,
       )
@@ -349,12 +386,13 @@
   }
 
   function renderThemes() {
+    const t = window.GDLi18n?.t || ((k) => k);
     els.themeGrid.innerHTML = themes
       .map(
-        (t) => `
+        (th, i) => `
       <article class="theme">
-        <h3 class="theme__title">${t.title}</h3>
-        <p class="theme__body">${t.body}</p>
+        <h3 class="theme__title">${t(`theme.${i}.title`)}</h3>
+        <p class="theme__body">${t(`theme.${i}.body`)}</p>
       </article>
     `,
       )
@@ -395,13 +433,13 @@
   }
 
   function openCreateModal() {
+    const t = window.GDLi18n?.t || ((k) => k);
     showError(els.createError, "");
     els.formCreate.reset();
     document.getElementById("ev-id").value = "";
-    document.getElementById("create-modal-title").textContent = "Create activity";
-    document.getElementById("create-modal-lede").textContent =
-      "Publishes to the Mexico Hub catalog (GitHub Pages rebuild may take ~1 minute).";
-    document.getElementById("btn-create-submit").textContent = "Publish event";
+    document.getElementById("create-modal-title").textContent = t("create.title");
+    document.getElementById("create-modal-lede").textContent = t("create.lede");
+    document.getElementById("btn-create-submit").textContent = t("create.submit");
     const today = new Date().toISOString().slice(0, 10);
     document.getElementById("ev-sort").value = today;
     document.getElementById("ev-status").value = "Upcoming";
@@ -410,13 +448,13 @@
   }
 
   function openEditModal(event) {
+    const t = window.GDLi18n?.t || ((k) => k);
     showError(els.createError, "");
     els.formCreate.reset();
     document.getElementById("ev-id").value = event.id;
-    document.getElementById("create-modal-title").textContent = "Edit activity";
-    document.getElementById("create-modal-lede").textContent =
-      "Updates the live catalog. Toggle registration open/closed here.";
-    document.getElementById("btn-create-submit").textContent = "Save changes";
+    document.getElementById("create-modal-title").textContent = t("edit.title");
+    document.getElementById("create-modal-lede").textContent = t("edit.lede");
+    document.getElementById("btn-create-submit").textContent = t("edit.submit");
     document.getElementById("ev-name").value = event.name || "";
     document.getElementById("ev-category").value = event.category || "Hackathon";
     document.getElementById("ev-status").value = event.status || "Upcoming";
@@ -448,10 +486,24 @@
     els.modalCreate.showModal();
   }
 
+  function labelCat(v) {
+    return window.GDLi18n?.t?.(`cat.${v}`) || v;
+  }
+  function labelStatus(v) {
+    return window.GDLi18n?.t?.(`status.${v}`) || v;
+  }
+  function labelVis(v) {
+    return window.GDLi18n?.t?.(`vis.${v}`) || v;
+  }
+  function labelConf(v) {
+    return window.GDLi18n?.t?.(`conf.${v}`) || v;
+  }
+
   function renderDetail(event) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     if (!event) {
       els.detail.classList.add("empty");
-      els.detail.innerHTML = `<p>No events match these filters. Try clearing City or other filters.</p>`;
+      els.detail.innerHTML = `<p>${t("detail.empty")}</p>`;
       return;
     }
     els.detail.classList.remove("empty");
@@ -460,107 +512,109 @@
     const roles = window.GDLRoles?.getRoleFlags?.() || {};
     const gate = window.GDLPortal.isRegistrationClosed(event, state.registrations);
     const byline = event.createdBy
-      ? `<p class="detail__text" style="margin-top:0.75rem;font-size:0.85rem">Added by @${esc(event.createdBy)}</p>`
+      ? `<p class="detail__text" style="margin-top:0.75rem;font-size:0.85rem">${t("detail.addedBy", {
+          user: esc(event.createdBy),
+        })}</p>`
       : "";
 
     let actions = "";
     if (!gate.closed) {
-      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">Register team &amp; upload PPT/video</button>`;
+      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">${t("btn.register")}</button>`;
     } else {
-      actions += `<p class="modal__hint">${esc(gate.reason || "Registration is closed for this activity.")}</p>`;
+      actions += `<p class="modal__hint">${esc(gate.reason || t("gate.closed"))}</p>`;
     }
-    actions += `<button type="button" class="btn btn--ghost btn--sm" data-ics-id="${esc(event.id)}">Add to calendar (ICS)</button>`;
+    actions += `<button type="button" class="btn btn--ghost btn--sm" data-ics-id="${esc(event.id)}">${t("btn.ics")}</button>`;
     if (roles.organizer || event.registrationOpen) {
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">Manage invites</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">${t("btn.organize")}</button>`;
     }
     if (roles.editor) {
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-edit-event">Edit activity</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-edit-event">${t("btn.edit")}</button>`;
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-toggle-reg">${
-        event.registrationOpen ? "Close registration" : "Open registration"
+        event.registrationOpen ? t("btn.closeReg") : t("btn.openReg")
       }</button>`;
     }
     if (roles.organizer) {
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-export-judge">Export judge pack</button>`;
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-publish-scores">Publish scoreboard</button>`;
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-announce">Announce</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-export-judge">${t("btn.exportJudge")}</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-publish-scores">${t("btn.publishScores")}</button>`;
+      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-announce">${t("btn.announce")}</button>`;
     }
 
     const materials =
       event.pptUrl || event.videoUrl
         ? `<div class="detail__block">
-        <p class="detail__label">Materials</p>
+        <p class="detail__label">${t("detail.materials")}</p>
         <p class="detail__text">
-          ${event.pptUrl ? `<a href="${esc(event.pptUrl)}" target="_blank" rel="noopener">PPT / deck</a>` : "No PPT link"}
+          ${event.pptUrl ? `<a href="${esc(event.pptUrl)}" target="_blank" rel="noopener">${t("detail.ppt")}</a>` : t("detail.noPpt")}
           ·
-          ${event.videoUrl ? `<a href="${esc(event.videoUrl)}" target="_blank" rel="noopener">Video</a>` : "No video link"}
+          ${event.videoUrl ? `<a href="${esc(event.videoUrl)}" target="_blank" rel="noopener">${t("detail.video")}</a>` : t("detail.noVideo")}
         </p>
       </div>`
         : "";
 
     const eventScores = window.GDLScoresStore.scoresForEvent(state.scores, event.id);
     const regs = window.GDLPortal.regsForEvent(state.registrations, event.id);
+    const conf = confidenceOf(event);
+    const sourceFallback =
+      conf === "Verified"
+        ? t("detail.sourceVerified")
+        : conf === "Editor"
+          ? t("detail.sourceEditor")
+          : t("detail.sourceSeed");
 
     els.detail.innerHTML = `
-      <p class="detail__kicker">Event brief</p>
+      <p class="detail__kicker">${t("detail.brief")}</p>
       <h3 class="detail__title">${esc(event.name)}</h3>
       <div class="chips" style="margin-bottom:1rem">
-        <span class="${chipClass("cat", event.category)}">${esc(event.category)}</span>
-        <span class="${chipClass("st", event.status)}">${esc(event.status)}</span>
+        <span class="${chipClass("cat", event.category)}">${esc(labelCat(event.category))}</span>
+        <span class="${chipClass("st", event.status)}">${esc(labelStatus(event.status))}</span>
         <span class="chip">${esc(cityOf(event))}</span>
-        <span class="${chipClass("vis", event.visibility)}">${esc(event.visibility)} visibility</span>
-        <span class="${chipClass("conf", confidenceOf(event))}">${esc(confidenceOf(event))}</span>
+        <span class="${chipClass("vis", event.visibility)}">${esc(labelVis(event.visibility))} ${t("detail.visibility")}</span>
+        <span class="${chipClass("conf", conf)}">${esc(labelConf(conf))}</span>
         ${
           event.registrationOpen
-            ? `<span class="chip chip--upcoming">Registration open</span>`
-            : `<span class="chip">Registration closed</span>`
+            ? `<span class="chip chip--upcoming">${t("detail.regOpen")}</span>`
+            : `<span class="chip">${t("detail.regClosed")}</span>`
         }
       </div>
       ${window.GDLPortal.countdownHtml(event)}
       ${window.GDLPortal.capacityHtml(event, state.registrations)}
       <div class="detail__block">
-        <p class="detail__label">When</p>
+        <p class="detail__label">${t("detail.when")}</p>
         <p class="detail__text">${esc(event.when)}</p>
       </div>
       <div class="detail__block">
-        <p class="detail__label">City</p>
+        <p class="detail__label">${t("detail.city")}</p>
         <p class="detail__text">${esc(cityOf(event))}</p>
       </div>
       <div class="detail__block">
-        <p class="detail__label">Audience</p>
+        <p class="detail__label">${t("detail.audience")}</p>
         <p class="detail__text">${esc(event.audience)}</p>
       </div>
       <div class="detail__block">
-        <p class="detail__label">Highlight</p>
+        <p class="detail__label">${t("detail.highlight")}</p>
         <p class="detail__text">${esc(event.highlight)}</p>
       </div>
       ${materials}
       ${window.GDLPortal.demoSlotsHtml(event)}
       <div class="detail__block">
-        <p class="detail__label">Registered teams</p>
+        <p class="detail__label">${t("detail.teams")}</p>
         ${renderRegsBlock(event.id)}
       </div>
       <div class="detail__block">
-        <p class="detail__label">Scoreboard</p>
+        <p class="detail__label">${t("detail.scoreboard")}</p>
         ${window.GDLPortal.scoreboardHtml(event.id, state.scores, window.GDLRoles.can("viewUnpublishedScores"))}
       </div>
       ${
         window.GDLRoles.can("score")
           ? `<div class="detail__block" data-role-required="judge,organizer,editor">
-        <p class="detail__label">Judge scoring</p>
+        <p class="detail__label">${t("detail.judge")}</p>
         ${window.GDLPortal.judgeFormHtml(event, regs, eventScores)}
       </div>`
           : ""
       }
       <div class="detail__block">
-        <p class="detail__label">Data source / authenticity</p>
-        <p class="detail__text">${esc(
-          event.sourceNote ||
-            (confidenceOf(event) === "Verified"
-              ? "Confirmed against official Mexico / site ops calendar."
-              : confidenceOf(event) === "Editor"
-                ? "Published by an allowlisted editor."
-                : "Seeded from public LinkedIn mentions — not an official calendar."),
-        )}</p>
+        <p class="detail__label">${t("detail.source")}</p>
+        <p class="detail__text">${esc(event.sourceNote || sourceFallback)}</p>
       </div>
       ${byline}
       <div class="detail-actions">${actions}</div>
@@ -594,7 +648,7 @@
         renderPortalExtras();
         renderList();
       } catch (err) {
-        alert(err.message || "Could not update registration.");
+        alert(err.message || t("alert.regFail"));
       }
     });
     document.getElementById("btn-export-judge")?.addEventListener("click", () => {
@@ -605,13 +659,13 @@
         await window.GDLScoresStore.setPublished(event.id, true, state.session);
         state.scores = await window.GDLScoresStore.loadPublic();
         const top = [...eventScores].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
-        if (top && confirm(`Promote ${top.teamName} to winners gallery?`)) {
+        if (top && confirm(t("score.promote", { team: top.teamName }))) {
           await window.GDLGalleryStore.addItem(
             {
               eventId: event.id,
               eventName: event.name,
               teamName: top.teamName,
-              place: "1st (published scoreboard)",
+              place: t("place.first"),
               highlight: event.highlight || "",
               repoUrl: regs.find((r) => r.id === top.registrationId)?.repoUrl || "",
             },
@@ -621,25 +675,25 @@
         }
         renderPortalExtras();
         renderList();
-        alert("Scoreboard published.");
+        alert(t("score.published"));
       } catch (err) {
-        alert(err.message || "Could not publish scores.");
+        alert(err.message || t("alert.publishFail"));
       }
     });
     document.getElementById("btn-announce")?.addEventListener("click", async () => {
-      const title = prompt("Announcement title", `${event.name} update`);
+      const title = prompt(t("prompt.announceTitle"), `${event.name} update`);
       if (!title) return;
-      const body = prompt("Announcement body", "Registration / judging update from Mexico Hub organizers.");
+      const body = prompt(t("prompt.announceBody"), t("prompt.announceBodyDefault"));
       if (!body) return;
       try {
         await window.GDLNotificationsStore.publish({ title, body, eventId: event.id }, state.session);
         state.notifications = await window.GDLNotificationsStore.loadPublic();
         refreshNotifyUi();
-        if (confirm("Also open Gmail compose to broadcast?")) {
+        if (confirm(t("prompt.gmailBroadcast"))) {
           window.GDLNotificationsStore.openGmailBroadcast(title, body);
         }
       } catch (err) {
-        alert(err.message || "Could not publish announcement.");
+        alert(err.message || t("alert.announceFail"));
       }
     });
     els.detail.querySelectorAll("[data-judge-form]").forEach((form) => {
@@ -662,9 +716,9 @@
           );
           state.scores = await window.GDLScoresStore.loadPublic();
           renderList();
-          alert("Score saved.");
+          alert(t("score.saved"));
         } catch (err) {
-          alert(err.message || "Could not save score.");
+          alert(err.message || t("alert.scoreFail"));
         }
       });
     });
@@ -719,9 +773,12 @@
       list.find((e) => e.id === state.selectedId) ?? list[0] ?? null;
     state.selectedId = selected?.id ?? null;
 
-    els.resultsMeta.textContent = `${list.length} event${list.length === 1 ? "" : "s"} shown · ${
-      events.filter((e) => e.visibility === "High").length
-    } high-visibility overall`;
+    const t = window.GDLi18n?.t || ((k, v) => k);
+    const high = events.filter((e) => e.visibility === "High").length;
+    els.resultsMeta.textContent =
+      list.length === 1
+        ? t("results.shownOne", { n: list.length, h: high })
+        : t("results.shown", { n: list.length, h: high });
 
     if (!list.length) {
       els.eventList.innerHTML = "";
@@ -744,12 +801,12 @@
             <span class="event-item__when">${esc(e.when)}</span>
           </div>
           <div class="chips">
-            <span class="${chipClass("cat", e.category)}">${esc(e.category)}</span>
-            <span class="${chipClass("st", e.status)}">${esc(e.status)}</span>
+            <span class="${chipClass("cat", e.category)}">${esc(labelCat(e.category))}</span>
+            <span class="${chipClass("st", e.status)}">${esc(labelStatus(e.status))}</span>
             <span class="chip">${esc(cityOf(e))}</span>
-            <span class="${chipClass("vis", e.visibility)}">${esc(e.visibility)}</span>
-            <span class="${chipClass("conf", confidenceOf(e))}">${esc(confidenceOf(e))}</span>
-            ${e.registrationOpen ? `<span class="chip chip--upcoming">Reg open</span>` : ""}
+            <span class="${chipClass("vis", e.visibility)}">${esc(labelVis(e.visibility))}</span>
+            <span class="${chipClass("conf", confidenceOf(e))}">${esc(labelConf(confidenceOf(e)))}</span>
+            ${e.registrationOpen ? `<span class="chip chip--upcoming">${t("chip.regOpen")}</span>` : ""}
           </div>
         </button>
       </li>
@@ -770,12 +827,12 @@
     const max = Math.max(...counts.map((c) => c.value), 1);
 
     els.bars.innerHTML = `
-      <p class="section__kicker" style="margin-bottom:0.75rem">Full catalog · by category</p>
+      <p class="section__kicker" style="margin-bottom:0.75rem">${window.GDLi18n?.t?.("bars.byCategory") || "Full catalog · by category"}</p>
       ${counts
         .map(
           (c) => `
         <div class="bar-row">
-          <span class="bar-row__label">${c.label}</span>
+          <span class="bar-row__label">${window.GDLi18n?.t?.(`cat.${c.label}`) || c.label}</span>
           <div class="bar-track"><div class="bar-fill" data-width="${(c.value / max) * 100}"></div></div>
           <span class="bar-row__value">${c.value}</span>
         </div>
@@ -792,13 +849,14 @@
   }
 
   function renderChecklist() {
+    const t = window.GDLi18n?.t || ((k) => k);
     els.checklistBody.innerHTML = checklist
       .map(
-        (row) => `
+        (row, i) => `
       <tr>
-        <td>${row.action}</td>
-        <td>${row.owner}</td>
-        <td>${row.why}</td>
+        <td>${t(`check.${i}.action`)}</td>
+        <td>${t(`check.${i}.owner`)}</td>
+        <td>${t(`check.${i}.why`)}</td>
       </tr>
     `,
       )
@@ -806,7 +864,8 @@
   }
 
   function renderFooter() {
-    els.footer.innerHTML = `<strong>${site.company}</strong> · <em>${site.companyTagline}</em> · ${site.name} · ${site.region} · ${events.length} activities`;
+    const t = window.GDLi18n?.t || ((k) => k);
+    els.footer.innerHTML = `<strong>${site.company}</strong> · <em>${site.companyTagline}</em> · ${site.name} · ${site.region} · ${events.length} ${t("footer.activities")}`;
   }
 
   function showError(el, message) {
@@ -820,11 +879,11 @@
   }
 
   function bind() {
-    fillSelectLabeled(els.category, filters.categories, "All categories");
-    fillSelectLabeled(els.status, filters.statuses, "All statuses");
-    fillSelectLabeled(els.visibility, filters.visibilities, "All visibility");
-    fillSelectLabeled(els.confidence, filters.confidences, "All confidence");
-    if (els.city) fillSelectLabeled(els.city, filters.cities, "All cities");
+    fillSelectLabeled(els.category, filters.categories, "filter.allCategories", "cat");
+    fillSelectLabeled(els.status, filters.statuses, "filter.allStatuses", "status");
+    fillSelectLabeled(els.visibility, filters.visibilities, "filter.allVisibility", "vis");
+    fillSelectLabeled(els.confidence, filters.confidences, "filter.allConfidence", "conf");
+    if (els.city) fillSelectLabeled(els.city, filters.cities, "filter.allCities", null);
 
     const sync = () => {
       state.category = els.category.value;
@@ -845,6 +904,22 @@
       if (!btn) return;
       state.selectedId = btn.dataset.id;
       renderList();
+    });
+
+    window.addEventListener("gdl:langchange", () => {
+      refreshFilters();
+      renderHero();
+      renderPulse();
+      renderThemes();
+      renderChecklist();
+      renderFooter();
+      renderList();
+      renderBars();
+      renderFeatured();
+      renderPortalExtras();
+      refreshNotifyUi();
+      renderAuthBar();
+      window.GDLi18n.apply();
     });
 
     document.getElementById("btn-lang-en")?.addEventListener("click", () => {

@@ -45,18 +45,22 @@
   }
 
   function deriveLocal(events, registrations) {
+    const t = window.GDLi18n?.t || ((k, v) => k);
     const now = Date.now();
     const out = [];
     (events || []).forEach((e) => {
       if (!e.registrationClosesAt || !e.registrationOpen) return;
-      const t = Date.parse(e.registrationClosesAt);
-      if (!Number.isFinite(t)) return;
-      const hours = (t - now) / 36e5;
+      const ts = Date.parse(e.registrationClosesAt);
+      if (!Number.isFinite(ts)) return;
+      const hours = (ts - now) / 36e5;
       if (hours > 0 && hours <= 72) {
         out.push({
           id: `local-deadline-${e.id}`,
-          title: `Registration closing soon`,
-          body: `${e.name} closes ${new Date(t).toLocaleString()}`,
+          title: t("notify.closingTitle"),
+          body: t("notify.closingBody", {
+            name: e.name,
+            when: new Date(ts).toLocaleString(),
+          }),
           eventId: e.id,
           createdAt: new Date().toISOString(),
           local: true,
@@ -65,8 +69,8 @@
       if (hours < 0 && e.registrationOpen) {
         out.push({
           id: `local-closed-${e.id}`,
-          title: `Registration window ended`,
-          body: `${e.name} — organizers may still review submissions.`,
+          title: t("notify.endedTitle"),
+          body: t("notify.endedBody", { name: e.name }),
           eventId: e.id,
           createdAt: new Date().toISOString(),
           local: true,
@@ -79,8 +83,8 @@
       if (n >= e.capacity && e.registrationOpen) {
         out.push({
           id: `local-full-${e.id}`,
-          title: `Activity at capacity`,
-          body: `${e.name} has ${n}/${e.capacity} teams.`,
+          title: t("notify.fullTitle"),
+          body: t("notify.fullBody", { name: e.name, n, cap: e.capacity }),
           eventId: e.id,
           createdAt: new Date().toISOString(),
           local: true,

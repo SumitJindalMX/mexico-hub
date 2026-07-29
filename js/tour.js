@@ -2,45 +2,46 @@
   const KEY = "gdl.tour.done";
 
   function stepsForRoles() {
+    const t = window.GDLi18n?.t || ((k) => k);
     const f = window.GDLRoles?.getRoleFlags?.() || {};
     const steps = [
       {
         sel: "#events",
-        title: "Activities",
-        body: "Filter by city, category, and status. Open a card for the brief, materials, and register.",
+        title: t("tour.0.title"),
+        body: t("tour.0.body"),
       },
       {
         sel: "#gallery",
-        title: "Winners gallery",
-        body: "Past highlights and winning teams promoted by organizers.",
+        title: t("tour.1.title"),
+        body: t("tour.1.body"),
       },
     ];
     if (f.participant) {
       steps.push({
         sel: "#my-regs",
-        title: "My registrations",
-        body: "Sign in with Google to see teams you lead and jump to materials.",
+        title: t("tour.myRegs.title"),
+        body: t("tour.myRegs.body"),
       });
     }
     if (f.judge) {
       steps.push({
         sel: "#events",
-        title: "Judging",
-        body: "Open an activity to score demo, deck, and code (1–5) for each team.",
+        title: t("tour.judge.title"),
+        body: t("tour.judge.body"),
       });
     }
     if (f.organizer) {
       steps.push({
         sel: "#analytics",
-        title: "Organizer tools",
-        body: "Capacity, deadlines, demo slots, announce, export judge pack, publish scoreboard.",
+        title: t("tour.org.title"),
+        body: t("tour.org.body"),
       });
     }
     if (f.editor) {
       steps.push({
         sel: "#btn-create-event",
-        title: "Create activity",
-        body: "Editors publish to data/events.json via GitHub PAT.",
+        title: t("tour.edit.title"),
+        body: t("tour.edit.body"),
       });
     }
     return steps;
@@ -48,18 +49,19 @@
 
   function start(force = false) {
     if (!force && localStorage.getItem(KEY)) return;
+    const t = window.GDLi18n?.t || ((k) => k);
     const steps = stepsForRoles();
     let i = 0;
     const overlay = document.createElement("div");
     overlay.className = "tour-overlay";
     overlay.innerHTML = `
       <div class="tour-card" role="dialog" aria-modal="true">
-        <p class="tour-card__kicker">Mexico Hub tour</p>
+        <p class="tour-card__kicker">${t("tour.kicker")}</p>
         <h3 class="tour-card__title"></h3>
         <p class="tour-card__body"></p>
         <div class="tour-card__actions">
-          <button type="button" class="btn btn--ghost btn--sm" data-tour-skip>Skip</button>
-          <button type="button" class="btn btn--primary btn--sm" data-tour-next>Next</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-tour-skip>${t("tour.skip")}</button>
+          <button type="button" class="btn btn--primary btn--sm" data-tour-next>${t("tour.next")}</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -81,7 +83,7 @@
         target.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       overlay.querySelector("[data-tour-next]").textContent =
-        i === steps.length - 1 ? "Done" : "Next";
+        i === steps.length - 1 ? t("tour.done") : t("tour.next");
     }
 
     function cleanup(done) {

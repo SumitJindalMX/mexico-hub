@@ -77,11 +77,12 @@
 
   function primaryRoleLabel(flags) {
     const f = flags || getRoleFlags();
-    if (f.editor) return "Editor";
-    if (f.organizer) return "Organizer";
-    if (f.judge) return "Judge";
-    if (f.participant) return "Participant";
-    return "Visitor";
+    const t = window.GDLi18n?.t || ((k) => k);
+    if (f.editor) return t("role.editor");
+    if (f.organizer) return t("role.organizer");
+    if (f.judge) return t("role.judge");
+    if (f.participant) return t("role.participant");
+    return t("role.visitor");
   }
 
   function can(action, flags) {
