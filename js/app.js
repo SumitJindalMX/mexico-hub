@@ -133,8 +133,9 @@
           return false;
         if (state.city !== "All" && cityOf(e) !== state.city) return false;
         if (q) {
+          const es = e.es || {};
           const hay =
-            `${e.name} ${e.audience} ${e.highlight} ${e.category} ${cityOf(e)}`.toLowerCase();
+            `${e.name} ${e.audience} ${e.highlight} ${es.name || ""} ${es.audience || ""} ${es.highlight || ""} ${e.category} ${cityOf(e)}`.toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -163,17 +164,19 @@
       return;
     }
     els.featuredStrip.hidden = false;
+    const L = window.GDLi18n?.localizeEvent || ((e) => e);
     els.featuredRow.innerHTML = list
-      .map(
-        (e) => `
-      <button type="button" class="featured__chip" data-featured-id="${esc(e.id)}">
+      .map((raw) => {
+        const e = L(raw);
+        return `
+      <button type="button" class="featured__chip" data-featured-id="${esc(raw.id)}">
         <strong>${esc(e.name)}</strong>
-        <span>${esc(e.when)} · ${esc(cityOf(e))}${
-          e.registrationOpen ? ` · ${window.GDLi18n?.t?.("featured.regOpen") || "Reg open"}` : ""
+        <span>${esc(e.when)} · ${esc(cityOf(raw))}${
+          raw.registrationOpen ? ` · ${window.GDLi18n?.t?.("featured.regOpen") || "Reg open"}` : ""
         }</span>
       </button>
-    `,
-      )
+    `;
+      })
       .join("");
     els.featuredRow.querySelectorAll("[data-featured-id]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -365,8 +368,8 @@
     els.brand.innerHTML = `${site.brand}<span>.</span>`;
     els.lede.textContent = t("hero.tagline");
     els.heroMeta.innerHTML = `
-      <span>${site.name}</span>
-      <span>${site.region}</span>
+      <span>${t("site.name")}</span>
+      <span>${t("site.region")}</span>
     `;
   }
 
@@ -501,11 +504,13 @@
 
   function renderDetail(event) {
     const t = window.GDLi18n?.t || ((k, v) => k);
+    const L = window.GDLi18n?.localizeEvent || ((e) => e);
     if (!event) {
       els.detail.classList.add("empty");
       els.detail.innerHTML = `<p>${t("detail.empty")}</p>`;
       return;
     }
+    const view = L(event);
     els.detail.classList.remove("empty");
     window.GDLPortal?.setEventHash?.(event.id);
 
@@ -563,7 +568,7 @@
 
     els.detail.innerHTML = `
       <p class="detail__kicker">${t("detail.brief")}</p>
-      <h3 class="detail__title">${esc(event.name)}</h3>
+      <h3 class="detail__title">${esc(view.name)}</h3>
       <div class="chips" style="margin-bottom:1rem">
         <span class="${chipClass("cat", event.category)}">${esc(labelCat(event.category))}</span>
         <span class="${chipClass("st", event.status)}">${esc(labelStatus(event.status))}</span>
@@ -580,7 +585,7 @@
       ${window.GDLPortal.capacityHtml(event, state.registrations)}
       <div class="detail__block">
         <p class="detail__label">${t("detail.when")}</p>
-        <p class="detail__text">${esc(event.when)}</p>
+        <p class="detail__text">${esc(view.when)}</p>
       </div>
       <div class="detail__block">
         <p class="detail__label">${t("detail.city")}</p>
@@ -588,14 +593,14 @@
       </div>
       <div class="detail__block">
         <p class="detail__label">${t("detail.audience")}</p>
-        <p class="detail__text">${esc(event.audience)}</p>
+        <p class="detail__text">${esc(view.audience)}</p>
       </div>
       <div class="detail__block">
         <p class="detail__label">${t("detail.highlight")}</p>
-        <p class="detail__text">${esc(event.highlight)}</p>
+        <p class="detail__text">${esc(view.highlight)}</p>
       </div>
       ${materials}
-      ${window.GDLPortal.demoSlotsHtml(event)}
+      ${window.GDLPortal.demoSlotsHtml(view)}
       <div class="detail__block">
         <p class="detail__label">${t("detail.teams")}</p>
         ${renderRegsBlock(event.id)}
@@ -614,7 +619,7 @@
       }
       <div class="detail__block">
         <p class="detail__label">${t("detail.source")}</p>
-        <p class="detail__text">${esc(event.sourceNote || sourceFallback)}</p>
+        <p class="detail__text">${esc(view.sourceNote || sourceFallback)}</p>
       </div>
       ${byline}
       <div class="detail-actions">${actions}</div>
@@ -787,31 +792,32 @@
     }
 
     els.eventList.innerHTML = list
-      .map(
-        (e) => `
+      .map((raw) => {
+        const e = (window.GDLi18n?.localizeEvent || ((x) => x))(raw);
+        return `
       <li>
         <button
           type="button"
-          class="event-item${e.id === state.selectedId ? " is-active" : ""}"
-          data-id="${e.id}"
-          aria-pressed="${e.id === state.selectedId}"
+          class="event-item${raw.id === state.selectedId ? " is-active" : ""}"
+          data-id="${raw.id}"
+          aria-pressed="${raw.id === state.selectedId}"
         >
           <div class="event-item__top">
             <span class="event-item__name">${esc(e.name)}</span>
             <span class="event-item__when">${esc(e.when)}</span>
           </div>
           <div class="chips">
-            <span class="${chipClass("cat", e.category)}">${esc(labelCat(e.category))}</span>
-            <span class="${chipClass("st", e.status)}">${esc(labelStatus(e.status))}</span>
-            <span class="chip">${esc(cityOf(e))}</span>
-            <span class="${chipClass("vis", e.visibility)}">${esc(labelVis(e.visibility))}</span>
-            <span class="${chipClass("conf", confidenceOf(e))}">${esc(labelConf(confidenceOf(e)))}</span>
-            ${e.registrationOpen ? `<span class="chip chip--upcoming">${t("chip.regOpen")}</span>` : ""}
+            <span class="${chipClass("cat", raw.category)}">${esc(labelCat(raw.category))}</span>
+            <span class="${chipClass("st", raw.status)}">${esc(labelStatus(raw.status))}</span>
+            <span class="chip">${esc(cityOf(raw))}</span>
+            <span class="${chipClass("vis", raw.visibility)}">${esc(labelVis(raw.visibility))}</span>
+            <span class="${chipClass("conf", confidenceOf(raw))}">${esc(labelConf(confidenceOf(raw)))}</span>
+            ${raw.registrationOpen ? `<span class="chip chip--upcoming">${t("chip.regOpen")}</span>` : ""}
           </div>
         </button>
       </li>
-    `,
-      )
+    `;
+      })
       .join("");
 
     renderDetail(selected);
@@ -865,7 +871,7 @@
 
   function renderFooter() {
     const t = window.GDLi18n?.t || ((k) => k);
-    els.footer.innerHTML = `<strong>${site.company}</strong> · <em>${site.companyTagline}</em> · ${site.name} · ${site.region} · ${events.length} ${t("footer.activities")}`;
+    els.footer.innerHTML = `<strong>${site.company}</strong> · <em>${t("site.companyTagline")}</em> · ${t("site.name")} · ${t("site.region")} · ${events.length} ${t("footer.activities")}`;
   }
 
   function showError(el, message) {

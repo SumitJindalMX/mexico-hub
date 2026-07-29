@@ -58,7 +58,7 @@
           id: `local-deadline-${e.id}`,
           title: t("notify.closingTitle"),
           body: t("notify.closingBody", {
-            name: e.name,
+            name: (window.GDLi18n?.localizeEvent?.(e) || e).name,
             when: new Date(ts).toLocaleString(),
           }),
           eventId: e.id,
@@ -70,7 +70,7 @@
         out.push({
           id: `local-closed-${e.id}`,
           title: t("notify.endedTitle"),
-          body: t("notify.endedBody", { name: e.name }),
+          body: t("notify.endedBody", { name: (window.GDLi18n?.localizeEvent?.(e) || e).name }),
           eventId: e.id,
           createdAt: new Date().toISOString(),
           local: true,
@@ -84,7 +84,11 @@
         out.push({
           id: `local-full-${e.id}`,
           title: t("notify.fullTitle"),
-          body: t("notify.fullBody", { name: e.name, n, cap: e.capacity }),
+          body: t("notify.fullBody", {
+            name: (window.GDLi18n?.localizeEvent?.(e) || e).name,
+            n,
+            cap: e.capacity,
+          }),
           eventId: e.id,
           createdAt: new Date().toISOString(),
           local: true,

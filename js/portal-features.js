@@ -117,6 +117,7 @@
 
   function renderMyRegs(root, regs, events, email) {
     const t = window.GDLi18n?.t || ((k, v) => k);
+    const L = window.GDLi18n?.localizeEvent || ((e) => e);
     if (!root) return;
     if (!email) {
       root.innerHTML = `<p class="modal__hint">${t("myRegs.needGoogle")}</p>`;
@@ -131,7 +132,7 @@
     }
     root.innerHTML = mine
       .map((r) => {
-        const ev = (events || []).find((e) => e.id === r.eventId);
+        const ev = L((events || []).find((e) => e.id === r.eventId) || { name: r.eventId });
         return `<article class="my-reg-card">
           <h3>${esc(r.teamName)}</h3>
           <p>${esc(ev?.name || r.eventId)}</p>

@@ -326,13 +326,12 @@
 
     <dialog class="modal" id="modal-gh-pull-auth">
       <form method="dialog" class="modal__panel" id="form-gh-pull-auth">
-        <h2 class="modal__title">GitHub access needed</h2>
-        <p class="modal__lede" id="gh-pull-auth-lede">
-          This repository looks private or requires authentication. Paste a GitHub personal access
-          token with <strong>Contents: Read</strong> on that repo to pull the source.
+        <h2 class="modal__title" data-i18n="ghPull.title">GitHub access needed</h2>
+        <p class="modal__lede" id="gh-pull-auth-lede" data-i18n="ghPull.lede">
+          Enter a GitHub personal access token to pull private or rate-limited repositories.
         </p>
         <div class="field">
-          <label for="gh-pull-pat">GitHub PAT</label>
+          <label for="gh-pull-pat" data-i18n="signin.pat">GitHub PAT</label>
           <input
             id="gh-pull-pat"
             name="gh-pull-pat"
@@ -348,7 +347,7 @@
         </p>
         <p class="form-error" id="gh-pull-auth-error" hidden></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--ghost" id="btn-gh-pull-auth-cancel">Cancel</button>
+          <button type="button" class="btn btn--ghost" id="btn-gh-pull-auth-cancel" data-i18n="btn.cancel">Cancel</button>
           <button type="submit" class="btn btn--primary" id="btn-gh-pull-auth-submit">
             Use token &amp; pull
           </button>
@@ -358,13 +357,12 @@
 
     <dialog class="modal" id="modal-signin">
       <form method="dialog" class="modal__panel" id="form-signin">
-        <h2 class="modal__title">Editor sign in</h2>
-        <p class="modal__lede">
-          Only GitHub users on the allowlist can create events. Sign in with a personal access
-          token that can write to this repository.
+        <h2 class="modal__title" data-i18n="signin.title">Editor sign in</h2>
+        <p class="modal__lede" data-i18n="signin.lede">
+          Editors use a GitHub personal access token (classic) with repo scope for this repository.
         </p>
         <div class="field">
-          <label for="pat">GitHub PAT</label>
+          <label for="pat" data-i18n="signin.pat">GitHub PAT</label>
           <input
             id="pat"
             name="pat"
@@ -381,12 +379,8 @@
         </p>
         <p class="form-error" id="signin-error" hidden></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--ghost" id="btn-signin-cancel" value="cancel">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn--primary" id="btn-signin-submit">
-            Sign in
-          </button>
+          <button type="button" class="btn btn--ghost" id="btn-signin-cancel" value="cancel" data-i18n="btn.cancel">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="btn-signin-submit" data-i18n="signin.submit">Sign in</button>
         </div>
       </form>
     </dialog>
@@ -400,11 +394,11 @@
         <input type="hidden" id="ev-id" value="" />
         <div class="form-grid">
           <div class="field field--full">
-            <label for="ev-name">Name <span class="req" aria-hidden="true">*</span></label>
-            <input id="ev-name" name="name" required maxlength="120" placeholder="Event name" />
+            <label for="ev-name"><span data-i18n="create.name">Name</span> <span class="req" aria-hidden="true">*</span></label>
+            <input id="ev-name" name="name" required maxlength="120" data-i18n-placeholder="create.namePh" placeholder="Event name" />
           </div>
           <div class="field">
-            <label for="ev-category">Category <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-category"><span data-i18n="filter.category">Category</span> <span class="req" aria-hidden="true">*</span></label>
             <select id="ev-category" name="category" required>
               <option>Hackathon</option>
               <option>Sports</option>
@@ -415,7 +409,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="ev-status">Status <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-status"><span data-i18n="filter.status">Status</span> <span class="req" aria-hidden="true">*</span></label>
             <select id="ev-status" name="status" required>
               <option>Upcoming</option>
               <option>Completed</option>
@@ -423,7 +417,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="ev-visibility">Visibility <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-visibility"><span data-i18n="filter.visibility">Visibility</span> <span class="req" aria-hidden="true">*</span></label>
             <select id="ev-visibility" name="visibility" required>
               <option>High</option>
               <option>Medium</option>
@@ -431,7 +425,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="ev-confidence">Data confidence <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-confidence"><span data-i18n="filter.confidence">Data confidence</span> <span class="req" aria-hidden="true">*</span></label>
             <select id="ev-confidence" name="confidence" required>
               <option value="Editor" selected>Editor</option>
               <option value="Verified">Verified</option>
@@ -439,51 +433,51 @@
             </select>
           </div>
           <div class="field">
-            <label for="ev-when">When <span class="req" aria-hidden="true">*</span></label>
-            <input id="ev-when" name="when" placeholder="e.g. Aug 2026" required />
+            <label for="ev-when"><span data-i18n="create.when">When</span> <span class="req" aria-hidden="true">*</span></label>
+            <input id="ev-when" name="when" data-i18n-placeholder="create.whenPh" placeholder="e.g. Aug 2026" required />
           </div>
           <div class="field">
-            <label for="ev-city">City <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-city"><span data-i18n="create.city">City</span> <span class="req" aria-hidden="true">*</span></label>
             <select id="ev-city" name="city" required>
-              <option value="Mexico" selected>Mexico (nationwide)</option>
-              <option value="GDL">GDL (Guadalajara)</option>
-              <option value="CDMX">CDMX</option>
+              <option value="Mexico" selected data-i18n="create.cityMexico">Mexico (nationwide)</option>
+              <option value="GDL" data-i18n="create.cityGdl">GDL (Guadalajara)</option>
+              <option value="CDMX" data-i18n="create.cityCdmx">CDMX</option>
             </select>
           </div>
           <div class="field">
-            <label for="ev-sort">Sort key (YYYY-MM-DD) <span class="opt">(optional)</span></label>
+            <label for="ev-sort"><span data-i18n="create.sort">Sort key (YYYY-MM-DD)</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="ev-sort" name="sortKey" type="date" />
           </div>
           <div class="field field--full">
-            <label for="ev-audience">Audience <span class="req" aria-hidden="true">*</span></label>
-            <input id="ev-audience" name="audience" placeholder="Who it's for" required />
+            <label for="ev-audience"><span data-i18n="create.audience">Audience</span> <span class="req" aria-hidden="true">*</span></label>
+            <input id="ev-audience" name="audience" data-i18n-placeholder="create.audiencePh" placeholder="Who it's for" required />
           </div>
           <div class="field field--full">
-            <label for="ev-highlight">Highlight <span class="req" aria-hidden="true">*</span></label>
+            <label for="ev-highlight"><span data-i18n="create.highlight">Highlight</span> <span class="req" aria-hidden="true">*</span></label>
             <textarea
               id="ev-highlight"
               name="highlight"
               rows="3"
-              placeholder="What should people remember?"
+              data-i18n-placeholder="create.highlightPh" placeholder="What should people remember?"
               required
             ></textarea>
           </div>
           <div class="field field--full">
             <label class="check-label">
               <input id="ev-registration-open" name="registrationOpen" type="checkbox" />
-              Open participant registration (invite optional · Gmail / GitHub / Microsoft)
+              <span data-i18n="create.regOpen">Open participant registration (invite optional · Gmail / GitHub / Microsoft)</span>
             </label>
           </div>
           <div class="field">
-            <label for="ev-capacity">Capacity <span class="opt">(optional)</span></label>
+            <label for="ev-capacity"><span data-i18n="create.capacity">Capacity</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="ev-capacity" type="number" min="1" placeholder="e.g. 24" />
           </div>
           <div class="field">
-            <label for="ev-closes">Registration closes <span class="opt">(optional)</span></label>
+            <label for="ev-closes"><span data-i18n="create.closes">Registration closes</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="ev-closes" type="datetime-local" />
           </div>
           <div class="field field--full">
-            <label for="ev-demo-slots">Demo slots JSON <span class="opt">(optional)</span></label>
+            <label for="ev-demo-slots"><span data-i18n="create.demoSlots">Demo slots JSON</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <textarea
               id="ev-demo-slots"
               rows="3"
@@ -492,26 +486,25 @@
           </div>
           <div class="field field--full">
             <p class="modal__subtitle" style="margin:0.5rem 0">
-              Materials <span class="opt">(optional)</span>
+              <span data-i18n="create.materials">Materials</span> <span class="opt" data-i18n="opt.optional">(optional)</span>
             </p>
             <p class="modal__hint">
-              Paste SharePoint / OneDrive / Stream / Drive links for the activity brief.
-              Participants can add their own PPT/video when they register (also optional).
+              <span data-i18n="create.materialsHint">Paste SharePoint / OneDrive / Stream / Drive links for the activity brief. Participants can add their own PPT/video when they register (also optional).</span>
             </p>
           </div>
           <div class="field">
-            <label for="ev-ppt-url">PPT / deck URL <span class="opt">(optional)</span></label>
+            <label for="ev-ppt-url"><span data-i18n="create.pptUrl">PPT / deck URL</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="ev-ppt-url" type="url" placeholder="https://…" />
           </div>
           <div class="field">
-            <label for="ev-video-url">Video URL <span class="opt">(optional)</span></label>
+            <label for="ev-video-url"><span data-i18n="create.videoUrl">Video URL</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="ev-video-url" type="url" placeholder="https://…" />
           </div>
         </div>
-        <p class="modal__hint"><span class="req">*</span> Required fields</p>
+        <p class="modal__hint"><span class="req">*</span> <span data-i18n="create.required">Required fields</span></p>
         <p class="form-error" id="create-error" hidden></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--ghost" id="btn-create-cancel">Cancel</button>
+          <button type="button" class="btn btn--ghost" id="btn-create-cancel" data-i18n="btn.cancel">Cancel</button>
           <button type="submit" class="btn btn--primary" id="btn-create-submit">
             Publish event
           </button>
@@ -521,8 +514,8 @@
 
     <dialog class="modal" id="modal-register">
       <form method="dialog" class="modal__panel modal__panel--wide" id="form-register">
-        <h2 class="modal__title">Register team</h2>
-        <p class="modal__lede">
+        <h2 class="modal__title" data-i18n="reg.title">Register team</h2>
+        <p class="modal__lede" id="reg-modal-lede">
           Event: <strong id="reg-event-name"></strong>.
           Submit via Gmail, GitHub, or Microsoft (when consent is available).
         </p>
@@ -530,25 +523,25 @@
         <input type="hidden" id="reg-event-id" />
         <div class="form-grid">
           <div class="field">
-            <label for="reg-invite">Invite code <span class="opt">(optional)</span></label>
+            <label for="reg-invite"><span data-i18n="reg.invite">Invite code</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="reg-invite" maxlength="16" placeholder="From organizer email / OPEN" style="text-transform:uppercase" />
           </div>
           <div class="field">
-            <label for="reg-team-name">Team name <span class="req" aria-hidden="true">*</span></label>
+            <label for="reg-team-name"><span data-i18n="reg.team">Team name</span> <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-team-name" required maxlength="120" />
           </div>
           <div class="field">
-            <label for="reg-lead-name">Lead name <span class="req" aria-hidden="true">*</span></label>
+            <label for="reg-lead-name"><span data-i18n="reg.leadName">Lead name</span> <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-lead-name" required />
           </div>
           <div class="field">
-            <label for="reg-lead-email">Lead email <span class="req" aria-hidden="true">*</span></label>
+            <label for="reg-lead-email"><span data-i18n="reg.leadEmail">Lead email</span> <span class="req" aria-hidden="true">*</span></label>
             <input id="reg-lead-email" type="email" required />
           </div>
           <div class="field field--full">
             <div class="members-head">
               <label>Team members <span class="req" aria-hidden="true">*</span> <span class="opt">(at least one name)</span></label>
-              <button type="button" class="btn btn--ghost btn--sm" id="btn-add-member">Add member</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-add-member" data-i18n="reg.addMember">Add member</button>
             </div>
             <div id="reg-members" class="members-list"></div>
           </div>
@@ -562,19 +555,19 @@
             </p>
           </div>
           <div class="field">
-            <label for="reg-ppt">PPT file <span class="opt">(optional)</span></label>
+            <label for="reg-ppt"><span data-i18n="reg.pptFile">PPT file</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="reg-ppt" type="file" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" />
           </div>
           <div class="field">
-            <label for="reg-video">Video file <span class="opt">(optional)</span></label>
+            <label for="reg-video"><span data-i18n="reg.videoFile">Video file</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="reg-video" type="file" accept="video/*,.mp4,.mov,.webm" />
           </div>
           <div class="field">
-            <label for="reg-ppt-url">PPT URL <span class="opt">(optional)</span></label>
+            <label for="reg-ppt-url"><span data-i18n="reg.pptUrl">PPT URL</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="reg-ppt-url" type="url" placeholder="https://drive.google.com/… or SharePoint" />
           </div>
           <div class="field">
-            <label for="reg-video-url">Video URL <span class="opt">(optional)</span></label>
+            <label for="reg-video-url"><span data-i18n="reg.videoUrl">Video URL</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
             <input id="reg-video-url" type="url" placeholder="https://…" />
           </div>
           <div class="field field--full code-lab" id="reg-code-lab" data-code-lab>
@@ -588,7 +581,7 @@
             </p>
             <div class="form-grid code-lab__grid">
               <div class="field">
-                <label for="reg-code-lang">Language</label>
+                <label for="reg-code-lang" data-i18n="reg.codeLang">Language</label>
                 <select id="reg-code-lang" data-cv-language>
                   <option value="auto">Auto-detect</option>
                   <option value="javascript">JavaScript</option>
@@ -597,11 +590,11 @@
                 </select>
               </div>
               <div class="field">
-                <label for="reg-repo-url">Repo URL <span class="opt">(optional)</span></label>
+                <label for="reg-repo-url"><span data-i18n="reg.repoUrl">Repo URL</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
                 <input id="reg-repo-url" data-cv-repo type="url" placeholder="https://github.com/…" />
               </div>
               <div class="field field--full">
-                <label for="reg-source">Source paste <span class="opt">(optional)</span></label>
+                <label for="reg-source"><span data-i18n="reg.source">Source paste</span> <span class="opt" data-i18n="opt.optional">(optional)</span></label>
                 <textarea
                   id="reg-source"
                   data-cv-source
@@ -612,11 +605,11 @@
               </div>
             </div>
             <div class="code-lab__actions">
-              <button type="button" class="btn btn--primary btn--sm" data-cv-pull>Pull from repo</button>
-              <button type="button" class="btn btn--ghost btn--sm" data-cv-validate>Validate</button>
-              <button type="button" class="btn btn--ghost btn--sm" data-cv-generate>Generate tests</button>
-              <button type="button" class="btn btn--ghost btn--sm" data-cv-run>Run tests</button>
-              <button type="button" class="btn btn--ghost btn--sm" data-cv-download>Download harness</button>
+              <button type="button" class="btn btn--primary btn--sm" data-cv-pull data-i18n="reg.pull">Pull from repo</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-validate data-i18n="reg.validate">Validate</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-generate data-i18n="reg.generate">Generate tests</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-run data-i18n="reg.run">Run tests</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-cv-download data-i18n="reg.download">Download harness</button>
             </div>
             <div class="code-lab__report" data-cv-report id="reg-code-report" aria-live="polite"></div>
           </div>
@@ -627,41 +620,35 @@
         </p>
         <p class="form-error" id="register-error" hidden></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--ghost" id="btn-register-cancel">Cancel</button>
-          <button type="button" class="btn btn--ghost" id="btn-register-gmail">
-            Submit via Gmail
-          </button>
-          <button type="button" class="btn btn--ghost" id="btn-register-github">
-            Submit via GitHub Issue
-          </button>
-          <button type="submit" class="btn btn--primary" id="btn-register-submit">
-            Submit registration
-          </button>
+          <button type="button" class="btn btn--ghost" id="btn-register-cancel" data-i18n="btn.cancel">Cancel</button>
+          <button type="button" class="btn btn--ghost" id="btn-register-gmail" data-i18n="reg.gmail">Submit via Gmail</button>
+          <button type="button" class="btn btn--ghost" id="btn-register-github" data-i18n="reg.github">Submit via GitHub Issue</button>
+          <button type="submit" class="btn btn--primary" id="btn-register-submit" data-i18n="reg.submit">Submit registration</button>
         </div>
       </form>
     </dialog>
 
     <dialog class="modal" id="modal-organize">
       <div class="modal__panel modal__panel--wide">
-        <h2 class="modal__title">Organize event</h2>
-        <p class="modal__lede">
-          Event: <strong id="org-event-name"></strong>. Generate invite codes and email them via Gmail
-          (no Microsoft consent needed). SharePoint invites still work when Entra consent is granted.
+        <h2 class="modal__title" data-i18n="org.title">Organize event</h2>
+        <p class="modal__lede" id="org-modal-lede" data-i18n="org.lede">
+          Create invite codes and review registrations for this activity.
         </p>
+        <p class="modal__hint">Event: <strong id="org-event-name"></strong></p>
         <input type="hidden" id="org-event-id" />
         <h3 class="modal__subtitle">Create invite</h3>
         <form id="form-invite" class="invite-form">
           <div class="form-grid">
             <div class="field">
-              <label for="org-max-uses">Max uses</label>
+              <label for="org-max-uses" data-i18n="org.maxUses">Max uses</label>
               <input id="org-max-uses" type="number" min="1" value="50" />
             </div>
             <div class="field">
-              <label for="org-expires">Expires (optional)</label>
+              <label for="org-expires" data-i18n="org.expires">Expires (optional)</label>
               <input id="org-expires" type="date" />
             </div>
             <div class="field field--full">
-              <label for="org-invite-emails">Email invite to (Gmail compose)</label>
+              <label for="org-invite-emails" data-i18n="org.emails">Email invite to (Gmail compose)</label>
               <input
                 id="org-invite-emails"
                 type="text"
@@ -685,7 +672,7 @@
         <div id="org-regs"></div>
         <p class="form-error" id="organize-error" hidden></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--ghost" id="btn-organize-cancel">Close</button>
+          <button type="button" class="btn btn--ghost" id="btn-organize-cancel" data-i18n="btn.close">Close</button>
         </div>
       </div>
     </dialog>
@@ -693,12 +680,12 @@
     <dialog class="modal" id="modal-confirm">
       <div class="modal__panel">
         <p class="confirm__badge">Submitted</p>
-        <h2 class="modal__title">Registration received</h2>
+        <h2 class="modal__title" data-i18n="confirm.title">Registration received</h2>
         <p class="modal__lede" id="confirm-summary"></p>
         <div class="confirm__details" id="confirm-details"></div>
         <p class="modal__hint" id="confirm-next"></p>
         <div class="modal__actions">
-          <button type="button" class="btn btn--primary" id="btn-confirm-close">Done</button>
+          <button type="button" class="btn btn--primary" id="btn-confirm-close" data-i18n="btn.done">Done</button>
         </div>
       </div>
     </dialog>

@@ -235,6 +235,104 @@
       "notify.endedBody": "{name} — organizers may still review submissions.",
       "notify.fullTitle": "Activity at capacity",
       "notify.fullBody": "{name} has {n}/{cap} teams.",
+      "doc.title": "Amdocs Mexico Hub",
+      "doc.description":
+        "Amdocs Mexico Hub — make it amazing. Platform for hackathons, culture, talent, and activities across Mexico.",
+      "site.name": "Amdocs Mexico Hub",
+      "site.region": "Mexico · CALA",
+      "site.companyTagline": "make it amazing",
+      "opt.optional": "(optional)",
+      "btn.cancel": "Cancel",
+      "btn.close": "Close",
+      "btn.done": "Done",
+      "btn.continue": "Continue",
+      "signin.title": "Editor sign in",
+      "signin.lede":
+        "Editors use a GitHub personal access token (classic) with repo scope for this repository.",
+      "signin.pat": "GitHub PAT",
+      "signin.submit": "Sign in",
+      "ghPull.title": "GitHub access needed",
+      "ghPull.lede":
+        "Enter a GitHub personal access token to pull private or rate-limited repositories.",
+      "ghPull.submit": "Use token",
+      "create.name": "Name",
+      "create.namePh": "Event name",
+      "create.when": "When",
+      "create.whenPh": "e.g. Aug 2026",
+      "create.city": "City",
+      "create.cityMexico": "Mexico (nationwide)",
+      "create.cityGdl": "GDL (Guadalajara)",
+      "create.cityCdmx": "CDMX",
+      "create.sort": "Sort key (YYYY-MM-DD)",
+      "create.audience": "Audience",
+      "create.audiencePh": "Who it's for",
+      "create.highlight": "Highlight",
+      "create.highlightPh": "What should people remember?",
+      "create.regOpen":
+        "Open participant registration (invite optional · Gmail / GitHub / Microsoft)",
+      "create.capacity": "Capacity",
+      "create.capacityPh": "e.g. 24",
+      "create.closes": "Registration closes",
+      "create.demoSlots": "Demo slots JSON",
+      "create.materials": "Materials",
+      "create.materialsHint":
+        "Paste SharePoint / OneDrive / Stream / Drive links for the activity brief. Participants can add their own PPT/video when they register (also optional).",
+      "create.pptUrl": "PPT / deck URL",
+      "create.videoUrl": "Video URL",
+      "create.required": "Required fields",
+      "reg.title": "Register team",
+      "reg.lede": "Event: {name}. Submit via Gmail, GitHub, or Microsoft (when consent is available).",
+      "reg.invite": "Invite code",
+      "reg.invitePh": "From organizer email / OPEN",
+      "reg.team": "Team name",
+      "reg.leadName": "Lead name",
+      "reg.leadEmail": "Lead email",
+      "reg.members": "Team members",
+      "reg.membersHint": "(at least one name)",
+      "reg.addMember": "Add member",
+      "reg.pptFile": "PPT file",
+      "reg.videoFile": "Video file",
+      "reg.pptUrl": "PPT URL",
+      "reg.videoUrl": "Video URL",
+      "reg.codeLang": "Language",
+      "reg.repoUrl": "Repo URL",
+      "reg.source": "Source paste",
+      "reg.sourcePh": "Auto-filled after Pull from repo, or paste manually…",
+      "reg.pull": "Pull from repo",
+      "reg.validate": "Validate",
+      "reg.generate": "Generate tests",
+      "reg.run": "Run tests",
+      "reg.download": "Download harness",
+      "reg.gmail": "Submit via Gmail",
+      "reg.github": "Submit via GitHub Issue",
+      "reg.submit": "Submit registration",
+      "reg.memberName": "Name *",
+      "reg.memberEmail": "Email (optional)",
+      "reg.memberRole": "Role (optional)",
+      "reg.memberDefault": "Member",
+      "reg.remove": "Remove",
+      "org.title": "Organize event",
+      "org.lede": "Create invite codes and review registrations for this activity.",
+      "org.maxUses": "Max uses",
+      "org.expires": "Expires (optional)",
+      "org.emails": "Email invite to (Gmail compose)",
+      "org.emailsPh": "alice@amdocs.com, bob@gmail.com",
+      "org.gmail": "Email via Gmail",
+      "org.createInvite": "Create invite code",
+      "org.ghInvites": "GitHub / Gmail invites (no Microsoft needed)",
+      "org.noGhInvites": "No GitHub invite codes yet for this event.",
+      "org.noGhRegs": "No GitHub-channel registrations yet.",
+      "org.ghRegs": "GitHub fallback registrations",
+      "org.spNeed": "SharePoint invites need Microsoft sign-in + admin consent.",
+      "org.loading": "Loading…",
+      "org.lead": "Lead:",
+      "org.members": "Members:",
+      "org.code": "Code",
+      "org.used": "Used",
+      "org.max": "Max",
+      "org.active": "Active",
+      "confirm.title": "Registration received",
+      "nav.tourBtn": "Tour",
     },
     es: {
       "nav.browse": "Explorar",
@@ -479,6 +577,106 @@
       "notify.endedBody": "{name} — los organizadores aún pueden revisar envíos.",
       "notify.fullTitle": "Actividad al cupo",
       "notify.fullBody": "{name} tiene {n}/{cap} equipos.",
+      "doc.title": "Amdocs Mexico Hub",
+      "doc.description":
+        "Amdocs Mexico Hub — make it amazing. Plataforma de hackathons, cultura, talento y actividades en México.",
+      "site.name": "Amdocs Mexico Hub",
+      "site.region": "México · CALA",
+      "site.companyTagline": "make it amazing",
+      "opt.optional": "(opcional)",
+      "btn.cancel": "Cancelar",
+      "btn.close": "Cerrar",
+      "btn.done": "Listo",
+      "btn.continue": "Continuar",
+      "signin.title": "Inicio de sesión de editor",
+      "signin.lede":
+        "Los editores usan un token de acceso personal de GitHub (classic) con alcance repo para este repositorio.",
+      "signin.pat": "PAT de GitHub",
+      "signin.submit": "Iniciar sesión",
+      "ghPull.title": "Se necesita acceso a GitHub",
+      "ghPull.lede":
+        "Ingresa un token de acceso personal de GitHub para obtener repositorios privados o con límite de tasa.",
+      "ghPull.submit": "Usar token",
+      "create.name": "Nombre",
+      "create.namePh": "Nombre de la actividad",
+      "create.when": "Cuándo",
+      "create.whenPh": "p. ej. Ago 2026",
+      "create.city": "Ciudad",
+      "create.cityMexico": "México (nacional)",
+      "create.cityGdl": "GDL (Guadalajara)",
+      "create.cityCdmx": "CDMX",
+      "create.sort": "Clave de orden (AAAA-MM-DD)",
+      "create.audience": "Audiencia",
+      "create.audiencePh": "Para quién es",
+      "create.highlight": "Destacado",
+      "create.highlightPh": "Qué deben recordar las personas",
+      "create.regOpen":
+        "Abrir registro de participantes (invitación opcional · Gmail / GitHub / Microsoft)",
+      "create.capacity": "Cupo",
+      "create.capacityPh": "p. ej. 24",
+      "create.closes": "Cierre del registro",
+      "create.demoSlots": "JSON de espacios de demo",
+      "create.materials": "Materiales",
+      "create.materialsHint":
+        "Pega enlaces de SharePoint / OneDrive / Stream / Drive para el resumen. Los participantes pueden agregar su PPT/video al registrarse (también opcional).",
+      "create.pptUrl": "URL de PPT / presentación",
+      "create.videoUrl": "URL de video",
+      "create.required": "Campos obligatorios",
+      "reg.title": "Registrar equipo",
+      "reg.lede":
+        "Actividad: {name}. Envía por Gmail, GitHub o Microsoft (cuando haya consentimiento).",
+      "reg.invite": "Código de invitación",
+      "reg.invitePh": "Del correo del organizador / OPEN",
+      "reg.team": "Nombre del equipo",
+      "reg.leadName": "Nombre del líder",
+      "reg.leadEmail": "Correo del líder",
+      "reg.members": "Miembros del equipo",
+      "reg.membersHint": "(al menos un nombre)",
+      "reg.addMember": "Agregar miembro",
+      "reg.pptFile": "Archivo PPT",
+      "reg.videoFile": "Archivo de video",
+      "reg.pptUrl": "URL de PPT",
+      "reg.videoUrl": "URL de video",
+      "reg.codeLang": "Lenguaje",
+      "reg.repoUrl": "URL del repo",
+      "reg.source": "Pegar código fuente",
+      "reg.sourcePh": "Se llena tras Pull from repo, o pégalo manualmente…",
+      "reg.pull": "Obtener del repo",
+      "reg.validate": "Validar",
+      "reg.generate": "Generar pruebas",
+      "reg.run": "Ejecutar pruebas",
+      "reg.download": "Descargar harness",
+      "reg.gmail": "Enviar por Gmail",
+      "reg.github": "Enviar por Issue de GitHub",
+      "reg.submit": "Enviar registro",
+      "reg.memberName": "Nombre *",
+      "reg.memberEmail": "Correo (opcional)",
+      "reg.memberRole": "Rol (opcional)",
+      "reg.memberDefault": "Miembro",
+      "reg.remove": "Quitar",
+      "org.title": "Organizar actividad",
+      "org.lede": "Crea códigos de invitación y revisa registros de esta actividad.",
+      "org.maxUses": "Usos máximos",
+      "org.expires": "Expira (opcional)",
+      "org.emails": "Enviar invitación a (Gmail)",
+      "org.emailsPh": "alice@amdocs.com, bob@gmail.com",
+      "org.gmail": "Correo por Gmail",
+      "org.createInvite": "Crear código de invitación",
+      "org.ghInvites": "Invitaciones GitHub / Gmail (sin Microsoft)",
+      "org.noGhInvites": "Aún no hay códigos de invitación de GitHub para esta actividad.",
+      "org.noGhRegs": "Aún no hay registros por canal GitHub.",
+      "org.ghRegs": "Registros de respaldo por GitHub",
+      "org.spNeed":
+        "Las invitaciones de SharePoint requieren inicio de sesión Microsoft + consentimiento admin.",
+      "org.loading": "Cargando…",
+      "org.lead": "Líder:",
+      "org.members": "Miembros:",
+      "org.code": "Código",
+      "org.used": "Usados",
+      "org.max": "Máx",
+      "org.active": "Activo",
+      "confirm.title": "Registro recibido",
+      "nav.tourBtn": "Recorrido",
     },
   };
 
@@ -499,6 +697,25 @@
     return out;
   }
 
+  function localizeEvent(event) {
+    if (!event) return event;
+    if (lang() !== "es" || !event.es) return event;
+    const es = event.es;
+    const demoSlots = (event.demoSlots || []).map((s, i) => ({
+      ...s,
+      label: es.demoSlots?.[i]?.label || s.label,
+    }));
+    return {
+      ...event,
+      name: es.name || event.name,
+      when: es.when || event.when,
+      audience: es.audience || event.audience,
+      highlight: es.highlight || event.highlight,
+      sourceNote: es.sourceNote || event.sourceNote,
+      demoSlots: demoSlots.length ? demoSlots : event.demoSlots,
+    };
+  }
+
   function apply(root = document) {
     root.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
@@ -516,11 +733,16 @@
       const key = el.getAttribute("data-i18n-aria");
       if (key) el.setAttribute("aria-label", t(key));
     });
+    root.querySelectorAll("[data-i18n-content]").forEach((el) => {
+      const key = el.getAttribute("data-i18n-content");
+      if (key) el.setAttribute("content", t(key));
+    });
     const current = lang();
     document.querySelectorAll("[data-lang]").forEach((btn) => {
       btn.classList.toggle("is-active", btn.getAttribute("data-lang") === current);
     });
     document.documentElement.lang = current;
+    document.title = t("doc.title");
   }
 
   function setLang(l) {
@@ -533,5 +755,5 @@
     setLang(lang() === "es" ? "en" : "es");
   }
 
-  window.GDLi18n = { t, apply, toggle, lang, setLang, STRINGS };
+  window.GDLi18n = { t, apply, toggle, lang, setLang, localizeEvent, STRINGS };
 })();

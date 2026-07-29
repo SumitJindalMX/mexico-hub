@@ -14,13 +14,21 @@
     el.textContent = message;
   }
 
+  function escHtml(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function memberRowHtml() {
     return `
       <div class="member-row">
-        <input type="text" name="memberName" placeholder="Name *" required aria-label="Member name (required)" />
-        <input type="email" name="memberEmail" placeholder="Email (optional)" aria-label="Member email (optional)" />
-        <input type="text" name="memberRole" placeholder="Role (optional)" value="Member" aria-label="Member role (optional)" />
-        <button type="button" class="btn btn--ghost btn--sm btn-remove-member" title="Remove">Remove</button>
+        <input type="text" name="memberName" placeholder="${window.GDLi18n?.t?.("reg.memberName") || "Name *"}" required aria-label="Member name (required)" />
+        <input type="email" name="memberEmail" placeholder="${window.GDLi18n?.t?.("reg.memberEmail") || "Email (optional)"}" aria-label="Member email (optional)" />
+        <input type="text" name="memberRole" placeholder="${window.GDLi18n?.t?.("reg.memberRole") || "Role (optional)"}" value="${window.GDLi18n?.t?.("reg.memberDefault") || "Member"}" aria-label="Member role (optional)" />
+        <button type="button" class="btn btn--ghost btn--sm btn-remove-member" title="${window.GDLi18n?.t?.("reg.remove") || "Remove"}">${window.GDLi18n?.t?.("reg.remove") || "Remove"}</button>
       </div>
     `;
   }
@@ -104,10 +112,17 @@
     showError($("register-error"), "");
     form.reset();
     $("reg-event-id").value = event.id;
-    $("reg-event-name").textContent = event.name;
+    const view = window.GDLi18n?.localizeEvent?.(event) || event;
+    $("reg-event-name").textContent = view.name;
+    const lede = $("reg-modal-lede");
+    if (lede) {
+      lede.innerHTML = (window.GDLi18n?.t?.("reg.lede", { name: `<strong id="reg-event-name">${escHtml(view.name)}</strong>` }) ||
+        `Event: <strong id="reg-event-name">${escHtml(view.name)}</strong>. Submit via Gmail, GitHub, or Microsoft.`);
+    }
     members.innerHTML = memberRowHtml();
     $("reg-invite").required = false;
-    $("reg-invite").placeholder = "Optional — OPEN or code from organizer";
+    $("reg-invite").placeholder =
+      window.GDLi18n?.t?.("reg.invitePh") || "Optional — OPEN or code from organizer";
     const report = $("reg-code-report");
     if (report) report.innerHTML = "";
     if (window.GDLCodeValidator && $("reg-code-lab")) {
@@ -144,7 +159,7 @@
   function renderGithubInvites(eventId, invites) {
     const mine = invites.filter((i) => i.eventId === eventId);
     if (!mine.length) {
-      return "<p class='modal__hint'>No GitHub invite codes yet for this event.</p>";
+      return `<p class='modal__hint'>${window.GDLi18n?.t?.("org.noGhInvites") || "No GitHub invite codes yet for this event."}</p>`;
     }
     return `<table class="data"><thead><tr><th>Code</th><th>Used</th><th>Max</th><th>Expires</th><th></th></tr></thead><tbody>${mine
       .map(
@@ -163,7 +178,7 @@
   function renderGithubRegs(eventId, regs) {
     const mine = regs.filter((r) => r.eventId === eventId);
     if (!mine.length) {
-      return "<p class='modal__hint'>No GitHub-channel registrations yet.</p>";
+      return `<p class='modal__hint'>${window.GDLi18n?.t?.("org.noGhRegs") || "No GitHub-channel registrations yet."}</p>`;
     }
     return mine
       .map(
@@ -203,9 +218,9 @@
     const modal = $("modal-organize");
     showError($("organize-error"), "");
     $("org-event-id").value = event.id;
-    $("org-event-name").textContent = event.name;
-    $("org-invites").innerHTML = "<p class='modal__hint'>Loading…</p>";
-    $("org-regs").innerHTML = "<p class='modal__hint'>Loading…</p>";
+    $("org-event-name").textContent = (window.GDLi18n?.localizeEvent?.(event) || event).name;
+    $("org-invites").innerHTML = `<p class='modal__hint'>${window.GDLi18n?.t?.("org.loading") || "Loading…"}</p>`;
+    $("org-regs").innerHTML = `<p class='modal__hint'>${window.GDLi18n?.t?.("org.loading") || "Loading…"}</p>`;
     const last = $("org-invite-last");
     if (last) {
       last.hidden = true;
@@ -268,14 +283,14 @@
     }
 
     $("org-invites").innerHTML =
-      `<p class="modal__hint">GitHub / Gmail invites (no Microsoft needed)</p>` +
+      `<p class="modal__hint">${window.GDLi18n?.t?.("org.ghInvites") || "GitHub / Gmail invites (no Microsoft needed)"}</p>` +
       renderGithubInvites(eventId, ghInvites) +
       (spInvitesHtml ||
-        "<p class='modal__hint'>SharePoint invites need Microsoft sign-in + admin consent.</p>");
+        `<p class='modal__hint'>${window.GDLi18n?.t?.("org.spNeed") || "SharePoint invites need Microsoft sign-in + admin consent."}</p>`);
 
     $("org-regs").innerHTML =
       (spBlock || "") +
-      `<h3 class="modal__subtitle">GitHub fallback registrations</h3>` +
+      `<h3 class="modal__subtitle">${window.GDLi18n?.t?.("org.ghRegs") || "GitHub fallback registrations"}</h3>` +
       renderGithubRegs(eventId, ghRegs);
   }
 
