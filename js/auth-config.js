@@ -29,8 +29,8 @@ window.GDL_AUTH = {
   },
   /**
    * Master switch for Microsoft Entra / SharePoint.
-   * Keep false until admin consent is granted; flip to true to enable MS sign-in.
+   * Flip to false to hide Microsoft sign-in if consent / redirect still fails.
    */
-  entraEnabled: false,
+  entraEnabled: true,
   sessionKey: "gdl.editor.session",
 };

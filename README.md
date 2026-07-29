@@ -28,10 +28,10 @@ Microsoft/SharePoint is **implemented** but gated:
 
 ```js
 // js/auth-config.js
-entraEnabled: false
+entraEnabled: true
 ```
 
-Set `entraEnabled: true` after Entra admin consent. Until then Microsoft buttons stay hidden.
+Requires Entra admin consent + SPA redirect `https://sumitjindalmx.github.io/mexico-hub/`. See `sharepoint/lists-setup.md`. Set `false` to hide Microsoft sign-in again.
 
 ## Features
 
