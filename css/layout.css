@@ -243,6 +243,10 @@
   z-index: 40;
 }
 
+.account__menu[hidden] {
+  display: none !important;
+}
+
 .account__hint,
 .account__footnote {
   margin: 0;
