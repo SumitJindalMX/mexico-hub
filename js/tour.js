@@ -10,11 +10,6 @@
         body: "Filter by city, category, and status. Open a card for the brief, materials, and register.",
       },
       {
-        sel: "#calendar",
-        title: "Calendar",
-        body: "See upcoming dates and download an ICS for Outlook or Google Calendar.",
-      },
-      {
         sel: "#gallery",
         title: "Winners gallery",
         body: "Past highlights and winning teams promoted by organizers.",

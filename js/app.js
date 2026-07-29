@@ -648,19 +648,12 @@
       events,
       email,
     );
-    window.GDLPortal.renderCalendar(document.getElementById("calendar-grid"), events);
     window.GDLPortal.renderGallery(document.getElementById("gallery-grid"), state.gallery);
     window.GDLPortal.renderAnalytics(
       document.getElementById("analytics-grid"),
       events,
       state.registrations,
     );
-    document.getElementById("calendar-grid")?.querySelectorAll("[data-ics-id]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const ev = events.find((x) => x.id === btn.getAttribute("data-ics-id"));
-        if (ev) window.GDLCalendar.downloadEventIcs(ev);
-      });
-    });
     window.GDLRoles.applyRoleVisibility();
     window.GDLi18n.apply();
   }

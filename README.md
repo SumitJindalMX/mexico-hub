@@ -14,7 +14,7 @@ Configured in `js/auth-config.js` → `roles`:
 
 | Role | Powers |
 |------|--------|
-| **Visitor** | Browse, calendar, gallery, i18n, tour |
+| **Visitor** | Browse, gallery, i18n, tour |
 | **Participant** | Google sign-in → My registrations |
 | **Judge** | Score demo/deck/code; see unpublished scoreboard |
 | **Organizer** | Invites, announce, export judge pack, publish scores, analytics |
