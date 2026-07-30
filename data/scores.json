@@ -1,4 +1,19 @@
 {
   "updatedAt": "2026-07-30",
-  "scores": []
+  "scores": [
+    {
+      "id": "score-cala-hackthon-2026-ms4p36wm-reg-ms7mlpla",
+      "eventId": "cala-hackthon-2026-ms4p36wm",
+      "registrationId": "reg-ms7mlpla",
+      "teamName": "sad",
+      "demo": 1,
+      "deck": 3,
+      "code": 3,
+      "notes": "fine",
+      "total": 7,
+      "published": false,
+      "updatedAt": "2026-07-30T14:54:31.367Z",
+      "updatedBy": "SumitJindalMX"
+    }
+  ]
 }
