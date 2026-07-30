@@ -6,7 +6,32 @@ Platform for **activities across Mexico** — hackathons, culture, talent, sport
 
 **https://sumitjindalmx.github.io/mexico-hub/**
 
-Repo: https://github.com/SumitJindalMX/mexico-hub
+Repo (operational / Pages): https://github.com/SumitJindalMX/mexico-hub
+
+## Dual-source (GitHub + Amdocs ADO)
+
+| Purpose | Where |
+|---------|--------|
+| **Live site + editor publishes** | Public GitHub (`origin`) → GitHub Pages |
+| **Internal browse / governance** | Amdocs Azure DevOps Git remote `amdocs` (mirror) |
+
+Public GitHub stays the source of truth for the running site. The ADO copy is a mirror only in this phase.
+
+**First-time mirror setup:** see [docs/internal-mirror.md](docs/internal-mirror.md).
+
+```powershell
+# After you create an empty ADO repo and have its clone URL:
+Copy-Item .ado-remote.example .ado-remote   # paste real URL into .ado-remote
+pwsh -File scripts/sync-amdocs.ps1
+```
+
+**Day-to-day** (live + internal):
+
+```powershell
+git push origin main
+git push amdocs main
+# or: pwsh -File scripts/sync-amdocs.ps1
+```
 
 ## Roles (GitHub allowlists)
 
@@ -22,9 +47,9 @@ Configured in `js/auth-config.js` → `roles`:
 
 Sign in with a GitHub PAT (top bar **GitHub**) for Judge/Organizer/Editor. Participants use **Google**.
 
-## Entra ID (disabled by default)
+## Entra ID
 
-Microsoft/SharePoint is **implemented** but gated:
+Microsoft/SharePoint is implemented and gated by:
 
 ```js
 // js/auth-config.js
@@ -67,5 +92,5 @@ Start-Process index.html
 
 ## Notes
 
-- Do not commit PATs, client secrets, or tokens.
+- Do not commit PATs, client secrets, tokens, or `.ado-remote`.
 - Local folder may still be named `tools/gdl-site-visibility/` — product/repo name is **mexico-hub**.

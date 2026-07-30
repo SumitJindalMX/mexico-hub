@@ -1,0 +1,7 @@
+# Paste your Amdocs Azure DevOps clone URL on one line (no quotes).
+# Example:
+# https://dev.azure.com/<org>/<project>/_git/MexicoHub
+#
+# Then run:  pwsh -File scripts/sync-amdocs.ps1
+# Do not commit .ado-remote (it is gitignored).
+https://dev.azure.com/REPLACE_ORG/REPLACE_PROJECT/_git/MexicoHub

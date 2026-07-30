@@ -11,3 +11,7 @@ node_modules
 gdl-site-visibility-deploy.zip
 .netlify/
 
+# Local ADO mirror URL (see .ado-remote.example)
+.ado-remote
+
+
