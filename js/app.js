@@ -191,6 +191,15 @@
     return (state.registrations || []).filter((r) => r.eventId === eventId);
   }
 
+  /** Registration UI only for events that enroll teams — not every catalog row. */
+  function usesRegistration(event) {
+    if (!event) return false;
+    if (event.registrationOpen) return true;
+    if (Number(event.capacity) > 0) return true;
+    if (event.registrationClosesAt) return true;
+    return regsForEvent(event.id).length > 0;
+  }
+
   function renderRegsBlock(eventId) {
     const t = window.GDLi18n?.t || ((k, v) => k);
     const regs = regsForEvent(eventId);
@@ -516,6 +525,7 @@
 
     const roles = window.GDLRoles?.getRoleFlags?.() || {};
     const gate = window.GDLPortal.isRegistrationClosed(event, state.registrations);
+    const regSurface = usesRegistration(event);
     const byline = event.createdBy
       ? `<p class="detail__text" style="margin-top:0.75rem;font-size:0.85rem">${t("detail.addedBy", {
           user: esc(event.createdBy),
@@ -523,22 +533,26 @@
       : "";
 
     let actions = "";
-    if (!gate.closed) {
-      actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">${t("btn.register")}</button>`;
-    } else {
-      actions += `<p class="modal__hint">${esc(gate.reason || t("gate.closed"))}</p>`;
+    if (regSurface) {
+      if (!gate.closed) {
+        actions += `<button type="button" class="btn btn--primary btn--sm" id="btn-open-register">${t("btn.register")}</button>`;
+      } else {
+        actions += `<p class="modal__hint">${esc(gate.reason || t("gate.closed"))}</p>`;
+      }
     }
     actions += `<button type="button" class="btn btn--ghost btn--sm" data-ics-id="${esc(event.id)}">${t("btn.ics")}</button>`;
-    if (roles.organizer || event.registrationOpen) {
+    if (roles.organizer && regSurface) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-open-organize">${t("btn.organize")}</button>`;
     }
     if (roles.editor) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-edit-event">${t("btn.edit")}</button>`;
-      actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-toggle-reg">${
-        event.registrationOpen ? t("btn.closeReg") : t("btn.openReg")
-      }</button>`;
+      if (regSurface || event.status === "Upcoming") {
+        actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-toggle-reg">${
+          event.registrationOpen ? t("btn.closeReg") : t("btn.openReg")
+        }</button>`;
+      }
     }
-    if (roles.organizer) {
+    if (roles.organizer && regSurface) {
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-export-judge">${t("btn.exportJudge")}</button>`;
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-publish-scores">${t("btn.publishScores")}</button>`;
       actions += `<button type="button" class="btn btn--ghost btn--sm" id="btn-announce">${t("btn.announce")}</button>`;
@@ -576,13 +590,15 @@
         <span class="${chipClass("vis", event.visibility)}">${esc(labelVis(event.visibility))} ${t("detail.visibility")}</span>
         <span class="${chipClass("conf", conf)}">${esc(labelConf(conf))}</span>
         ${
-          event.registrationOpen
-            ? `<span class="chip chip--upcoming">${t("detail.regOpen")}</span>`
-            : `<span class="chip">${t("detail.regClosed")}</span>`
+          regSurface
+            ? event.registrationOpen
+              ? `<span class="chip chip--upcoming">${t("detail.regOpen")}</span>`
+              : `<span class="chip">${t("detail.regClosed")}</span>`
+            : ""
         }
       </div>
-      ${window.GDLPortal.countdownHtml(event)}
-      ${window.GDLPortal.capacityHtml(event, state.registrations)}
+      ${regSurface ? window.GDLPortal.countdownHtml(event) : ""}
+      ${regSurface ? window.GDLPortal.capacityHtml(event, state.registrations) : ""}
       <div class="detail__block">
         <p class="detail__label">${t("detail.when")}</p>
         <p class="detail__text">${esc(view.when)}</p>
@@ -601,16 +617,24 @@
       </div>
       ${materials}
       ${window.GDLPortal.demoSlotsHtml(view)}
-      <div class="detail__block">
+      ${
+        regSurface
+          ? `<div class="detail__block">
         <p class="detail__label">${t("detail.teams")}</p>
         ${renderRegsBlock(event.id)}
-      </div>
-      <div class="detail__block">
+      </div>`
+          : ""
+      }
+      ${
+        regSurface || window.GDLRoles.can("score")
+          ? `<div class="detail__block">
         <p class="detail__label">${t("detail.scoreboard")}</p>
         ${window.GDLPortal.scoreboardHtml(event.id, state.scores, window.GDLRoles.can("viewUnpublishedScores"))}
-      </div>
+      </div>`
+          : ""
+      }
       ${
-        window.GDLRoles.can("score")
+        regSurface && window.GDLRoles.can("score")
           ? `<div class="detail__block" data-role-required="judge,organizer,editor">
         <p class="detail__label">${t("detail.judge")}</p>
         ${window.GDLPortal.judgeFormHtml(event, regs, eventScores)}
@@ -813,6 +837,15 @@
             <span class="${chipClass("vis", raw.visibility)}">${esc(labelVis(raw.visibility))}</span>
             <span class="${chipClass("conf", confidenceOf(raw))}">${esc(labelConf(confidenceOf(raw)))}</span>
             ${raw.registrationOpen ? `<span class="chip chip--upcoming">${t("chip.regOpen")}</span>` : ""}
+            ${
+              Number(raw.capacity) > 0
+                ? (() => {
+                    const n = regsForEvent(raw.id).length;
+                    const pct = Math.min(100, Math.round((n / raw.capacity) * 100));
+                    return `<span class="event-item__cap" title="${n}/${raw.capacity}"><span class="capacity-bar capacity-bar--inline"><span class="capacity-bar__fill" style="width:${pct}%"></span></span></span>`;
+                  })()
+                : ""
+            }
           </div>
         </button>
       </li>

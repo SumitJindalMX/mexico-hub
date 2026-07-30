@@ -55,10 +55,16 @@
     const t = window.GDLi18n?.t || ((k, v) => k);
     if (!(event?.capacity > 0)) return "";
     const n = regsForEvent(regs, event.id).length;
-    return `<p class="detail__capacity">${t("capacity.teams", {
-      n: `<strong>${n}</strong>`,
-      cap: `<strong>${event.capacity}</strong>`,
-    })}</p>`;
+    const pct = Math.min(100, Math.round((n / event.capacity) * 100));
+    return `<div class="detail__capacity" data-event-id="${esc(event.id)}">
+      <p class="detail__capacity-label">${t("capacity.teams", {
+        n: `<strong>${n}</strong>`,
+        cap: `<strong>${event.capacity}</strong>`,
+      })}</p>
+      <div class="capacity-bar" role="progressbar" aria-valuenow="${n}" aria-valuemin="0" aria-valuemax="${event.capacity}" aria-label="${esc(event.name)}">
+        <div class="capacity-bar__fill" style="width:${pct}%"></div>
+      </div>
+    </div>`;
   }
 
   function demoSlotsHtml(event) {
