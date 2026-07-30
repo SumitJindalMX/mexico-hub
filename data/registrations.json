@@ -1,4 +1,30 @@
 {
-  "updatedAt": "2026-07-28",
-  "registrations": []
+  "updatedAt": "2026-07-30",
+  "registrations": [
+    {
+      "id": "reg-ms7mlpla",
+      "eventId": "cala-hackthon-2026-ms4p36wm",
+      "teamName": "sad",
+      "leadName": "asd",
+      "leadEmail": "sumit.jindal@amdocs.com",
+      "inviteCode": "OPEN",
+      "members": [
+        {
+          "name": "sad",
+          "email": "",
+          "role": "Member"
+        }
+      ],
+      "pptUrl": "",
+      "videoUrl": "",
+      "channel": "github",
+      "createdAt": "2026-07-30T14:45:43.246Z",
+      "createdBy": "SumitJindalMX",
+      "repoUrl": "",
+      "language": "auto",
+      "codeProvided": false,
+      "sourceCode": "",
+      "validation": null
+    }
+  ]
 }
