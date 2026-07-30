@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mexico Hub Events — embed demo</title>
+    <link rel="stylesheet" href="./mexico-hub-events.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #eef1ee;
+        color: #1a1a1a;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 2.5rem;
+      }
+      h1 {
+        font-size: 1.35rem;
+        margin: 0 0 0.35rem;
+      }
+      .lede {
+        color: #5c6570;
+        margin: 0 0 1.25rem;
+        font-size: 0.95rem;
+      }
+      code {
+        font-size: 0.85em;
+        background: #fff;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Host portal demo</h1>
+      <p class="lede">
+        This page embeds <code>&lt;mexico-hub-events&gt;</code> against the live GitHub Pages
+        catalog. Drop the same tag into any internal portal.
+      </p>
+      <mexico-hub-events
+        base-url="https://sumitjindalmx.github.io/mexico-hub/"
+        view="catalog"
+        lang="en"
+      ></mexico-hub-events>
+    </main>
+    <script type="module" src="./mexico-hub-events.js"></script>
+  </body>
+</html>

@@ -67,6 +67,17 @@ Requires Entra admin consent + SPA redirect `https://sumitjindalmx.github.io/mex
 - Notifications (in-app + optional browser alerts + Gmail broadcast)
 - Analytics for organizers, ES/EN toggle, first-visit tour
 
+## Events MCP + embed (reuse in other portals)
+
+| Piece | Path |
+|-------|------|
+| Agent tools (stdio MCP) | [`mcp/`](mcp/) |
+| `<mexico-hub-events>` widget | [`embed/`](embed/) |
+| Setup guide | [`docs/events-mcp-embed.md`](docs/events-mcp-embed.md) |
+
+Live embed assets (after Pages deploy):  
+`https://sumitjindalmx.github.io/mexico-hub/embed/mexico-hub-events.js`
+
 ## Data files
 
 | Path | Purpose |

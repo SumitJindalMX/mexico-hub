@@ -1,0 +1,20 @@
+{
+  "name": "mexico-hub-events-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for Mexico Hub event management (GitHub JSON)",
+  "bin": {
+    "mexico-hub-events-mcp": "./src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/github-store.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}
